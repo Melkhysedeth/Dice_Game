@@ -1,0 +1,149 @@
+{
+    "sagas": [
+        {
+            "id": "god-of-war",
+            "title": "God of War",
+            "developer": "Santa Monica Studio",
+            "genre": [
+                "Acción",
+                "Aventura",
+                "Mitología"
+            ],
+            "platform": [
+                "PS5",
+                "PC"
+            ],
+            "entries": [
+                {
+                    "id": "gow-2018",
+                    "title": "God of War",
+                    "year": 2018,
+                    "status": "library",
+                    "sessions": []
+                },
+                {
+                    "id": "gow-ragnarok",
+                    "title": "God of War: Ragnarök",
+                    "year": 2022,
+                    "status": "library",
+                    "sessions": []
+                }
+            ]
+        },
+        {
+            "id": "a-plague-tale",
+            "title": "A Plague Tale",
+            "developer": "Asobo Studio",
+            "genre": [
+                "Aventura",
+                "Sigilo",
+                "Medieval"
+            ],
+            "platform": [
+                "PC",
+                "PS5",
+                "Xbox"
+            ],
+            "entries": [
+                {
+                    "id": "apt-innocence",
+                    "title": "A Plague Tale: Innocence",
+                    "year": 2019,
+                    "status": "library",
+                    "sessions": []
+                },
+                {
+                    "id": "apt-requiem",
+                    "title": "A Plague Tale: Requiem",
+                    "year": 2022,
+                    "status": "library",
+                    "sessions": []
+                }
+            ]
+        }
+    ],
+    "singles": [
+        {
+            "id": "atomic-heart",
+            "title": "Atomic Heart",
+            "developer": "Mundfish",
+            "year": 2023,
+            "genre": [
+                "FPS",
+                "Acción",
+                "RPG"
+            ],
+            "platform": [
+                "PC",
+                "PS5",
+                "Xbox"
+            ],
+            "status": "library",
+            "sessions": []
+        },
+        {
+            "id": "black-myth-wukong",
+            "title": "Black Myth: Wukong",
+            "developer": "Game Science",
+            "year": 2024,
+            "genre": [
+                "Soulslike",
+                "Acción",
+                "Mitología China"
+            ],
+            "platform": [
+                "PC",
+                "PS5"
+            ],
+            "status": "library",
+            "sessions": []
+        },
+        {
+            "id": "black-myth-wukong",
+            "title": "Black Myth: Wukong",
+            "developer": "Game Science",
+            "year": 2024,
+            "genre": [
+                "Soulslike",
+                "Acción",
+                "Mitología China"
+            ],
+            "platform": [
+                "PC",
+                "PS5"
+            ],
+            "status": "in_progress",
+            "sessions": [
+                {
+                    "startDate": "2024-04-15",
+                    "endDate": null,
+                    "isFirstTime": true
+                }
+            ]
+        },
+        {
+            "id": "sekiro",
+            "title": "Sekiro: Shadows Die Twice",
+            "developer": "FromSoftware",
+            "year": 2019,
+            "genre": [
+                "Soulslike",
+                "Acción",
+                "Japón Feudal"
+            ],
+            "platform": [
+                "PC",
+                "PS4",
+                "Xbox"
+            ],
+            "status": "completed",
+            "sessions": [
+                {
+                    "startDate": "2024-01-10",
+                    "endDate": "2024-02-03",
+                    "isFirstTime": true
+                }
+            ]
+        }
+    ]
+}
