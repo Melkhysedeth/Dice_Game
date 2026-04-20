@@ -1,0 +1,47 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xl) var(--space-2xl);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 72px;
+  line-height: 1;
+  letter-spacing: 4px;
+  color: var(--text-bright);
+}
+
+.logoAccent {
+  color: var(--accent);
+  text-shadow: var(--glow-accent-lg);
+}
+
+.stats {
+  display: flex;
+  gap: var(--space-xl);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-xs);
+}
+
+.statNumber {
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.statLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
