@@ -1,0 +1,335 @@
+/* ── Tarjeta normal ── */
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition-normal),
+              border-color var(--transition-normal),
+              box-shadow var(--transition-normal);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent-3);
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+}
+
+/* Carátula */
+.cover {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--surface-2);
+  position: relative;
+}
+
+.coverPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,
+    rgba(168, 85, 247, 0.1),
+    var(--surface-2)
+  );
+}
+
+.coverIcon {
+  font-size: 48px;
+  opacity: 0.2;
+  color: var(--accent-3);
+}
+
+.coverOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-sm);
+  background: linear-gradient(to top, rgba(7,10,15,0.9), transparent);
+  display: flex;
+  justify-content: center;
+}
+
+.entriesCount {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Contenido */
+.content {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+}
+
+.sagaLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-3);
+  border: 1px solid var(--accent-3);
+  padding: 2px 8px;
+  letter-spacing: 2px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--text-bright);
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.developer {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.genreTag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* Hover hint */
+.hoverHint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(168, 85, 247, 0.15) 0%,
+    transparent 60%
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--space-md);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.hoverHint span {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--accent-3);
+}
+
+.card:hover .hoverHint {
+  opacity: 1;
+}
+
+/* ── Modal expandido ── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 10, 15, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn var(--transition-fast) ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--accent-3);
+  box-shadow: 0 0 60px rgba(168, 85, 247, 0.2);
+  width: 90%;
+  max-width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: scaleIn var(--transition-slow) ease;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1);   }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--space-xl) var(--space-xl) var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.modalSagaLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-3);
+  letter-spacing: 3px;
+  display: block;
+  margin-bottom: var(--space-sm);
+}
+
+.modalTitle {
+  font-family: var(--font-display);
+  font-size: 42px;
+  color: var(--text-bright);
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.modalDeveloper {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: var(--space-sm);
+  letter-spacing: 1px;
+}
+
+.closeBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
+
+.modalGenres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding: var(--space-md) var(--space-xl);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Entregas */
+.entries {
+  padding: var(--space-md) 0;
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-xl);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: background var(--transition-fast);
+}
+
+.entry:last-child {
+  border-bottom: none;
+}
+
+.entry:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.entryInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.entryDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-3);
+  flex-shrink: 0;
+}
+
+.entryTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.entryYear {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
+
+.entryRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* Status badges */
+.entryStatus {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border: 1px solid;
+}
+
+.library {
+  color: var(--state-library);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+.in_progress {
+  color: var(--state-progress);
+  border-color: rgba(255, 107, 53, 0.3);
+}
+
+.completed {
+  color: var(--state-fame);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.entryPlayBtn {
+  background: transparent;
+  border: 1px solid var(--accent-3);
+  color: var(--accent-3);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.entryPlayBtn:hover {
+  background: var(--accent-3);
+  color: var(--bg);
+}

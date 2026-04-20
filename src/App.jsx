@@ -8,6 +8,7 @@ function App() {
     libraryGames,
     inProgressGames,
     completedGames,
+    sagas,
     suggestedGame,
     pickRandomGame,
     dismissSuggestion
@@ -36,6 +37,7 @@ function App() {
 
         <GameGrid
           games={libraryGames}
+          sagas={sagas}
           onStartPlaying={handleStartPlaying}
         />
       </main>

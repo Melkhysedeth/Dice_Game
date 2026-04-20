@@ -3,7 +3,8 @@ import {
   getLibraryGames,
   getInProgressGames,
   getCompletedGames,
-  getRandomGame
+  getRandomGame,
+  getAllSagas
 } from '../services/gameService'
 
 export function useGames() {
@@ -12,6 +13,7 @@ export function useGames() {
   const [libraryGames, setLibraryGames] = useState([])
   const [inProgressGames, setInProgressGames] = useState([])
   const [completedGames, setCompletedGames] = useState([])
+  const [sagas, setSagas] = useState([])
 
   // El juego sugerido por el aleatorio — empieza en null
   const [suggestedGame, setSuggestedGame] = useState(null)
@@ -25,6 +27,7 @@ export function useGames() {
     setLibraryGames(getLibraryGames())
     setInProgressGames(getInProgressGames())
     setCompletedGames(getCompletedGames())
+    setSagas(getAllSagas())
   }
 
   // Elige un juego al azar y lo pone como sugerido
@@ -44,6 +47,7 @@ export function useGames() {
     inProgressGames,
     completedGames,
     suggestedGame,
+    sagas,
     pickRandomGame,
     dismissSuggestion
   }
