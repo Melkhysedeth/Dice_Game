@@ -67,8 +67,12 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - Proyecto creado con Vite
 - Estructura de carpetas definida y creada
 - Estilos movidos a src/styles/
-- CONTEXT.md creado
-- Commits realizados
+- tokens.css con variables de diseño completas
+- globals.css con reset CSS y estilos base
+- Header.jsx funcionando con CSS modules
+- games.json con estructura de datos definida
+- gameService.js con funciones: getLibraryGames, getInProgressGames,
+  getCompletedGames, getRandomGame, getAllSagas
 
 ## Estructura de carpetas
 src/
@@ -94,5 +98,5 @@ src/
 - Un solo juego en progreso a la vez (pendiente confirmar)
 
 ## Próximo paso
-Crear src/styles/tokens.css con las variables de diseño del Game Vault
+Crear el hook useGames en src/features/games/hooks/
 
