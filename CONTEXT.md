@@ -27,6 +27,10 @@ completo de partidas.
 - Desde aquí se puede devolver un juego a la biblioteca para rejugarlo
 - Al devolverlo a la biblioteca puede volver a salir en el aleatorio
 
+## Restrcciones
+- Máximo 3 juegos en progreso simultáneamente 
+- Inicialmente solo PC. Versión móvil (app) queda para el futuro 
+
 ## Flujo principal
 Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 → Salón de la Fama → [opcional: devolver a biblioteca para rejugar]
@@ -92,6 +96,3 @@ src/
 ## Próximo paso
 Crear src/styles/tokens.css con las variables de diseño del Game Vault
 
-## Preguntas abiertas
-- ¿Un solo juego en progreso a la vez o varios simultáneos?
-- ¿La app es solo para PC o también quieres verla en celular?
