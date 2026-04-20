@@ -1,5 +1,6 @@
 import { useGames } from './features/games/hooks/useGames'
 import Header from './components/layout/Header'
+import GameGrid from './features/games/components/GameGrid'
 import './styles/App.css'
 
 function App() {
@@ -12,6 +13,10 @@ function App() {
     dismissSuggestion
   } = useGames()
 
+  function handleStartPlaying(game) {
+    console.log('Comenzar a jugar:', game.title)
+  }
+
   return (
     <div>
       <Header
@@ -21,19 +26,18 @@ function App() {
       />
 
       <main>
-        <button onClick={pickRandomGame}>
-          Elegir juego al azar
-        </button>
-
+        <button onClick={pickRandomGame}>Elegir al azar</button>
         {suggestedGame && (
           <div>
-            <h2>Juego sugerido:</h2>
-            <p>{suggestedGame.title}</p>
-            <p>{suggestedGame.developer}</p>
-            <p>{suggestedGame.year}</p>
+            <p>Sugerido: {suggestedGame.title}</p>
             <button onClick={dismissSuggestion}>Tirar de nuevo</button>
           </div>
         )}
+
+        <GameGrid
+          games={libraryGames}
+          onStartPlaying={handleStartPlaying}
+        />
       </main>
     </div>
   )
