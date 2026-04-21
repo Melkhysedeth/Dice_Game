@@ -66,13 +66,15 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 ## Estado actual del proyecto
 - Proyecto creado con Vite
 - Estructura de carpetas definida y creada
-- Estilos movidos a src/styles/
 - tokens.css con variables de diseño completas
 - globals.css con reset CSS y estilos base
-- Header.jsx funcionando con CSS modules
+- Header.jsx con stats reales
 - games.json con estructura de datos definida
-- gameService.js con funciones: getLibraryGames, getInProgressGames,
-  getCompletedGames, getRandomGame, getAllSagas
+- gameService.js con funciones de acceso a datos
+- useGames.js hook con estado global
+- GameCard.jsx con hover overlay
+- SagaCard.jsx con modal expandido, blur y lista de entregas
+- GameGrid.jsx organizando sagas y singles
 
 ## Estructura de carpetas
 src/
@@ -98,5 +100,8 @@ src/
 - Un solo juego en progreso a la vez (pendiente confirmar)
 
 ## Próximo paso
-Crear el hook useGames en src/features/games/hooks/
-
+- Arreglar contadores del Header para incluir entradas de sagas
+- Botón aleatorio con estilos
+- Modal de juego sugerido con botón "Comenzar a jugar"
+- Sección In Progress
+- Salón de la Fama

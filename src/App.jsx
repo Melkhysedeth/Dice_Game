@@ -36,7 +36,7 @@ function App() {
         )}
 
         <GameGrid
-          games={libraryGames}
+          games={libraryGames.filter(g => !g.isSagaEntry)}
           sagas={sagas}
           onStartPlaying={handleStartPlaying}
         />
