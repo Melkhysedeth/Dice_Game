@@ -1,6 +1,8 @@
 import { useGames } from './features/games/hooks/useGames'
 import Header from './components/layout/Header'
 import GameGrid from './features/games/components/GameGrid'
+import RandomButton from './components/ui/RandomButton'
+import SuggestedGameModal from './components/ui/SuggestedGameModal'
 import './styles/App.css'
 
 function App() {
@@ -16,6 +18,7 @@ function App() {
 
   function handleStartPlaying(game) {
     console.log('Comenzar a jugar:', game.title)
+    dismissSuggestion()
   }
 
   return (
@@ -27,20 +30,22 @@ function App() {
       />
 
       <main>
-        <button onClick={pickRandomGame}>Elegir al azar</button>
-        {suggestedGame && (
-          <div>
-            <p>Sugerido: {suggestedGame.title}</p>
-            <button onClick={dismissSuggestion}>Tirar de nuevo</button>
-          </div>
-        )}
-
         <GameGrid
           games={libraryGames.filter(g => !g.isSagaEntry)}
           sagas={sagas}
           onStartPlaying={handleStartPlaying}
         />
       </main>
+
+      <RandomButton onClick={pickRandomGame} />
+
+      <SuggestedGameModal
+        game={suggestedGame}
+        onConfirm={handleStartPlaying}
+        onDismiss={pickRandomGame}
+        onClose={dismissSuggestion}
+      />
+
     </div>
   )
 }
