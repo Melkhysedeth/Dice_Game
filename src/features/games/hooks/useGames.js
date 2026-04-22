@@ -1,54 +1,137 @@
 import { useState, useEffect } from 'react'
-import {
-  getLibraryGames,
-  getInProgressGames,
-  getCompletedGames,
-  getRandomGame,
-  getAllSagas
-} from '../services/gameService'
+import gamesData from '../../../data/games.json'
 
 export function useGames() {
 
-  // Los tres estados de tu app
-  const [libraryGames, setLibraryGames] = useState([])
-  const [inProgressGames, setInProgressGames] = useState([])
-  const [completedGames, setCompletedGames] = useState([])
+  // Estado central — toda la data vive aquí
+  const [singles, setSingles] = useState([])
   const [sagas, setSagas] = useState([])
 
-  // El juego sugerido por el aleatorio — empieza en null
-  const [suggestedGame, setSuggestedGame] = useState(null)
-
-  // Carga los datos cuando el hook se inicializa
+  // Carga inicial desde el JSON
   useEffect(() => {
-    loadGames()
+    setSingles(gamesData.singles)
+    setSagas(gamesData.sagas)
   }, [])
 
-  function loadGames() {
-    setLibraryGames(getLibraryGames())
-    setInProgressGames(getInProgressGames())
-    setCompletedGames(getCompletedGames())
-    setSagas(getAllSagas())
+  const [suggestedGame, setSuggestedGame] = useState(null)
+
+  // ── Derivados — calculados desde singles y sagas ──
+
+  function getAllEntries() {
+    const sagaEntries = sagas.flatMap(saga =>
+      saga.entries.map(entry => ({
+        ...entry,
+        developer: saga.developer,
+        genre: saga.genre,
+        platform: saga.platform,
+        sagaTitle: saga.title,
+        sagaId: saga.id,
+        isSagaEntry: true
+      }))
+    )
+    return [...singles, ...sagaEntries]
   }
 
-  // Elige un juego al azar y lo pone como sugerido
+  const libraryGames  = getAllEntries().filter(g => g.status === 'library')
+  const inProgressGames = getAllEntries().filter(g => g.status === 'in_progress')
+  const completedGames  = getAllEntries().filter(g => g.status === 'completed')
+
+  // ── Acciones ──
+
   function pickRandomGame() {
-    const game = getRandomGame()
-    setSuggestedGame(game)
+    if (libraryGames.length === 0) return
+    const random = Math.floor(Math.random() * libraryGames.length)
+    setSuggestedGame(libraryGames[random])
   }
 
-  // Descarta la sugerencia y vuelve a null
   function dismissSuggestion() {
     setSuggestedGame(null)
   }
 
-  // Retorna todo lo que los componentes necesitan
-  return {
+  function startPlaying(game) {
+    const today = new Date().toISOString().split('T')[0]
+
+    if (game.isSagaEntry) {
+      // Actualiza la entrada dentro de la saga
+      setSagas(prev => prev.map(saga => {
+        if (saga.id !== game.sagaId) return saga
+        return {
+          ...saga,
+          entries: saga.entries.map(entry => {
+            if (entry.id !== game.id) return entry
+            return {
+              ...entry,
+              status: 'in_progress',
+              sessions: [...entry.sessions, {
+                startDate: today,
+                endDate: null,
+                isFirstTime: entry.sessions.length === 0
+              }]
+            }
+          })
+        }
+      }))
+    } else {
+      // Actualiza el single
+      setSingles(prev => prev.map(g => {
+        if (g.id !== game.id) return g
+        return {
+          ...g,
+          status: 'in_progress',
+          sessions: [...g.sessions, {
+            startDate: today,
+            endDate: null,
+            isFirstTime: g.sessions.length === 0
+          }]
+        }
+      }))
+    }
+
+    dismissSuggestion()
+  }
+
+  function completeGame(game) {
+  const today = new Date().toISOString().split('T')[0]
+
+  if (game.isSagaEntry) {
+    setSagas(prev => prev.map(saga => {
+      if (saga.id !== game.sagaId) return saga
+      return {
+        ...saga,
+        entries: saga.entries.map(entry => {
+          if (entry.id !== game.id) return entry
+          const updatedSessions = entry.sessions.map((s, i) =>
+            i === entry.sessions.length - 1
+              ? { ...s, endDate: today }
+              : s
+          )
+          return { ...entry, status: 'completed', sessions: updatedSessions }
+        })
+      }
+    }))
+  } else {
+    setSingles(prev => prev.map(g => {
+      if (g.id !== game.id) return g
+      const updatedSessions = g.sessions.map((s, i) =>
+        i === g.sessions.length - 1
+          ? { ...s, endDate: today }
+          : s
+      )
+      return { ...g, status: 'completed', sessions: updatedSessions }
+    }))
+  }
+}
+
+    return {
+    singles,
+    sagas,
     libraryGames,
     inProgressGames,
     completedGames,
     suggestedGame,
-    sagas,
     pickRandomGame,
-    dismissSuggestion
+    dismissSuggestion,
+    startPlaying,
+    completeGame
   }
 }

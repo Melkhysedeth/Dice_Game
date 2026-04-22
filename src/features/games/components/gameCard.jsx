@@ -2,6 +2,7 @@ import styles from './GameCard.module.css'
 
 function GameCard({ game, onStartPlaying }) {
   return (
+  
     <div className={styles.card}>
 
       {/* Carátula */}

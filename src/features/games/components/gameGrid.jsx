@@ -5,7 +5,7 @@ import styles from './GameGrid.module.css'
 function GameGrid({ games, sagas, onStartPlaying }) {
   const isEmpty = games.length === 0 && sagas.length === 0
 
-  if (isEmpty) {
+    if (isEmpty) {
     return (
       <div className={styles.empty}>
         <p className={styles.emptyText}>No hay juegos en esta sección</p>
@@ -14,7 +14,8 @@ function GameGrid({ games, sagas, onStartPlaying }) {
   }
 
   return (
-    <div className={styles.grid}>
+
+     <div className={styles.grid}>
       {sagas.map(saga => (
         <SagaCard
           key={saga.id}
