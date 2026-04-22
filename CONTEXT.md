@@ -68,16 +68,17 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - Estructura de carpetas definida y creada
 - tokens.css con variables de diseño completas
 - globals.css con reset CSS y estilos base
-- Header.jsx con stats reales incluyendo entradas de sagas
+- Header.jsx con tipografía Bebas Neue, tagline y stats
 - games.json con estructura de datos definida
 - gameService.js con funciones de acceso a datos
-- useGames.js hook con estado global
-- GameCard.jsx con hover overlay
-- SagaCard.jsx con modal expandido, blur y lista de entregas
+- useGames.js con lógica completa de estados
+- GameCard.jsx con hover overlay y muesca diagonal
+- SagaCard.jsx con modal expandido y botón JUGAR funcional
 - GameGrid.jsx organizando sagas y singles
-- RandomButton.jsx fijo abajo a la derecha con estilos
-- SuggestedGameModal.jsx con juego sugerido, tirar de nuevo,
-  comenzar a jugar y botón cerrar
+- InProgressCard.jsx y InProgressSection.jsx
+- HallOfFameCard.jsx y HallOfFameSection.jsx
+- RandomButton.jsx estilo pill naranja centrado
+- SuggestedGameModal.jsx completo
 
 ## Estructura de carpetas
 src/
@@ -103,7 +104,6 @@ src/
 - Un solo juego en progreso a la vez (pendiente confirmar)
 
 ## Próximo paso
-- Lógica real de "Comenzar a jugar" — mover juego de library a in_progress
-- Sección In Progress con sus tarjetas
-- Lógica de "Marcar como completado" — mover a completed
-- Salón de la Fama
+- Barra de filtros y búsqueda (Todos / Sagas / Juego único / Buscar)
+- Carátulas de juegos via API (RAWG o IGDB)
+- Persistencia de datos (los cambios se pierden al recargar)

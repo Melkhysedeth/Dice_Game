@@ -100,12 +100,14 @@ function SagaCard({ saga, onStartPlaying }) {
                     {entry.status === 'library' && (
                       <button
                         className={styles.entryPlayBtn}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation()
                           onStartPlaying({
                             ...entry,
                             developer: saga.developer,
                             genre: saga.genre,
                             platform: saga.platform,
+                            sagaId: saga.id,
                             sagaTitle: saga.title,
                             isSagaEntry: true
                           })

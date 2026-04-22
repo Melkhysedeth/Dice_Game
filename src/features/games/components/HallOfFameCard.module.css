@@ -18,17 +18,20 @@
 }
 
 .card:hover {
-  transform: translateY(-6px);
-  border-color: var(--accent);
-  box-shadow: var(--glow-accent);
+  border-color: var(--state-fame);
+  box-shadow: var(--glow-fame);
 }
 
-/* Carátula */
+.statusBar {
+  height: 3px;
+  background: linear-gradient(to right, var(--state-fame), #f59e0b);
+  width: 100%;
+}
+
 .cover {
   width: 100%;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  background: var(--surface-2);
 }
 
 .coverPlaceholder {
@@ -37,7 +40,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--surface-2), var(--border));
+  background: linear-gradient(135deg,
+    rgba(251, 191, 36, 0.08),
+    var(--surface-2)
+  );
 }
 
 .coverIcon {
@@ -45,7 +51,6 @@
   opacity: 0.3;
 }
 
-/* Contenido */
 .content {
   padding: var(--space-md);
   display: flex;
@@ -56,13 +61,16 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
-.year {
+.statusBadge {
   font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-dim);
+  font-size: 10px;
+  color: var(--state-fame);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  padding: 2px 8px;
   letter-spacing: 2px;
 }
 
@@ -91,80 +99,55 @@
   letter-spacing: 1px;
 }
 
-.genres {
+.sessionInfo {
   display: flex;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: var(--space-xs) 0;
   flex-wrap: wrap;
-  gap: var(--space-xs);
 }
 
-.genreTag {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  padding: 3px 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border);
+.sessionItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sessionLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
   color: var(--text-dim);
+  letter-spacing: 2px;
   text-transform: uppercase;
 }
 
-.platforms {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-  margin-top: var(--space-xs);
-}
-
-.platform {
+.sessionValue {
   font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-dim);
+  font-size: 11px;
+  color: var(--text);
   letter-spacing: 1px;
 }
 
-.platform:not(:last-child)::after {
-  content: ' /';
-}
-
-/* Overlay al hacer hover */
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(7, 10, 15, 0.95) 0%,
-    rgba(7, 10, 15, 0.4) 50%,
-    transparent 100%
-  );
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: var(--space-md);
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-}
-
-.card:hover .overlay {
-  opacity: 1;
-}
-
-.playBtn {
+.returnBtn {
   width: 100%;
   background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--accent);
+  border: 1px solid var(--state-fame);
+  color: var(--state-fame);
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 3px;
+  font-size: 12px;
+  letter-spacing: 2px;
   padding: var(--space-sm) var(--space-md);
   cursor: pointer;
   text-transform: uppercase;
+  margin-top: var(--space-xs);
   transition: background var(--transition-fast),
               color var(--transition-fast);
 }
 
-.playBtn:hover {
-  background: var(--accent);
+.returnBtn:hover {
+  background: var(--state-fame);
   color: var(--bg);
 }

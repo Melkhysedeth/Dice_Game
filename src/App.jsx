@@ -2,9 +2,10 @@ import { useGames } from './features/games/hooks/useGames'
 import Header from './components/layout/Header'
 import GameGrid from './features/games/components/GameGrid'
 import InProgressSection from './features/games/components/InProgressSection'
+import HallOfFameSection from './features/games/components/HallOfFameSection'
+import appStyles from './styles/App.module.css'
 import RandomButton from './components/ui/RandomButton'
 import SuggestedGameModal from './components/ui/SuggestedGameModal'
-import './styles/App.css'
 
 function App() {
   const {
@@ -16,7 +17,8 @@ function App() {
     pickRandomGame,
     dismissSuggestion,
     startPlaying,
-    completeGame
+    completeGame,
+    returnToLibrary
   } = useGames()
 
   return (
@@ -28,15 +30,28 @@ function App() {
       />
 
       <main>
+        <section className={appStyles.librarySection}>
+          <div className={appStyles.libraryHeader}>
+            <h2 className={appStyles.libraryTitle}>📚 BIBLIOTECA</h2>
+            <span className={appStyles.libraryCount}>
+              {libraryGames.length} juegos
+            </span>
+          </div>
+          <GameGrid
+            games={libraryGames.filter(g => !g.isSagaEntry)}
+            sagas={sagas}
+            onStartPlaying={startPlaying}
+          />
+        </section>
+
         <InProgressSection
           games={inProgressGames}
           onComplete={completeGame}
         />
 
-        <GameGrid
-          games={libraryGames.filter(g => !g.isSagaEntry)}
-          sagas={sagas}
-          onStartPlaying={startPlaying}
+        <HallOfFameSection
+          games={completedGames}
+          onReturnToLibrary={returnToLibrary}
         />
       </main>
 
