@@ -1,5 +1,7 @@
 import { useGames } from './features/games/hooks/useGames'
+import { useFilters } from './features/filters/hooks/useFilters'
 import Header from './components/layout/Header'
+import FilterBar from './features/filters/components/FilterBar'
 import GameGrid from './features/games/components/GameGrid'
 import InProgressSection from './features/games/components/InProgressSection'
 import HallOfFameSection from './features/games/components/HallOfFameSection'
@@ -21,6 +23,17 @@ function App() {
     returnToLibrary
   } = useGames()
 
+  const {
+    activeFilter,
+    setActiveFilter,
+    searchQuery,
+    setSearchQuery,
+    filterGames
+  } = useFilters()
+
+  const librarySingles = libraryGames.filter(g => !g.isSagaEntry)
+  const { filteredSingles, filteredSagas } = filterGames(librarySingles, sagas)
+
   return (
     <div>
       <Header
@@ -29,17 +42,25 @@ function App() {
         completed={completedGames.length}
       />
 
+      <FilterBar
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
+
       <main>
         <section className={appStyles.librarySection}>
           <div className={appStyles.libraryHeader}>
             <h2 className={appStyles.libraryTitle}>📚 BIBLIOTECA</h2>
             <span className={appStyles.libraryCount}>
-              {libraryGames.length} juegos
+              {filteredSingles.length + filteredSagas.length} juegos
             </span>
           </div>
+
           <GameGrid
-            games={libraryGames.filter(g => !g.isSagaEntry)}
-            sagas={sagas}
+            games={filteredSingles}
+            sagas={filteredSagas}
             onStartPlaying={startPlaying}
           />
         </section>
