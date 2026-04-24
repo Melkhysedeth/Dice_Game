@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from './SagaCard.module.css'
 
-function SagaCard({ saga, onStartPlaying }) {
+function SagaCard({ saga, onStartPlaying, onEditSaga, onDeleteSaga, onEditEntry, onDeleteEntry }) {
   const [isOpen, setIsOpen] = useState(false)
 
   function handleOpen() {
@@ -73,6 +73,23 @@ function SagaCard({ saga, onStartPlaying }) {
               </button>
             </div>
 
+            {/* footer del modal */}
+            <div className={styles.modalFooter}>
+              <button
+                className={styles.editSagaBtn}
+                onClick={() => { onEditSaga(saga); handleClose() }}
+              >
+                ✎ EDITAR SAGA
+              </button>
+              <button
+                className={styles.deleteSagaBtn}
+                onClick={() => { onDeleteSaga(saga.id); handleClose() }}
+              >
+                ✕ ELIMINAR SAGA
+              </button>
+            </div>
+
+
             {/* Géneros */}
             <div className={styles.modalGenres}>
               {saga.genre.map(g => (
@@ -97,7 +114,30 @@ function SagaCard({ saga, onStartPlaying }) {
                       {entry.status === 'in_progress' && 'EN PROGRESO'}
                       {entry.status === 'completed' && 'COMPLETADO'}
                     </span>
+
+                    {/* --- NUEVOS BOTONES DE EDITAR Y ELIMINAR --- */}
+                    <button
+                      className={styles.entryEditBtn}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onEditEntry(saga.id, entry)
+                        handleClose()
+                      }}
+                    >
+                      ✎
+                    </button>
+                    <button
+                      className={styles.entryDeleteBtn}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDeleteEntry(saga.id, entry.id)
+                      }}
+                    >
+                      ✕
+                    </button>
+
                     {entry.status === 'library' && (
+
                       <button
                         className={styles.entryPlayBtn}
                         onClick={(e) => {

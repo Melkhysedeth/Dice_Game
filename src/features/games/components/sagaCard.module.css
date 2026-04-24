@@ -341,3 +341,82 @@
   background: var(--accent-3);
   color: var(--bg);
 }
+
+.modalFooter {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-xl);
+  border-top: 1px solid var(--border);
+}
+
+.editSagaBtn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: var(--space-sm);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all var(--transition-fast);
+}
+
+.editSagaBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.deleteSagaBtn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: var(--space-sm);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all var(--transition-fast);
+}
+
+.deleteSagaBtn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.entryEditBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all var(--transition-fast);
+}
+
+.entryEditBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.entryDeleteBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all var(--transition-fast);
+}
+
+.entryDeleteBtn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}

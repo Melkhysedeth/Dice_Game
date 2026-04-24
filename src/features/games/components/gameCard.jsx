@@ -1,8 +1,8 @@
 import styles from './GameCard.module.css'
 
-function GameCard({ game, onStartPlaying }) {
+function GameCard({ game, onStartPlaying, onEdit, onDelete }) {
   return (
-  
+
     <div className={styles.card}>
 
       {/* Carátula */}
@@ -41,12 +41,28 @@ function GameCard({ game, onStartPlaying }) {
 
       {/* Hover overlay */}
       <div className={styles.overlay}>
-        <button
-          className={styles.playBtn}
-          onClick={() => onStartPlaying(game)}
-        >
-          ▶ COMENZAR A JUGAR
-        </button>
+        <div className={styles.overlayActions}>
+          <button
+            className={styles.playBtn}
+            onClick={(e) => { e.stopPropagation(); onStartPlaying(game) }}
+          >
+            ▶ COMENZAR
+          </button>
+          <div className={styles.secondaryActions}>
+            <button
+              className={styles.editBtn}
+              onClick={(e) => { e.stopPropagation(); onEdit(game) }}
+            >
+              ✎ EDITAR
+            </button>
+            <button
+              className={styles.deleteBtn}
+              onClick={(e) => { e.stopPropagation(); onDelete(game) }}
+            >
+              ✕ ELIMINAR
+            </button>
+          </div>
+        </div>
       </div>
 
     </div>

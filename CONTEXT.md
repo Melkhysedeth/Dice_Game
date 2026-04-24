@@ -79,6 +79,12 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - HallOfFameCard.jsx y HallOfFameSection.jsx
 - RandomButton.jsx estilo pill naranja centrado
 - SuggestedGameModal.jsx completo
+- FilterBar.jsx con filtros Todos/Sagas/Juego único y búsqueda en tiempo real
+- useFilters.js hook con lógica de filtrado y búsqueda
+- AddGameModal.jsx con formulario inteligente
+  (individual / saga existente / saga nueva)
+- useGames.js con addSingleGame, addEntryToSaga, addNewSaga
+- Botón + AGREGAR JUEGO en sección Biblioteca
 
 ## Estructura de carpetas
 src/
@@ -104,6 +110,5 @@ src/
 - Un solo juego en progreso a la vez (pendiente confirmar)
 
 ## Próximo paso
-- Barra de filtros y búsqueda (Todos / Sagas / Juego único / Buscar)
-- Carátulas de juegos via API (RAWG o IGDB)
 - Persistencia de datos (los cambios se pierden al recargar)
+- Carátulas de juegos via IGDB API

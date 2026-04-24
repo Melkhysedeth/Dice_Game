@@ -1,21 +1,49 @@
 import { useState, useEffect } from 'react'
 import gamesData from '../../../data/games.json'
 
+const STORAGE_KEYS = {
+  singles: 'gamevault_singles',
+  sagas: 'gamevault_sagas'
+}
+
+function loadFromStorage(key, fallback) {
+  try {
+    const stored = localStorage.getItem(key)
+    return stored ? JSON.parse(stored) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function saveToStorage(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data))
+  } catch {
+    console.error('Error guardando en localStorage')
+  }
+}
+
 export function useGames() {
 
-  // Estado central — toda la data vive aquí
-  const [singles, setSingles] = useState([])
-  const [sagas, setSagas] = useState([])
+  const [singles, setSingles] = useState(() =>
+    loadFromStorage(STORAGE_KEYS.singles, gamesData.singles)
+  )
 
-  // Carga inicial desde el JSON
-  useEffect(() => {
-    setSingles(gamesData.singles)
-    setSagas(gamesData.sagas)
-  }, [])
+  const [sagas, setSagas] = useState(() =>
+    loadFromStorage(STORAGE_KEYS.sagas, gamesData.sagas)
+  )
 
   const [suggestedGame, setSuggestedGame] = useState(null)
 
-  // ── Derivados — calculados desde singles y sagas ──
+  // Guarda automáticamente cada vez que singles cambia
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.singles, singles)
+  }, [singles])
+
+  // Guarda automáticamente cada vez que sagas cambia
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.sagas, sagas)
+  }, [sagas])
 
   function getAllEntries() {
     const sagaEntries = sagas.flatMap(saga =>
@@ -36,8 +64,6 @@ export function useGames() {
   const inProgressGames = getAllEntries().filter(g => g.status === 'in_progress')
   const completedGames = getAllEntries().filter(g => g.status === 'completed')
 
-  // ── Acciones ──
-
   function pickRandomGame() {
     if (libraryGames.length === 0) return
     const random = Math.floor(Math.random() * libraryGames.length)
@@ -52,7 +78,6 @@ export function useGames() {
     const today = new Date().toISOString().split('T')[0]
 
     if (game.isSagaEntry) {
-      // Actualiza la entrada dentro de la saga
       setSagas(prev => prev.map(saga => {
         if (saga.id !== game.sagaId) return saga
         return {
@@ -72,7 +97,6 @@ export function useGames() {
         }
       }))
     } else {
-      // Actualiza el single
       setSingles(prev => prev.map(g => {
         if (g.id !== game.id) return g
         return {
@@ -86,7 +110,6 @@ export function useGames() {
         }
       }))
     }
-
     dismissSuggestion()
   }
 
@@ -101,9 +124,7 @@ export function useGames() {
           entries: saga.entries.map(entry => {
             if (entry.id !== game.id) return entry
             const updatedSessions = entry.sessions.map((s, i) =>
-              i === entry.sessions.length - 1
-                ? { ...s, endDate: today }
-                : s
+              i === entry.sessions.length - 1 ? { ...s, endDate: today } : s
             )
             return { ...entry, status: 'completed', sessions: updatedSessions }
           })
@@ -113,9 +134,7 @@ export function useGames() {
       setSingles(prev => prev.map(g => {
         if (g.id !== game.id) return g
         const updatedSessions = g.sessions.map((s, i) =>
-          i === g.sessions.length - 1
-            ? { ...s, endDate: today }
-            : s
+          i === g.sessions.length - 1 ? { ...s, endDate: today } : s
         )
         return { ...g, status: 'completed', sessions: updatedSessions }
       }))
@@ -142,6 +161,110 @@ export function useGames() {
     }
   }
 
+  function addSingleGame(gameData) {
+    const newGame = {
+      id: gameData.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
+      title: gameData.title,
+      developer: gameData.developer,
+      year: parseInt(gameData.year),
+      genre: gameData.genre,
+      platform: gameData.platform,
+      status: 'library',
+      sessions: []
+    }
+    setSingles(prev => [...prev, newGame])
+  }
+
+  function addEntryToSaga(sagaId, entryData) {
+    setSagas(prev => prev.map(saga => {
+      if (saga.id !== sagaId) return saga
+      const newEntry = {
+        id: entryData.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
+        title: entryData.title,
+        year: parseInt(entryData.year),
+        status: 'library',
+        sessions: []
+      }
+      return { ...saga, entries: [...saga.entries, newEntry] }
+    }))
+  }
+
+  function addNewSaga(sagaData, firstEntry) {
+    const newSaga = {
+      id: sagaData.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
+      title: sagaData.title,
+      developer: sagaData.developer,
+      genre: sagaData.genre,
+      platform: sagaData.platform,
+      entries: [{
+        id: firstEntry.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
+        title: firstEntry.title,
+        year: parseInt(firstEntry.year),
+        status: 'library',
+        sessions: []
+      }]
+    }
+    setSagas(prev => [...prev, newSaga])
+  }
+
+  function updateSingleGame(gameId, gameData) {
+    setSingles(prev => prev.map(g => {
+      if (g.id !== gameId) return g
+      return {
+        ...g,
+        title: gameData.title,
+        developer: gameData.developer,
+        year: parseInt(gameData.year),
+        genre: gameData.genre,
+        platform: gameData.platform
+      }
+    }))
+  }
+
+  function updateSagaEntry(sagaId, entryId, entryData) {
+    setSagas(prev => prev.map(saga => {
+      if (saga.id !== sagaId) return saga
+      return {
+        ...saga,
+        entries: saga.entries.map(entry => {
+          if (entry.id !== entryId) return entry
+          return { ...entry, title: entryData.title, year: parseInt(entryData.year) }
+        })
+      }
+    }))
+  }
+
+  function updateSaga(sagaId, sagaData) {
+    setSagas(prev => prev.map(saga => {
+      if (saga.id !== sagaId) return saga
+      return {
+        ...saga,
+        title: sagaData.title,
+        developer: sagaData.developer,
+        genre: sagaData.genre,
+        platform: sagaData.platform
+      }
+    }))
+  }
+
+  function deleteSingleGame(gameId) {
+    setSingles(prev => prev.filter(g => g.id !== gameId))
+  }
+
+  function deleteSagaEntry(sagaId, entryId) {
+    setSagas(prev => prev.map(saga => {
+      if (saga.id !== sagaId) return saga
+      return {
+        ...saga,
+        entries: saga.entries.filter(entry => entry.id !== entryId)
+      }
+    }))
+  }
+
+  function deleteSaga(sagaId) {
+    setSagas(prev => prev.filter(saga => saga.id !== sagaId))
+  }
+
   return {
     singles,
     sagas,
@@ -153,6 +276,15 @@ export function useGames() {
     dismissSuggestion,
     startPlaying,
     completeGame,
-    returnToLibrary
+    returnToLibrary,
+    addSingleGame,
+    addEntryToSaga,
+    addNewSaga,
+    updateSingleGame,
+    updateSagaEntry,
+    updateSaga,
+    deleteSingleGame,
+    deleteSagaEntry,
+    deleteSaga
   }
 }
