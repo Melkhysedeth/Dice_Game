@@ -11,7 +11,7 @@
 }
 
 .libraryTitle {
-  font-family: var(--font-display);
+  font-family: var(--font-cards);
   font-size: 28px;
   letter-spacing: 3px;
   color: var(--accent);

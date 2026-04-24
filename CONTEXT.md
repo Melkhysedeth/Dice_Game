@@ -85,6 +85,9 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
   (individual / saga existente / saga nueva)
 - useGames.js con addSingleGame, addEntryToSaga, addNewSaga
 - Botón + AGREGAR JUEGO en sección Biblioteca
+- Editar singles, sagas y entregas de saga
+- Eliminar singles, sagas completas y entregas individuales
+- AddGameModal reutilizado para modo agregar y modo editar
 
 ## Estructura de carpetas
 src/
@@ -110,5 +113,5 @@ src/
 - Un solo juego en progreso a la vez (pendiente confirmar)
 
 ## Próximo paso
-- Persistencia de datos (los cambios se pierden al recargar)
 - Carátulas de juegos via IGDB API
+- Supabase como base de datos real (reemplaza localStorage)

@@ -95,7 +95,7 @@ function App() {
       <main>
         <section className={appStyles.librarySection}>
           <div className={appStyles.libraryHeader}>
-            <h2 className={appStyles.libraryTitle}>📚 BIBLIOTECA</h2>
+            <h2 className={appStyles.libraryTitle}>BIBLIOTECA</h2>
             <div className={appStyles.libraryActions}>
               <button
                 className={appStyles.addBtn}

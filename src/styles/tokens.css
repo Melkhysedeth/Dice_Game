@@ -41,6 +41,7 @@
   --font-display: 'Bebas Neue', sans-serif;    /* Títulos grandes */
   --font-body:    'Rajdhani', sans-serif;      /* Texto general */
   --font-mono:    'Share Tech Mono', monospace; /* Datos, años, códigos */
+  --font-cards: 'Quantico', sans-serif; /* Tarjetas de juego */
 
   /* ================================
      ESPACIADO
@@ -57,6 +58,7 @@
   ================================ */
   --radius-sm:  4px;
   --radius-md:  8px;
+  --radius-card: 12px;
 
   /* ================================
      SOMBRAS / GLOWS

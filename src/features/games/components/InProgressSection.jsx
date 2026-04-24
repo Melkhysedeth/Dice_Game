@@ -9,7 +9,7 @@ function InProgressSection({ games, onComplete }) {
 
       <div className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>
-          <span className={styles.titleAccent}>🎮</span> EN PROGRESO
+          <span className={styles.titleAccent}></span> EN PROGRESO
         </h2>
         <span className={styles.count}>{games.length} / 3</span>
       </div>

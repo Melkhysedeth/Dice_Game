@@ -9,7 +9,7 @@ function HallOfFameSection({ games, onReturnToLibrary }) {
 
       <div className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>
-          <span>🏆</span> SALÓN DE LA FAMA
+          <span></span> SALÓN DE LA FAMA
         </h2>
         <span className={styles.count}>{games.length} completados</span>
       </div>

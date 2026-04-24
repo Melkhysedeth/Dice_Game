@@ -1,34 +1,27 @@
+/* ── Tarjeta poster ── */
 .card {
   position: relative;
   background: var(--surface);
-  border: 1px solid rgba(168, 85, 247, 0.2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
   overflow: hidden;
   cursor: pointer;
-  clip-path: polygon(
-    0 0,
-    calc(100% - 16px) 0,
-    100% 16px,
-    100% 100%,
-    16px 100%,
-    0 calc(100% - 16px)
-  );
   transition: transform var(--transition-normal),
               border-color var(--transition-normal),
               box-shadow var(--transition-normal);
 }
 
 .card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   border-color: var(--accent);
   box-shadow: var(--glow-accent);
 }
 
-/* Carátula */
 .cover {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 2 / 3;
   overflow: hidden;
-  background: var(--surface-2);
+  position: relative;
 }
 
 .coverPlaceholder {
@@ -41,60 +34,153 @@
 }
 
 .coverIcon {
-  font-size: 48px;
-  opacity: 0.3;
+  font-size: 40px;
+  opacity: 0.2;
 }
 
-/* Contenido */
-.content {
+.hoverHint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 212, 255, 0.15) 0%,
+    transparent 60%
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   padding: var(--space-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.card:hover .hoverHint {
+  opacity: 1;
 }
 
-.year {
+.hoverHint span {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.content {
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .sagaBadge {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--accent-3);
-  border: 1px solid var(--accent-3);
-  padding: 2px 8px;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .title {
-  font-family: var(--font-display);
-  font-size: 22px;
+  font-family: var(--font-cards);
+  font-size: 15px;
+  color: var(--text-bright);
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+/* ── Modal ── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 10, 15, 0.88);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  box-shadow: var(--glow-accent-lg);
+  width: 90%;
+  max-width: 480px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--space-xl) var(--space-xl) var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.modalSagaBadge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: var(--space-sm);
+}
+
+.modalTitle {
+  font-family: var(--font-cards);
+  font-size: 32px;
   color: var(--text-bright);
   letter-spacing: 1px;
   line-height: 1;
 }
 
-.developer {
+.modalDeveloper {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dim);
+  margin-top: var(--space-sm);
   letter-spacing: 1px;
 }
 
-.genres {
+.closeBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
+
+.modalGenres {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-xs);
+  padding: var(--space-md) var(--space-xl);
+  border-bottom: 1px solid var(--border);
 }
 
 .genreTag {
@@ -106,18 +192,19 @@
   border: 1px solid var(--border);
   color: var(--text-dim);
   text-transform: uppercase;
+  border-radius: var(--radius-sm);
 }
 
-.platforms {
+.modalPlatforms {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-  margin-top: var(--space-xs);
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  border-bottom: 1px solid var(--border);
 }
 
 .platform {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 1px;
 }
@@ -126,73 +213,43 @@
   content: ' /';
 }
 
-/* Overlay al hacer hover */
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(7, 10, 15, 0.95) 0%,
-    rgba(7, 10, 15, 0.4) 50%,
-    transparent 100%
-  );
+.modalActions {
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: var(--space-md);
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-}
-
-.card:hover .overlay {
-  opacity: 1;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl) var(--space-xl);
 }
 
 .playBtn {
-  width: 100%;
-  background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--accent);
+  flex: 2;
+  background: linear-gradient(135deg, var(--accent), #0099cc);
+  border: none;
+  color: var(--bg);
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 3px;
-  padding: var(--space-sm) var(--space-md);
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: var(--space-md);
   cursor: pointer;
   text-transform: uppercase;
-  transition: background var(--transition-fast),
-              color var(--transition-fast);
+  border-radius: var(--radius-sm);
+  transition: opacity var(--transition-fast);
 }
 
-.playBtn:hover {
-  background: var(--accent);
-  color: var(--bg);
-}
-
-.overlayActions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  width: 100%;
-}
-
-.secondaryActions {
-  display: flex;
-  gap: var(--space-sm);
-}
+.playBtn:hover { opacity: 0.9; }
 
 .editBtn {
   flex: 1;
   background: transparent;
-  border: 1px solid var(--text-dim);
+  border: 1px solid var(--border);
   color: var(--text-dim);
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 2px;
-  padding: var(--space-sm);
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: var(--space-md);
   cursor: pointer;
   text-transform: uppercase;
+  border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
 }
 
@@ -204,19 +261,28 @@
 .deleteBtn {
   flex: 1;
   background: transparent;
-  border: 1px solid var(--text-dim);
+  border: 1px solid var(--border);
   color: var(--text-dim);
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 2px;
-  padding: var(--space-sm);
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: var(--space-md);
   cursor: pointer;
   text-transform: uppercase;
+  border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
 }
 
 .deleteBtn:hover {
   border-color: #ef4444;
   color: #ef4444;
+}
+
+.singleBadge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
