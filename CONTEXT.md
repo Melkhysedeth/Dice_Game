@@ -88,6 +88,15 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - Editar singles, sagas y entregas de saga
 - Eliminar singles, sagas completas y entregas individuales
 - AddGameModal reutilizado para modo agregar y modo editar
+- Todas las tarjetas rediseñadas — solo carátula + título
+- Click en tarjeta abre modal con info completa + botones
+- GameCard, SagaCard, InProgressCard, HallOfFameCard rediseñadas
+- Fuente Quantico en tarjetas
+- Esquinas redondeadas en todas las tarjetas
+- Editar y eliminar juegos, sagas y entregas
+- Persistencia con localStorage
+- FilterBar con filtros y búsqueda
+- AddGameModal para agregar y editar
 
 ## Estructura de carpetas
 src/
@@ -114,4 +123,4 @@ src/
 
 ## Próximo paso
 - Carátulas de juegos via IGDB API
-- Supabase como base de datos real (reemplaza localStorage)
+- Supabase como base de datos real

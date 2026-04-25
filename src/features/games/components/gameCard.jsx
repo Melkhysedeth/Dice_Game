@@ -15,8 +15,10 @@ function GameCard({ game, onStartPlaying, onEdit, onDelete }) {
             <span>VER JUEGO</span>
           </div>
         </div>
+        
+        {/* El badge de "SAGA" se muestra solo si el juego es parte de una saga, mientras que el badge "SINGLE" se muestra para juegos independientes. Si un juego es parte de una saga, no tendrá el badge "SINGLE". */} 
         <div className={styles.content}>
-          <span className={styles.singleBadge}>SINGLE GAME</span>
+          <span className={styles.singleBadge}></span>
           {game.isSagaEntry && (
             <span className={styles.sagaBadge}>{game.sagaTitle}</span>
           )}

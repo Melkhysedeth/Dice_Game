@@ -4,7 +4,7 @@ function FilterBar({ activeFilter, onFilterChange, searchQuery, onSearchChange }
   return (
     <div className={styles.bar}>
       <div className={styles.left}>
-        <span className={styles.label}>// FILTRAR</span>
+        <span className={styles.label}>FILTRAR</span>
         <div className={styles.filters}>
           <button
             className={`${styles.btn} ${activeFilter === 'all' ? styles.active : ''}`}

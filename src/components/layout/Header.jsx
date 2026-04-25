@@ -8,7 +8,7 @@ function Header({ totalGames, inProgress, completed }) {
         <div className={styles.logo}>
           GAME<span className={styles.logoAccent}>VAULT</span>
         </div>
-        <div className={styles.tagline}>// Tu biblioteca personal de juegos</div>
+        <div className={styles.tagline}>Tu biblioteca personal de juegos</div>
       </div>
 
       <div className={styles.stats}>

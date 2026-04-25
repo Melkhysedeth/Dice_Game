@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from './AddGameModal.module.css'
 
-const GENRES = ['Acción', 'Aventura', 'RPG', 'FPS', 'Soulslike', 'Horror',
+const GENRES = ['Acción', 'Aventura', 'RPG', 'FPS', 'Soulslike', 'Survival_Horror',
   'Mundo Abierto', 'Sigilo', 'Plataformas', 'Indie', 'Supervivencia',
   'Multijugador', 'Narrativa', 'Ciencia Ficción', 'Fantasía', 'Bélico']
 
