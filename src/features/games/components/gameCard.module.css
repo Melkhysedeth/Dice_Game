@@ -22,6 +22,7 @@
   aspect-ratio: 2 / 3;
   overflow: hidden;
   position: relative;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
 }
 
 .coverPlaceholder {
@@ -285,4 +286,11 @@
   color: var(--accent);
   letter-spacing: 2px;
   text-transform: uppercase;
+}
+
+.coverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }

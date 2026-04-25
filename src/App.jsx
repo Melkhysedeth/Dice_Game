@@ -13,7 +13,7 @@ import SuggestedGameModal from './components/ui/SuggestedGameModal'
 
 function App() {
   const {
-   libraryGames,
+    libraryGames,
     inProgressGames,
     completedGames,
     sagas,
@@ -31,7 +31,9 @@ function App() {
     updateSaga,
     deleteSingleGame,
     deleteSagaEntry,
-    deleteSaga
+    deleteSaga,
+    updateSagaCover,
+    updateEntryCover
   } = useGames()
 
   const {
@@ -119,6 +121,8 @@ function App() {
             onDeleteSaga={handleDeleteSaga}
             onEditEntry={handleEditEntry}
             onDeleteEntry={handleDeleteEntry}
+            onUpdateSagaCover={updateSagaCover}
+            onUpdateEntryCover={updateEntryCover}
           />
         </section>
 

@@ -216,3 +216,103 @@
 .submitBtn:hover {
   opacity: 0.9;
 }
+
+.searchCoverBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1px;
+  padding: 10px var(--space-md);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all var(--transition-fast);
+  width: 100%;
+  text-align: left;
+}
+
+.searchCoverBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.searchCoverBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.coverResults {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.coverOption {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform var(--transition-fast);
+}
+
+.coverOption:hover {
+  transform: scale(1.03);
+}
+
+.coverOptionImg {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.coverOption:hover .coverOptionImg {
+  border-color: var(--accent);
+}
+
+.coverOptionName {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectedCover {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.coverPreview {
+  width: 80px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--accent);
+}
+
+.changeCoverBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.changeCoverBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}

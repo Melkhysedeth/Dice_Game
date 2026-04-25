@@ -169,6 +169,7 @@ export function useGames() {
       year: parseInt(gameData.year),
       genre: gameData.genre,
       platform: gameData.platform,
+      cover: gameData.cover || null,
       status: 'library',
       sessions: []
     }
@@ -182,6 +183,7 @@ export function useGames() {
         id: entryData.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
         title: entryData.title,
         year: parseInt(entryData.year),
+        cover: null,
         status: 'library',
         sessions: []
       }
@@ -196,10 +198,12 @@ export function useGames() {
       developer: sagaData.developer,
       genre: sagaData.genre,
       platform: sagaData.platform,
+      cover: sagaData.cover || null,
       entries: [{
         id: firstEntry.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
         title: firstEntry.title,
         year: parseInt(firstEntry.year),
+        cover: null,
         status: 'library',
         sessions: []
       }]
@@ -216,7 +220,8 @@ export function useGames() {
         developer: gameData.developer,
         year: parseInt(gameData.year),
         genre: gameData.genre,
-        platform: gameData.platform
+        platform: gameData.platform,
+        cover: gameData.cover !== undefined ? gameData.cover : g.cover
       }
     }))
   }
@@ -243,6 +248,26 @@ export function useGames() {
         developer: sagaData.developer,
         genre: sagaData.genre,
         platform: sagaData.platform
+      }
+    }))
+  }
+
+  function updateSagaCover(sagaId, cover) {
+    setSagas(prev => prev.map(saga => {
+      if (saga.id !== sagaId) return saga
+      return { ...saga, cover }
+    }))
+  }
+
+  function updateEntryCover(sagaId, entryId, cover) {
+    setSagas(prev => prev.map(saga => {
+      if (saga.id !== sagaId) return saga
+      return {
+        ...saga,
+        entries: saga.entries.map(entry => {
+          if (entry.id !== entryId) return entry
+          return { ...entry, cover }
+        })
       }
     }))
   }
@@ -285,6 +310,8 @@ export function useGames() {
     updateSaga,
     deleteSingleGame,
     deleteSagaEntry,
-    deleteSaga
-  }
+    deleteSaga,
+    updateSagaCover,
+    updateEntryCover
+    }
 }

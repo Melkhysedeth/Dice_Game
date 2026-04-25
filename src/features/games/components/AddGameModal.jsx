@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { searchGameCovers } from '../services/igdbService'
 import styles from './AddGameModal.module.css'
 
 const GENRES = ['Acción', 'Aventura', 'RPG', 'FPS', 'Soulslike', 'Survival_Horror',
@@ -21,28 +22,33 @@ function AddGameModal({
 
   const [isSaga, setIsSaga] = useState(editMode ? false : false)
   const [sagaOption, setSagaOption] = useState('existing')
+  const [coverResults, setCoverResults] = useState([])
+  const [selectedCover, setSelectedCover] = useState(
+    isEditingSingle ? editData.game.cover : null
+  )
+  const [searching, setSearching] = useState(false)
 
   const [title, setTitle] = useState(
     isEditingSingle ? editData.game.title :
-    isEditingEntry ? editData.entry.title :
-    isEditingSaga ? '' : ''
+      isEditingEntry ? editData.entry.title :
+        isEditingSaga ? '' : ''
   )
   const [developer, setDeveloper] = useState(
     isEditingSingle ? editData.game.developer :
-    isEditingSaga ? editData.saga.developer : ''
+      isEditingSaga ? editData.saga.developer : ''
   )
   const [year, setYear] = useState(
     isEditingSingle ? editData.game.year :
-    isEditingEntry ? editData.entry.year :
-    isEditingSaga ? '' : ''
+      isEditingEntry ? editData.entry.year :
+        isEditingSaga ? '' : ''
   )
   const [selectedGenres, setSelectedGenres] = useState(
     isEditingSingle ? editData.game.genre :
-    isEditingSaga ? editData.saga.genre : []
+      isEditingSaga ? editData.saga.genre : []
   )
   const [selectedPlatforms, setSelectedPlatforms] = useState(
     isEditingSingle ? editData.game.platform :
-    isEditingSaga ? editData.saga.platform : []
+      isEditingSaga ? editData.saga.platform : []
   )
   const [selectedSagaId, setSelectedSagaId] = useState('')
   const [newSagaTitle, setNewSagaTitle] = useState('')
@@ -62,13 +68,22 @@ function AddGameModal({
     )
   }
 
+  async function handleSearchCover() {
+    if (!title) return
+    setSearching(true)
+    const results = await searchGameCovers(title)
+    setCoverResults(results)
+    setSearching(false)
+  }
+
   function handleSubmit() {
     // Modo edición
     if (isEditingSingle) {
       onUpdateSingle(editData.game.id, {
         title, developer, year,
         genre: selectedGenres,
-        platform: selectedPlatforms
+        platform: selectedPlatforms,
+        cover: selectedCover
       })
       onClose()
       return
@@ -94,7 +109,7 @@ function AddGameModal({
     if (!title || !year) return
 
     if (!isSaga) {
-      onAddSingle({ title, developer, year, genre: selectedGenres, platform: selectedPlatforms })
+      onAddSingle({ title, developer, year, genre: selectedGenres, platform: selectedPlatforms, cover: selectedCover })
     } else if (sagaOption === 'existing') {
       if (!selectedSagaId) return
       onAddToSaga(selectedSagaId, { title, year })
@@ -110,8 +125,8 @@ function AddGameModal({
 
   // Título del modal según modo
   const modalTitle = isEditingSingle ? 'Editar juego' :
-                     isEditingEntry ? 'Editar entrega' :
-                     isEditingSaga ? 'Editar saga' : 'Nuevo título'
+    isEditingEntry ? 'Editar entrega' :
+      isEditingSaga ? 'Editar saga' : 'Nuevo título'
 
   return (
     <div className={styles.backdrop} onClick={onClose}>
@@ -212,6 +227,50 @@ function AddGameModal({
                 value={sagaTitle}
                 onChange={e => setSagaTitle(e.target.value)}
               />
+            </div>
+          )}
+
+          {/* Búsqueda de carátula */}
+          {(!isSaga || sagaOption === 'new') && !isEditingEntry && (
+            <div className={styles.field}>
+              <label className={styles.label}>Carátula</label>
+
+              {selectedCover ? (
+                <div className={styles.selectedCover}>
+                  <img src={selectedCover} alt="Carátula seleccionada" className={styles.coverPreview} />
+                  <button className={styles.changeCoverBtn} onClick={() => { setSelectedCover(null); setCoverResults([]) }}>
+                    Cambiar carátula
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    className={styles.searchCoverBtn}
+                    onClick={handleSearchCover}
+                    disabled={!title || searching}
+                  >
+                    {searching ? 'Buscando...' : '🔍 BUSCAR CARÁTULA EN IGDB'}
+                  </button>
+
+                  {coverResults.length > 0 && (
+                    <div className={styles.coverResults}>
+                      {coverResults.map(result => (
+                        <div
+                          key={result.id}
+                          className={styles.coverOption}
+                          onClick={() => {
+                            setSelectedCover(result.cover)
+                            setCoverResults([])
+                          }}
+                        >
+                          <img src={`https:${result.cover}`} alt={result.name} className={styles.coverOptionImg} />
+                          <span className={styles.coverOptionName}>{result.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 

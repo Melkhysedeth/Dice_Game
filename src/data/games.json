@@ -4,6 +4,7 @@
             "id": "god-of-war",
             "title": "God of War",
             "developer": "Santa Monica Studio",
+            "cover": null,
             "genre": [
                 "Acción",
                 "Aventura",
@@ -19,6 +20,7 @@
                     "title": "God of War",
                     "year": 2018,
                     "status": "library",
+                    "cover": null,
                     "sessions": []
                 },
                 {
@@ -26,6 +28,7 @@
                     "title": "God of War: Ragnarök",
                     "year": 2022,
                     "status": "library",
+                    "cover": null,
                     "sessions": []
                 }
             ]
@@ -34,6 +37,7 @@
             "id": "a-plague-tale",
             "title": "A Plague Tale",
             "developer": "Asobo Studio",
+            "cover": null,
             "genre": [
                 "Aventura",
                 "Sigilo",
@@ -50,6 +54,7 @@
                     "title": "A Plague Tale: Innocence",
                     "year": 2019,
                     "status": "library",
+                    "cover": null,
                     "sessions": []
                 },
                 {
@@ -57,6 +62,7 @@
                     "title": "A Plague Tale: Requiem",
                     "year": 2022,
                     "status": "library",
+                    "cover": null,
                     "sessions": []
                 }
             ]
@@ -73,6 +79,7 @@
                 "Acción",
                 "RPG"
             ],
+            "cover": null,
             "platform": [
                 "PC",
                 "PS5",
@@ -91,6 +98,7 @@
                 "Acción",
                 "Mitología China"
             ],
+            "cover": null,
             "platform": [
                 "PC",
                 "PS5"
@@ -98,34 +106,13 @@
             "status": "library",
             "sessions": []
         },
-        {
-            "id": "black-myth-wukong",
-            "title": "Black Myth: Wukong",
-            "developer": "Game Science",
-            "year": 2024,
-            "genre": [
-                "Soulslike",
-                "Acción",
-                "Mitología China"
-            ],
-            "platform": [
-                "PC",
-                "PS5"
-            ],
-            "status": "in_progress",
-            "sessions": [
-                {
-                    "startDate": "2024-04-15",
-                    "endDate": null,
-                    "isFirstTime": true
-                }
-            ]
-        },
+
         {
             "id": "sekiro",
             "title": "Sekiro: Shadows Die Twice",
             "developer": "FromSoftware",
             "year": 2019,
+            "cover": null,
             "genre": [
                 "Soulslike",
                 "Acción",

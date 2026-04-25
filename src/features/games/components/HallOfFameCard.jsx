@@ -12,9 +12,17 @@ function HallOfFameCard({ game, onReturnToLibrary }) {
       <div className={styles.card} onClick={() => setIsOpen(true)}>
         <div className={styles.statusBar} />
         <div className={styles.cover}>
-          <div className={styles.coverPlaceholder}>
-            <span className={styles.coverIcon}>🏆</span>
-          </div>
+          {game.cover ? (
+            <img
+              src={game.cover.startsWith('//') ? `https:${game.cover}` : game.cover}
+              alt={game.title}
+              className={styles.coverImg}
+            />
+          ) : (
+            <div className={styles.coverPlaceholder}>
+              <span className={styles.coverIcon}>🏆</span>
+            </div>
+          )}
           <div className={styles.hoverHint}>
             <span>VER DETALLES</span>
           </div>
