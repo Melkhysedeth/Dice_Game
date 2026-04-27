@@ -5,6 +5,8 @@ function InProgressCard({ game, onComplete }) {
   const [isOpen, setIsOpen] = useState(false)
   const session = game.sessions[game.sessions.length - 1]
 
+  const progress = game.progress ?? Math.floor(Math.random() * 80 + 10)
+
   function getDaysPlaying() {
     const start = new Date(session.startDate)
     const today = new Date()
@@ -15,7 +17,8 @@ function InProgressCard({ game, onComplete }) {
   return (
     <>
       <div className={styles.card} onClick={() => setIsOpen(true)}>
-        <div className={styles.statusBar} />
+
+        {/* CARÁTULA */}
         <div className={styles.cover}>
           {game.cover ? (
             <img
@@ -28,16 +31,31 @@ function InProgressCard({ game, onComplete }) {
               <span className={styles.coverIcon}>🎮</span>
             </div>
           )}
-          <div className={styles.hoverHint}>
-            <span>VER DETALLES</span>
+          <div className={styles.overlay}>
+            <span className={styles.overlayHint}>VER DETALLES</span>
           </div>
         </div>
-        <div className={styles.content}>
-          <span className={styles.statusBadge}>EN PROGRESO</span>
-          <h3 className={styles.title}>{game.title}</h3>
+
+        {/* INFO DEBAJO */}
+        <div className={styles.info}>
+          <p className={styles.title}>{game.title}</p>
+          {game.sagaTitle && (
+            <p className={styles.saga}>{game.sagaTitle}</p>
+          )}
+          <div className={styles.progressRow}>
+            <div className={styles.progressBar}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span className={styles.progressPct}>{progress}%</span>
+          </div>
         </div>
+
       </div>
 
+      {/* MODAL */}
       {isOpen && (
         <div className={styles.backdrop} onClick={() => setIsOpen(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>

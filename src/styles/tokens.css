@@ -18,21 +18,21 @@
   ================================ */
   --accent:       #00d4ff;   /* Azul neón — color principal */
   --accent-dim:   rgba(0, 212, 255, 0.15);  /* Azul suave para fondos */
-  --accent-2:     #ff6b35;   /* Naranja — acciones importantes */
+  --accent-2:     #37ae58;   /* Verde — acciones importantes */
   --accent-3:     #a855f7;   /* Violeta — sagas */
 
   /* ================================
      TEXTO
   ================================ */
   --text:         #c9d8e8;   /* Texto principal */
-  --text-dim:     #4a6478;   /* Texto secundario / desactivado */
+  --text-dim:     #7a90a0;   /* Texto secundario / desactivado */
   --text-bright:  #ffffff;   /* Títulos y énfasis */
 
   /* ================================
      ESTADOS DE LOS JUEGOS
   ================================ */
   --state-library:    #00d4ff;   /* Biblioteca — azul */
-  --state-progress:   #ff6b35;   /* En progreso — naranja */
+  --state-progress:   #37ae58;   /* En progreso — verde */
   --state-fame:       #fbbf24;   /* Salón de la fama — dorado */
 
   /* ================================

@@ -1,30 +1,45 @@
+import { useRef } from 'react'
 import InProgressCard from './InProgressCard'
 import styles from './InProgressSection.module.css'
 
 function InProgressSection({ games, onComplete }) {
-  if (games.length === 0) return null
+  const trackRef = useRef(null)
+
+  function scrollLeft() {
+    trackRef.current.scrollBy({ left: -340, behavior: 'smooth' })
+  }
+
+  function scrollRight() {
+    trackRef.current.scrollBy({ left: 340, behavior: 'smooth' })
+  }
+
+  if (games.length === 0) return (
+    <div className={styles.empty}>
+      <span>No hay juegos en progreso</span>
+    </div>
+  )
 
   return (
-    <section className={styles.section}>
-
-      <div className={styles.sectionHeader}>
-        <h2 className={styles.sectionTitle}>
-          <span className={styles.titleAccent}></span> EN PROGRESO
-        </h2>
-        <span className={styles.count}>{games.length} / 3</span>
+    <div className={styles.wrapper}>
+      <div className={styles.scrollWrapper} ref={trackRef}>
+        <div className={styles.track}>
+          {games.map(game => (
+            <InProgressCard
+              key={game.id}
+              game={game}
+              onComplete={onComplete}
+            />
+          ))}
+        </div>
       </div>
 
-      <div className={styles.grid}>
-        {games.map(game => (
-          <InProgressCard
-            key={game.id}
-            game={game}
-            onComplete={onComplete}
-          />
-        ))}
-      </div>
-
-    </section>
+      {games.length > 3 && (
+        <>
+          <button className={`${styles.arrow} ${styles.arrowLeft}`} onClick={scrollLeft}>‹</button>
+          <button className={`${styles.arrow} ${styles.arrowRight}`} onClick={scrollRight}>›</button>
+        </>
+      )}
+    </div>
   )
 }
 
