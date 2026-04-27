@@ -1,0 +1,109 @@
+Estructura completa de la Home — My Game_Vault
+1. HEADER (Zona superior fija)
+
+Lo primero que ve el usuario
+Contiene:
+
+Logo (tu vault brutal)
+Navegación principal:
+Inicio
+Biblioteca
+En progreso
+Salón de la fama
+Buscador de juegos (clave para escalabilidad)
+Notificaciones (logros, actividad, etc.)
+Perfil del usuario (avatar + menú desplegable)
+
+Traducción rápida: esto es el “centro de control”.
+
+2. HERO / BIENVENIDA
+
+La sección que da contexto y engancha.
+
+Contiene:
+
+Mensaje tipo: “Bienvenido de vuelta, GamerXX 👋”
+
+Frase de valor: “Organiza, juega y celebra cada aventura”
+
++ KPIs rápidos (esto es 🔥 para retención):
+Juegos totales
+Horas jugadas
+Logros obtenidos
+Esto convierte la app en algo personal, no solo funcional.
+
+3. RESUMEN VISUAL (Dashboard lateral)
+Mini panel analítico.
+Contiene:
+Gráfico tipo dona:
+Biblioteca (%)
+En progreso (%)
+Salón de la fama (%)
+Esto es oro: gamificación + dopamina visual.
+
+4. SECCIÓN: “TU PROGRESO”
+Aquí viven los juegos activos.
+Contiene:
+Cards de juegos en curso:
+Portada del juego
+Nombre
+% de progreso (barra visual)
+
+Esto responde a: “¿Qué estaba jugando y en qué iba?”
+
+5. SECCIÓN: “BIBLIOTECA”
+
+Mis pendientes… aka tu culpa gamer 😅
+Contiene:
+Juegos agregados pero no iniciados
+Estado: “Pendiente”
+Scroll horizontal tipo Netflix
+
+Aquí es donde entra la idea clave
+
+6. BOTÓN: “JUEGO AL AZAR”
+Este es EL DIFERENCIAL
+Contiene:
+CTA fuerte (botón llamativo)
+Icono tipo dado 🎲
+
+Mensaje: “¿No sabes qué jugar?”
+
+Este botón literalmente resuelve la parálisis de elección.
+Esto es UX inteligente, no solo diseño bonito.
+
+7. ACTIVIDAD RECIENTE
+Mi historial como gamer obsesivo
+
+Contiene:
+Últimos avances:
+“God of War Ragnarök → 55%”
+Logros desbloqueados
+Juegos agregados recientemente
+
+Esto genera sensación de progreso constante.
+
+8. MICRO-INTERACCIONES (aunque no se ven, están implícitas)
+
+Esto es lo que separa algo “ok” de algo brutal:
+
+Hover en juegos
+Animación en barras de progreso
+Glow en botón aleatorio 🎲
+Transiciones suaves entre estados
+
+
+(tipo mapa conceptual)
+HEADER → navegación + control
+↓
+HERO → identidad del usuario
+↓
+STATS → motivación
+↓
+PROGRESO → acción actual
+↓
+BIBLIOTECA → backlog
+↓
+RANDOM → decisión inteligente
+↓
+ACTIVIDAD → historial + engagement

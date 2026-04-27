@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './SagaCard.module.css'
 import { searchGameCovers } from '../services/igdbService'
 
@@ -104,6 +104,17 @@ function SagaCard({ saga, onStartPlaying, onEditSaga, onDeleteSaga, onEditEntry,
   const [searchingEntryCover, setSearchingEntryCover] = useState(null)
   const [coverResults, setCoverResults] = useState([])
   const [coverTarget, setCoverTarget] = useState(null)
+  const [coverIndex, setCoverIndex] = useState(0)
+
+  const entriesWithCover = saga.entries.filter(e => e.cover)
+
+  useEffect(() => {
+    if (entriesWithCover.length <= 1) return
+    const interval = setInterval(() => {
+      setCoverIndex(prev => (prev + 1) % entriesWithCover.length)
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [entriesWithCover.length])
 
   async function handleSearchCover(target, searchName) {
     setCoverTarget(target)
@@ -131,11 +142,14 @@ function SagaCard({ saga, onStartPlaying, onEditSaga, onDeleteSaga, onEditEntry,
     <>
       <div className={styles.card} onClick={() => setIsOpen(true)}>
         <div className={styles.cover}>
-          {saga.cover ? (
+          {entriesWithCover.length > 0 ? (
             <img
-              src={saga.cover.startsWith('//') ? `https:${saga.cover}` : saga.cover}
+              src={entriesWithCover[coverIndex].cover.startsWith('//')
+                ? `https:${entriesWithCover[coverIndex].cover}`
+                : entriesWithCover[coverIndex].cover}
               alt={saga.title}
               className={styles.coverImg}
+              style={{ transition: 'opacity 0.5s ease' }}
             />
           ) : (
             <div className={styles.coverPlaceholder}>
@@ -149,10 +163,6 @@ function SagaCard({ saga, onStartPlaying, onEditSaga, onDeleteSaga, onEditEntry,
             <span>VER SAGA</span>
           </div>
         </div>
-        <div className={styles.content}>
-          <span className={styles.sagaLabel}>SAGA</span>
-          <h3 className={styles.title}>{saga.title}</h3>
-        </div>
       </div>
 
       {isOpen && (
@@ -162,21 +172,17 @@ function SagaCard({ saga, onStartPlaying, onEditSaga, onDeleteSaga, onEditEntry,
             <div className={styles.modalHeader}>
               <div className={styles.modalHeaderLeft}>
                 <div className={styles.modalSagaCover}>
-                  {saga.cover ? (
+                  {entriesWithCover.length > 0 ? (
                     <img
-                      src={saga.cover.startsWith('//') ? `https:${saga.cover}` : saga.cover}
+                      src={entriesWithCover[0].cover.startsWith('//')
+                        ? `https:${entriesWithCover[0].cover}`
+                        : entriesWithCover[0].cover}
                       alt={saga.title}
                       className={styles.modalSagaCoverImg}
                     />
                   ) : (
                     <div className={styles.modalSagaCoverPlaceholder}>⬡</div>
                   )}
-                  <button
-                    className={styles.changeCoverBtn}
-                    onClick={(e) => { e.stopPropagation(); handleSearchCover('saga', saga.title) }}
-                  >
-                    {searchingCover ? '...' : '🖼'}
-                  </button>
                 </div>
                 <div>
                   <span className={styles.modalSagaLabel}>SAGA</span>

@@ -97,6 +97,7 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - Persistencia con localStorage
 - FilterBar con filtros y búsqueda
 - AddGameModal para agregar y editar
+- Carátulas de juegos via IGDB API
 
 ## Estructura de carpetas
 src/
@@ -122,5 +123,20 @@ src/
 - Un solo juego en progreso a la vez (pendiente confirmar)
 
 ## Próximo paso
-- Carátulas de juegos via IGDB API
 - Supabase como base de datos real
+Referencia visual: imagen adjunta en conversación
+Estructura nueva:
+- Header fijo con nav, buscador y perfil
+- Hero con bienvenida + KPIs
+- Dashboard lateral con gráfico dona (recharts instalado)
+- Sección Tu Progreso — scroll horizontal
+- Sección Biblioteca — scroll horizontal estilo Netflix
+- Botón Juego al Azar destacado
+- Actividad reciente
+- Micro-interacciones en todo
+
+## Decisiones de diseño
+- Mantener paleta oscura actual
+- Tipografía: Bebas Neue + Quantico + Share Tech Mono
+- Carátulas via IGDB API (ya funciona)
+- Scroll horizontal tipo Netflix para biblioteca y progreso
