@@ -98,6 +98,24 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - FilterBar con filtros y búsqueda
 - AddGameModal para agregar y editar
 - Carátulas de juegos via IGDB API
+- Nuevo layout dashboard completo con grid main + sidebar
+- AppHeader fijo con nav (Inicio/Biblioteca/En progreso/Salón de la fama), buscador y perfil
+- Hero con vault-logo.png, bienvenida y 3 KPIs rectangulares
+- InProgressSection con scroll horizontal estilo Netflix, barras de progreso y flechas
+- LibraryScroll — nuevo componente solo para dashboard (sin filtros ni botón agregar)
+- Sidebar: donut Recharts real, RandomCard púrpura con dado animado y anillos, actividad reciente
+- App.module.css limpio sin duplicados
+- Salón de la Fama removido del dashboard (queda para vista propia)
+- FilterBar y botón agregar juego reservados para vista completa de Biblioteca
+- Se agrega el footer al diseño (hay que hacer algunas correcciones y conectar con datos reales)
+- React Router configurado — SPA con rutas / y /biblioteca
+- LibraryView completa: sidebar izquierdo, filtros por género (pills),
+  stats banner con barras, grid de cards con menú y favorito, FAB flotante
+- AddGameModal rediseñado: layout 2 columnas, drag & drop de imagen,
+  búsqueda IGDB, géneros como pills, footer con cancelar/agregar
+- SuggestedGameModal rediseñado: confetti, dado animado, carátula con
+  glow púrpura, info en grid, quote aleatoria, footer con 2 botones
+- Footer completo: 4 columnas + dado random + bottom bar con redes sociales
 
 ## Estructura de carpetas
 src/
@@ -136,7 +154,8 @@ Estructura nueva:
 - Micro-interacciones en todo
 
 ## Decisiones de diseño
-- Mantener paleta oscura actual
-- Tipografía: Bebas Neue + Quantico + Share Tech Mono
-- Carátulas via IGDB API (ya funciona)
-- Scroll horizontal tipo Netflix para biblioteca y progreso
+- Vista En Progreso (/en-progreso)
+- Vista Salón de la Fama (/salon-de-la-fama)
+- Conectar nav del sidebar de LibraryView con las rutas
+- Paginación en Biblioteca
+- Supabase como base de datos real

@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import styles from './LibraryScroll.module.css'
 
-function LibraryScroll({ games, sagas }) {
+function LibraryScroll({ games, sagas, onStartPlaying }) {
   const trackRef = useRef(null)
 
   function scrollRight() {
@@ -11,20 +11,21 @@ function LibraryScroll({ games, sagas }) {
     trackRef.current.scrollBy({ left: -340, behavior: 'smooth' })
   }
 
-  // Aplanamos sagas y singles en una sola lista de carátulas
   const items = [
     ...sagas.map(saga => ({
       id: saga.id,
-      title: saga.name,
+      title: saga.name || saga.title,
       cover: saga.cover,
       isSaga: true,
       count: saga.entries?.length ?? 0,
+      original: saga,
     })),
     ...games.map(game => ({
       id: game.id,
       title: game.title,
       cover: game.cover,
       isSaga: false,
+      original: game,
     })),
   ]
 
@@ -34,33 +35,37 @@ function LibraryScroll({ games, sagas }) {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.scrollWrapper} ref={trackRef}>
-        <div className={styles.track}>
-          {items.map(item => (
-            <div key={item.id} className={styles.card}>
-              <div className={styles.cover}>
-                {item.cover ? (
-                  <img
-                    src={item.cover.startsWith('//') ? `https:${item.cover}` : item.cover}
-                    alt={item.title}
-                    className={styles.coverImg}
-                  />
-                ) : (
-                  <div className={styles.coverPlaceholder}>
-                    <span>{item.isSaga ? '📚' : '🎮'}</span>
+      {/* padding top para que el hover no se corte */}
+      <div className={styles.scrollOuter}>
+        <div className={styles.scrollWrapper} ref={trackRef}>
+          <div className={styles.track}>
+            {items.map(item => (
+              <div
+                key={item.id}
+                className={styles.card}
+                onClick={() => onStartPlaying && onStartPlaying(item.original)}
+              >
+                <div className={styles.cover}>
+                  {item.cover ? (
+                    <img
+                      src={item.cover.startsWith('//') ? `https:${item.cover}` : item.cover}
+                      alt={item.title}
+                      className={styles.coverImg}
+                    />
+                  ) : (
+                    <div className={styles.coverPlaceholder}>
+                      <span>{item.isSaga ? '📚' : '🎮'}</span>
+                    </div>
+                  )}
+                  <div className={styles.overlay} />
+                  <div className={styles.badge}>
+                    {item.isSaga ? `📚 ${item.count} entregas` : '● Pendiente'}
                   </div>
-                )}
-                <div className={styles.overlay} />
-                <div className={styles.badge}>
-                  {item.isSaga
-                    ? `${item.count} entregas`
-                    : '● Pendiente'
-                  }
                 </div>
+                <p className={styles.title}>{item.title}</p>
               </div>
-              <p className={styles.title}>{item.title}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 

@@ -1,24 +1,29 @@
 import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import styles from './Header.module.css'
 
 const NAV_ITEMS = [
-  { id: 'inicio', label: 'Inicio', icon: '⌂' },
-  { id: 'biblioteca', label: 'Biblioteca', icon: '▦' },
-  { id: 'progreso', label: 'En progreso', icon: '◉' },
-  { id: 'fama', label: 'Salón de la fama', icon: '✦' },
+  { id: 'inicio',     label: 'Inicio',           icon: '⌂', path: '/'           },
+  { id: 'biblioteca', label: 'Biblioteca',        icon: '▦', path: '/biblioteca' },
+  { id: 'progreso',   label: 'En progreso',       icon: '◉', path: '/en-progreso' },
+  { id: 'fama',       label: 'Salón de la fama',  icon: '✦', path: '/salon'      },
 ]
 
 function AppHeader({ searchQuery, onSearch }) {
-  const [activeNav, setActiveNav] = useState('inicio')
+  const navigate = useNavigate()
+  const location = useLocation()
 
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
 
-        {/* LOGO */}
-        <div className={styles.logoBlock}>
+        <div className={styles.logoBlock} onClick={() => navigate('/')}>
           <div className={styles.logoIcon}>
-            <span className={styles.logoIconGlyph}>⚙</span>
+            <img
+              src="/src/assets/vault-logo.png"
+              alt="logo"
+              style={{ width: '32px', height: '32px', objectFit: 'cover', objectPosition: 'center 10%', borderRadius: '50%' }}
+            />
           </div>
           <div className={styles.logoText}>
             <span className={styles.logoMy}>My</span>
@@ -28,22 +33,20 @@ function AppHeader({ searchQuery, onSearch }) {
           </div>
         </div>
 
-        {/* NAV */}
         <nav className={styles.nav}>
           {NAV_ITEMS.map(item => (
             <button
               key={item.id}
-              className={`${styles.navItem} ${activeNav === item.id ? styles.navActive : ''}`}
-              onClick={() => setActiveNav(item.id)}
+              className={`${styles.navItem} ${location.pathname === item.path ? styles.navActive : ''}`}
+              onClick={() => navigate(item.path)}
             >
               <span className={styles.navIcon}>{item.icon}</span>
               {item.label}
-              {activeNav === item.id && <span className={styles.navUnderline} />}
+              {location.pathname === item.path && <span className={styles.navUnderline} />}
             </button>
           ))}
         </nav>
 
-        {/* DERECHA: buscador + campana + perfil */}
         <div className={styles.right}>
           <div className={styles.searchBox}>
             <span className={styles.searchIcon}>🔍</span>
@@ -56,12 +59,10 @@ function AppHeader({ searchQuery, onSearch }) {
             />
             <span className={styles.searchShortcut}>Ctrl K</span>
           </div>
-
           <button className={styles.iconBtn}>
             <span className={styles.bellIcon}>🔔</span>
             <span className={styles.notifDot} />
           </button>
-
           <div className={styles.profile}>
             <div className={styles.avatar}>GX</div>
             <span className={styles.profileName}>GamerXX</span>

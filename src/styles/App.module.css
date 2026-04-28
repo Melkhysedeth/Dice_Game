@@ -31,6 +31,7 @@
   flex-direction: column;
   gap: var(--space-xl);
   min-width: 0;
+  overflow: visible;
 }
 
 /* ================================================
@@ -86,7 +87,7 @@
 }
 
 .heroGreeting {
-  font-family: var(--font-display);
+  font-family: var(--font-body2);
   font-size: 32px;
   color: var(--text-bright);
   margin: 0;
@@ -98,7 +99,7 @@
 }
 
 .heroTagline {
-  font-family: var(--font-body);
+  font-family: var(--font-body2);
   font-size: 14px;
   color: var(--text-dim);
   margin: 0;
@@ -138,7 +139,7 @@
 }
 
 .kpiLabel {
-  font-family: var(--font-body);
+  font-family: var(--font-body2);
   font-size: 10px;
   color: var(--text-dim);
   letter-spacing: 1px;
@@ -147,10 +148,10 @@
 }
 
 .kpiValue {
-  font-family: var(--font-display);
-  font-size: 26px;
+  font-family: var(--font-body2);
+  font-size: 22px;
   color: var(--text-bright);
-  line-height: 1;
+  line-height: 2;
 }
 
 /* ================================================
@@ -160,6 +161,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  overflow: visible;
 }
 
 .sectionHeader {

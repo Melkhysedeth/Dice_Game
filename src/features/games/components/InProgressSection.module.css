@@ -9,6 +9,8 @@
   overflow-y: visible;
   scrollbar-width: none;
   padding-bottom: var(--space-sm);
+  padding-top: 12px;
+  margin-top: -12px;
 }
 
 .scrollWrapper::-webkit-scrollbar { display: none; }
