@@ -16,6 +16,7 @@ import Footer from './components/layout/Footer'
 import { Routes, Route } from 'react-router-dom'
 import LibraryView from './features/games/views/LibraryView'
 import InProgressView from './features/games/views/InProgressView'
+import HallOfFameView from './features/games/views/HallOfFameView'
 
 function App() {
   const {
@@ -292,6 +293,15 @@ function App() {
             onRandomGame={pickRandomGame}
           />
         } />
+
+        {/* -- SALON DE LA FAMA -- */}
+        <Route path="/salon" element={
+          <HallOfFameView
+          games={completedGames}
+          onReturnToLibrary={returnToLibrary}
+          onRandomGame={pickRandomGame}
+          />
+        }/>
 
       </Routes>
 

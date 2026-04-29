@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import styles from './HallOfFameCard.module.css'
+import GameModal from './GameModal'
 
 function HallOfFameCard({ game, onReturnToLibrary }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -34,46 +35,15 @@ function HallOfFameCard({ game, onReturnToLibrary }) {
       </div>
 
       {isOpen && (
-        <div className={styles.backdrop} onClick={() => setIsOpen(false)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-
-            <div className={styles.modalHeader}>
-              <div>
-                {game.isSagaEntry && (
-                  <span className={styles.modalSagaBadge}>{game.sagaTitle}</span>
-                )}
-                <h2 className={styles.modalTitle}>{game.title}</h2>
-                <p className={styles.modalDeveloper}>{game.developer}</p>
-              </div>
-              <button className={styles.closeBtn} onClick={() => setIsOpen(false)}>✕</button>
-            </div>
-
-            <div className={styles.sessionInfo}>
-              <div className={styles.sessionItem}>
-                <span className={styles.sessionLabel}>INICIADO</span>
-                <span className={styles.sessionValue}>{lastSession.startDate}</span>
-              </div>
-              <div className={styles.sessionItem}>
-                <span className={styles.sessionLabel}>COMPLETADO</span>
-                <span className={styles.sessionValue}>{lastSession.endDate}</span>
-              </div>
-              <div className={styles.sessionItem}>
-                <span className={styles.sessionLabel}>VECES JUGADO</span>
-                <span className={styles.sessionValue}>{game.sessions.length}</span>
-              </div>
-            </div>
-
-            <div className={styles.modalActions}>
-              <button
-                className={styles.returnBtn}
-                onClick={() => { onReturnToLibrary(game); setIsOpen(false) }}
-              >
-                ↩ VOLVER A BIBLIOTECA
-              </button>
-            </div>
-
-          </div>
-        </div>
+        <GameModal
+          game={game}
+          mode="hall_of_fame"
+          onClose={() => setIsOpen(false)}
+          onAction={(action) => {
+            if (action === 'replay') { onReturnToLibrary(game); setIsOpen(false) }
+            setIsOpen(false)
+          }}
+        />
       )}
     </>
   )

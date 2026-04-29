@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AddGameModal from '../components/AddGameModal'
 import styles from './LibraryView.module.css'
+import GameModal from '../components/GameModal'
+import SagaView from './SagaView'
 
 function LibraryView({
   games, sagas, onStartPlaying, onEdit, onDelete,
@@ -13,6 +15,7 @@ function LibraryView({
   const [viewMode, setViewMode] = useState('grid') // grid | list
   const [search, setSearch] = useState('')
   const [selectedGame, setSelectedGame] = useState(null)
+  const [selectedSaga, setSelectedSaga] = useState(null)
 
   // Recopilar todos los géneros únicos
   const allGenres = useMemo(() => {
@@ -68,7 +71,27 @@ function LibraryView({
     return item.cover.startsWith('//') ? `https:${item.cover}` : item.cover
   }
 
+  // Si hay una saga seleccionada, mostrar SagaView
+  if (selectedSaga) {
+    return (
+      <SagaView
+        saga={selectedSaga}
+        allSagas={sagas}          // ← agregar esta línea
+        onBack={() => setSelectedSaga(null)}
+        onStartPlaying={onStartPlaying}
+        onAddEntry={() => { }}
+        onEditEntry={onEditEntry}
+        onDeleteEntry={onDeleteEntry}
+        onEditSaga={onEditSaga}
+        onDeleteSaga={(sagaId) => { onDeleteSaga(sagaId); setSelectedSaga(null) }}
+        onUpdateEntryCover={onUpdateEntryCover}
+        onRandomGame={onRandomGame}   // ← agregar esta línea
+      />
+    )
+  }
+
   return (
+
     <div className={styles.root}>
 
       {/* ── SIDEBAR IZQUIERDO ── */}
@@ -201,7 +224,7 @@ function LibraryView({
             <div
               key={saga.id}
               className={styles.card}
-              onClick={() => setSelectedGame({ type: 'saga', data: saga })}
+              onClick={() => setSelectedSaga(saga)}
             >
               <div className={styles.cardCover}>
                 {getCover(saga) ? (
@@ -280,54 +303,17 @@ function LibraryView({
 
       {/* MODAL DETALLE */}
       {selectedGame && (
-        <div className={styles.backdrop} onClick={() => setSelectedGame(null)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <div>
-                <h2 className={styles.modalTitle}>
-                  {selectedGame.type === 'saga' ? selectedGame.data.title : selectedGame.data.title}
-                </h2>
-                <p className={styles.modalDev}>
-                  {selectedGame.data.developer}
-                  {selectedGame.data.year && ` — ${selectedGame.data.year}`}
-                </p>
-              </div>
-              <button className={styles.modalClose} onClick={() => setSelectedGame(null)}>✕</button>
-            </div>
-            <div className={styles.modalGenres}>
-              {selectedGame.data.genre?.map(g => (
-                <span key={g} className={styles.modalGenreTag}>{g}</span>
-              ))}
-            </div>
-            <div className={styles.modalActions}>
-              <button
-                className={styles.modalPlay}
-                onClick={() => {
-                  onStartPlaying(selectedGame.data)
-                  setSelectedGame(null)
-                }}
-              >▶ COMENZAR A JUGAR</button>
-              <button
-                className={styles.modalEdit}
-                onClick={() => {
-                  selectedGame.type === 'saga'
-                    ? onEditSaga(selectedGame.data)
-                    : onEdit(selectedGame.data)
-                  setSelectedGame(null)
-                }}
-              >✎ EDITAR</button>
-              <button
-                className={styles.modalDelete}
-                onClick={() => {
-                  selectedGame.type === 'saga'
-                    ? onDeleteSaga(selectedGame.data.id)
-                    : onDelete(selectedGame.data)
-                  setSelectedGame(null)
-                }}
-              >✕ ELIMINAR</button>
-            </div>
-          </div>
-        </div>
+        <GameModal
+          game={selectedGame.type === 'saga' ? selectedGame.data : selectedGame.data}
+          mode="library"
+          onClose={() => setSelectedGame(null)}
+          onAction={(action) => {
+            if (action === 'start') {
+              onStartPlaying(selectedGame.data)
+              setSelectedGame(null)
+            }
+          }}
+        />
       )}
 
     </div>

@@ -116,6 +116,8 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - SuggestedGameModal rediseñado: confetti, dado animado, carátula con
   glow púrpura, info en grid, quote aleatoria, footer con 2 botones
 - Footer completo: 4 columnas + dado random + bottom bar con redes sociales
+- Vista En Progreso (/en-progreso)
+- Vista Salón de la Fama (/salon-de-la-fama)
 
 ## Estructura de carpetas
 src/
@@ -142,20 +144,13 @@ src/
 
 ## Próximo paso
 - Supabase como base de datos real
-Referencia visual: imagen adjunta en conversación
-Estructura nueva:
-- Header fijo con nav, buscador y perfil
-- Hero con bienvenida + KPIs
-- Dashboard lateral con gráfico dona (recharts instalado)
-- Sección Tu Progreso — scroll horizontal
-- Sección Biblioteca — scroll horizontal estilo Netflix
-- Botón Juego al Azar destacado
-- Actividad reciente
-- Micro-interacciones en todo
-
-## Decisiones de diseño
-- Vista En Progreso (/en-progreso)
-- Vista Salón de la Fama (/salon-de-la-fama)
+- Modificar el modal de información de juegos 
+- Crear el modal de las sagas dentro de Biblioteca
 - Conectar nav del sidebar de LibraryView con las rutas
 - Paginación en Biblioteca
 - Supabase como base de datos real
+- Hacer modificaciones al modal de Nuevo juego 
+- Hacer que funcione el boton "Buscar Juegos, sagas"
+
+## Decisiones de diseño
+- El apartado de Sagas tendra un modal definido

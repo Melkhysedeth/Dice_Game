@@ -1,27 +1,18 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import InProgressCard from '../components/InProgressCard'
 import styles from './InProgressView.module.css'
+import GameModal from '../components/GameModal'
 
 function InProgressView({ games, onComplete, onRandomGame }) {
   const navigate = useNavigate()
   const [selectedGame, setSelectedGame] = useState(null)
+  const [activePlatform, setActivePlatform] = useState('Todos')
 
   const totalGames = games.length
-  const avgProgress = totalGames > 0
-    ? Math.round(games.reduce((acc, g) => acc + (g.progress ?? 50), 0) / totalGames)
-    : 0
 
   function getCover(game) {
     if (!game.cover) return null
     return game.cover.startsWith('//') ? `https:${game.cover}` : game.cover
-  }
-
-  function getDaysPlaying(game) {
-    const session = game.sessions?.[game.sessions.length - 1]
-    if (!session?.startDate) return '—'
-    const diff = Math.floor((new Date() - new Date(session.startDate)) / 86400000)
-    return diff === 0 ? 'Hoy' : `${diff} días`
   }
 
   function getStartDate(game) {
@@ -29,83 +20,72 @@ function InProgressView({ games, onComplete, onRandomGame }) {
     return session?.startDate ?? '—'
   }
 
+  function getDaysPlaying(game) {
+    const session = game.sessions?.[game.sessions.length - 1]
+    if (!session?.startDate) return '—'
+    const diff = Math.floor((new Date() - new Date(session.startDate)) / 86400000)
+    if (diff === 0) return 'Hoy'
+    if (diff === 1) return 'Ayer'
+    return `Hace ${diff} días`
+  }
+
   function isFirstTime(game) {
     const session = game.sessions?.[game.sessions.length - 1]
     return session?.isFirstTime ? 'Primera vez' : 'Rejugando'
   }
 
+  // Plataformas únicas
+  const platforms = ['Todos', ...new Set(games.flatMap(g => g.platform ?? []))]
+
+  const filteredGames = activePlatform === 'Todos'
+    ? games
+    : games.filter(g => g.platform?.includes(activePlatform))
+
   return (
     <div className={styles.root}>
 
       {/* ── SIDEBAR IZQUIERDO ── */}
-      <aside className={styles.sidebar}>
+      <aside className={styles.sidebarLeft}>
         <div className={styles.sideSection}>
-          <span className={styles.sideSectionTitle}>MI BIBLIOTECA</span>
+          <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
           <nav className={styles.sideNav}>
             <button className={styles.sideNavItem} onClick={() => navigate('/')}>
-              <span>📊</span> Resumen
+              <span>🏠</span> Inicio
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/biblioteca')}>
               <span>▦</span> Biblioteca
+              <span className={styles.sideNavBadge}>0</span>
             </button>
             <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
-              <span>◉</span> En progreso
-              <span className={styles.sideNavBadge} style={{ background: 'rgba(255,107,53,0.15)', color: 'var(--accent-2)' }}>
-                {totalGames}
-              </span>
+              <span>🎮</span> En progreso
+              <span className={styles.sideNavBadgeOrange}>{totalGames}</span>
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/salon')}>
-              <span>✦</span> Salón de la fama
+              <span>🏆</span> Salón de la fama
+              <span className={styles.sideNavBadgeGold}>0</span>
             </button>
             <button className={styles.sideNavItem} onClick={onRandomGame}>
-              <span>🎲</span> Juego al azar
+              <span>🎲</span> Juegos al azar
             </button>
           </nav>
         </div>
 
-        {/* STATS RÁPIDAS */}
         <div className={styles.sideSection}>
-          <span className={styles.sideSectionTitle}>ESTADÍSTICAS</span>
-          <div className={styles.sideStats}>
-            <div className={styles.sideStat}>
-              <span className={styles.sideStatValue}>{totalGames}</span>
-              <span className={styles.sideStatLabel}>En progreso</span>
-            </div>
-            <div className={styles.sideStat}>
-              <span className={styles.sideStatValue} style={{ color: 'var(--accent-2)' }}>{avgProgress}%</span>
-              <span className={styles.sideStatLabel}>Progreso medio</span>
-            </div>
-            <div className={styles.sideStat}>
-              <span className={styles.sideStatValue}>3</span>
-              <span className={styles.sideStatLabel}>Slots disponibles</span>
-            </div>
-          </div>
-
-          {/* Barra de slots usados */}
-          <div className={styles.slotsBar}>
-            <div className={styles.slotsBarLabel}>
-              <span>Slots usados</span>
-              <span style={{ color: 'var(--accent-2)' }}>{totalGames}/3</span>
-            </div>
-            <div className={styles.slotsTrack}>
-              {[0, 1, 2].map(i => (
-                <div
-                  key={i}
-                  className={styles.slotsSlot}
-                  style={{ background: i < totalGames ? 'var(--accent-2)' : 'var(--surface-2)' }}
-                />
-              ))}
-            </div>
-          </div>
+          <span className={styles.sideSectionTitle}>LISTAS</span>
+          <nav className={styles.sideNav}>
+            <button className={styles.sideNavItem}><span>★</span> Favoritos</button>
+            <button className={styles.sideNavItem}><span>⏱</span> Juegos cortos</button>
+            <button className={styles.sideNavItem}><span>👥</span> Cooperativos</button>
+            <button className={styles.sideNavItem}><span>+</span> Nueva lista</button>
+          </nav>
         </div>
 
-        {/* DADO */}
         <div className={styles.sideRandom}>
           <h4 className={styles.sideRandomTitle}>¿No sabes qué jugar?</h4>
-          <p className={styles.sideRandomSub}>Deja que el azar elija tu próxima aventura.</p>
+          <p className={styles.sideRandomSub}>Deja que el azar elija tu próxima aventura</p>
           <div className={styles.sideDice}>🎲</div>
           <button className={styles.sideRandomBtn} onClick={onRandomGame}>
-            <span>🎲</span> JUEGO AL AZAR
+            🚀 JUEGO AL AZAR
           </button>
         </div>
       </aside>
@@ -116,93 +96,115 @@ function InProgressView({ games, onComplete, onRandomGame }) {
         {/* PAGE HEADER */}
         <div className={styles.pageHeader}>
           <div className={styles.pageHeaderLeft}>
-            <div className={styles.pageIcon}>◉</div>
+            <div className={styles.pageIcon}>🎮</div>
             <div>
-              <h1 className={styles.pageTitle}>En Progreso</h1>
-              <p className={styles.pageSubtitle}>Juegos que estás jugando ahora</p>
+              <h1 className={styles.pageTitle}>En progreso</h1>
+              <p className={styles.pageSubtitle}>Juegos que estás jugando actualmente</p>
             </div>
           </div>
         </div>
 
-        {/* STATS BANNER */}
-        {totalGames > 0 && (
-          <div className={styles.statsBanner}>
-            <div className={styles.statsBannerLeft}>
-              <div className={styles.statsBannerIcon}>◉</div>
-              <div>
-                <p className={styles.statsBannerCount}>{totalGames} juego{totalGames !== 1 ? 's' : ''} en progreso</p>
-                <p className={styles.statsBannerSub}>Máximo 3 simultáneos</p>
-              </div>
-            </div>
-            <div className={styles.statsBannerGames}>
-              {games.map((game, i) => {
-                const prog = game.progress ?? 50
-                const colors = ['var(--accent-2)', 'var(--accent)', 'var(--accent-3)']
-                return (
-                  <div key={game.id} className={styles.statsBannerGame}>
-                    <div className={styles.statsBannerGameTop}>
-                      <span className={styles.statsBannerGameName}>{game.title}</span>
-                      <span className={styles.statsBannerGamePct}>{prog}%</span>
-                    </div>
-                    <div className={styles.statsBannerBar}>
-                      <div
-                        className={styles.statsBannerBarFill}
-                        style={{ width: `${prog}%`, background: colors[i % 3] }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* GRID DE CARDS */}
-        {totalGames > 0 ? (
-          <div className={styles.grid}>
-            {games.map(game => (
-              <div
-                key={game.id}
-                className={styles.card}
-                onClick={() => setSelectedGame(game)}
+        {/* FILTROS PLATAFORMA + ORDENAR */}
+        <div className={styles.filtersRow}>
+          <div className={styles.platformTabs}>
+            {platforms.map(p => (
+              <button
+                key={p}
+                className={`${styles.platformTab} ${activePlatform === p ? styles.platformTabActive : ''}`}
+                onClick={() => setActivePlatform(p)}
               >
-                <div className={styles.cardCover}>
-                  {getCover(game) ? (
-                    <img src={getCover(game)} alt={game.title} className={styles.cardImg} />
-                  ) : (
-                    <div className={styles.cardPlaceholder}><span>🎮</span></div>
-                  )}
-                  <div className={styles.cardOverlay} />
+                {p}
+                <span className={styles.platformTabCount}>
+                  {p === 'Todos' ? totalGames : games.filter(g => g.platform?.includes(p)).length}
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className={styles.sortBtn}>
+            Ordenar por: <span>Último jugado</span> ▾
+          </div>
+        </div>
 
-                  {/* Badge de progreso sobre la carátula */}
-                  <div className={styles.cardProgressBadge}>
-                    {game.progress ?? 50}%
+        {/* LISTA DE JUEGOS */}
+        {filteredGames.length > 0 ? (
+          <div className={styles.gameList}>
+            {filteredGames.map(game => {
+              const progress = game.progress ?? 50
+              const cover = getCover(game)
+              return (
+                <div
+                  key={game.id}
+                  className={styles.gameRow}
+                  onClick={() => setSelectedGame(game)}
+                >
+                  {/* CARÁTULA */}
+                  <div className={styles.rowCover}>
+                    {cover
+                      ? <img src={cover} alt={game.title} className={styles.rowCoverImg} />
+                      : <div className={styles.rowCoverPlaceholder}>🎮</div>
+                    }
                   </div>
-                </div>
 
-                <div className={styles.cardInfo}>
-                  <p className={styles.cardTitle}>{game.title}</p>
-                  {game.sagaTitle && (
-                    <p className={styles.cardSaga}>{game.sagaTitle}</p>
-                  )}
-                  <div className={styles.cardProgressRow}>
-                    <div className={styles.cardProgressBar}>
-                      <div
-                        className={styles.cardProgressFill}
-                        style={{ width: `${game.progress ?? 50}%` }}
-                      />
+                  {/* INFO */}
+                  <div className={styles.rowInfo}>
+                    <div className={styles.rowTitleRow}>
+                      <h3 className={styles.rowTitle}>{game.title}</h3>
+                      <span className={styles.rowStar}>★</span>
+                    </div>
+                    <div className={styles.rowTags}>
+                      {game.genre?.slice(0, 3).map(g => (
+                        <span key={g} className={styles.rowTag}>{g}</span>
+                      ))}
+                    </div>
+                    <div className={styles.rowPlatform}>
+                      <span className={styles.rowPlatformIcon}>💾</span>
+                      {game.platform?.join(', ')}
                     </div>
                   </div>
-                  <div className={styles.cardBottom}>
-                    <span className={styles.cardBadge}>
-                      <span className={styles.cardBadgeDot} />
-                      {getDaysPlaying(game)}
-                    </span>
-                    <span className={styles.cardFirstTime}>{isFirstTime(game)}</span>
+
+                  {/* PROGRESO */}
+                  <div className={styles.rowProgress}>
+                    <div className={styles.rowProgressTop}>
+                      <span className={styles.rowProgressPct}>{progress}%</span>
+                      <span className={styles.rowProgressLabel}>Completado</span>
+                    </div>
+                    <div className={styles.rowProgressBar}>
+                      <div
+                        className={styles.rowProgressFill}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <div className={styles.rowProgressBottom}>
+                      <span className={styles.rowTimeIcon}>⏱</span>
+                      <span className={styles.rowTime}>Tiempo jugado</span>
+                      <span className={styles.rowTimeVal}>—</span>
+                    </div>
                   </div>
+
+                  {/* ÚLTIMA SESIÓN + BOTÓN */}
+                  <div className={styles.rowActions}>
+                    <div className={styles.rowSession}>
+                      <span className={styles.rowSessionLabel}>Última sesión</span>
+                      <span className={styles.rowSessionVal}>{getDaysPlaying(game)}</span>
+                    </div>
+                    <button
+                      className={styles.rowContinueBtn}
+                      onClick={e => {
+                        e.stopPropagation()
+                        setSelectedGame(game)
+                      }}
+                    >
+                      ▶ Continuar
+                    </button>
+                    <button
+                      className={styles.rowMenuBtn}
+                      onClick={e => e.stopPropagation()}
+                    >⋮</button>
+                  </div>
+
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className={styles.empty}>
@@ -216,70 +218,124 @@ function InProgressView({ games, onComplete, onRandomGame }) {
 
       </main>
 
-      {/* MODAL DETALLE */}
-      {selectedGame && (
-        <div className={styles.backdrop} onClick={() => setSelectedGame(null)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <div>
-                {selectedGame.sagaTitle && (
-                  <span className={styles.modalSagaBadge}>{selectedGame.sagaTitle}</span>
-                )}
-                <h2 className={styles.modalTitle}>{selectedGame.title}</h2>
-                <p className={styles.modalDev}>
-                  {selectedGame.developer}
-                  {selectedGame.year && ` — ${selectedGame.year}`}
-                </p>
-              </div>
-              <button className={styles.modalClose} onClick={() => setSelectedGame(null)}>✕</button>
-            </div>
+      {/* ── SIDEBAR DERECHO ── */}
+      <aside className={styles.sidebarRight}>
 
-            <div className={styles.modalStats}>
-              <div className={styles.modalStat}>
-                <span className={styles.modalStatLabel}>INICIADO</span>
-                <span className={styles.modalStatValue}>{getStartDate(selectedGame)}</span>
-              </div>
-              <div className={styles.modalStat}>
-                <span className={styles.modalStatLabel}>TIEMPO</span>
-                <span className={styles.modalStatValue}>{getDaysPlaying(selectedGame)}</span>
-              </div>
-              <div className={styles.modalStat}>
-                <span className={styles.modalStatLabel}>PARTIDA</span>
-                <span className={styles.modalStatValue}>{isFirstTime(selectedGame)}</span>
-              </div>
-              <div className={styles.modalStat}>
-                <span className={styles.modalStatLabel}>PROGRESO</span>
-                <span className={styles.modalStatValue} style={{ color: 'var(--accent-2)' }}>
-                  {selectedGame.progress ?? 50}%
-                </span>
+        {/* RESUMEN DE PROGRESO */}
+        <div className={styles.rightCard}>
+          <h4 className={styles.rightCardTitle}>▦ RESUMEN DE PROGRESO</h4>
+          <div className={styles.donutWrapper}>
+            <div className={styles.donutFake}>
+              <div className={styles.donutCenter}>
+                <span className={styles.donutNum}>{totalGames}</span>
+                <span className={styles.donutSub}>Juegos</span>
               </div>
             </div>
-
-            <div className={styles.modalProgressWrap}>
-              <div className={styles.modalProgressBar}>
-                <div
-                  className={styles.modalProgressFill}
-                  style={{ width: `${selectedGame.progress ?? 50}%` }}
-                />
+            <div className={styles.donutLegend}>
+              <div className={styles.donutLegendItem}>
+                <span className={styles.donutDot} style={{ background: '#22c55e' }} />
+                <span>En progreso</span>
+                <span className={styles.donutLegendVal}>{totalGames} (100%)</span>
               </div>
-            </div>
-
-            <div className={styles.modalActions}>
-              <button
-                className={styles.modalComplete}
-                onClick={() => { onComplete(selectedGame); setSelectedGame(null) }}
-              >
-                ✓ MARCAR COMO COMPLETADO
-              </button>
-              <button
-                className={styles.modalEdit}
-                onClick={() => setSelectedGame(null)}
-              >
-                ✎ EDITAR
-              </button>
+              <div className={styles.donutLegendItem}>
+                <span className={styles.donutDot} style={{ background: '#a855f7' }} />
+                <span>Pendientes</span>
+                <span className={styles.donutLegendVal}>0 (0%)</span>
+              </div>
+              <div className={styles.donutLegendItem}>
+                <span className={styles.donutDot} style={{ background: '#3b82f6' }} />
+                <span>Completados</span>
+                <span className={styles.donutLegendVal}>0 (0%)</span>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* TIEMPO JUGADO */}
+        <div className={styles.rightCard}>
+          <h4 className={styles.rightCardTitle}>⏱ TIEMPO JUGADO</h4>
+          <p className={styles.rightCardSub}>Este mes</p>
+          <div className={styles.timeDisplay}>
+            <span className={styles.timeBig}>—h —m</span>
+          </div>
+          <div className={styles.barChart}>
+            {[3, 5, 4, 7, 6, 8, 5, 9, 7, 6, 8, 10, 7, 5, 8].map((h, i) => (
+              <div key={i} className={styles.barChartCol}>
+                <div
+                  className={styles.barChartBar}
+                  style={{ height: `${h * 8}px` }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* LOGROS RECIENTES */}
+        <div className={styles.rightCard}>
+          <div className={styles.rightCardHeader}>
+            <h4 className={styles.rightCardTitle}>🏆 LOGROS RECIENTES</h4>
+            <button className={styles.rightCardLink}>Ver todos</button>
+          </div>
+          <div className={styles.achievementList}>
+            {['Explorador', 'Guerrero', 'Coleccionista'].map((name, i) => (
+              <div key={i} className={styles.achievementItem}>
+                <div className={styles.achievementIcon}>
+                  {['🎯', '⚔️', '🎒'][i]}
+                </div>
+                <div className={styles.achievementInfo}>
+                  <span className={styles.achievementName}>{name}</span>
+                  <span className={styles.achievementGame}>
+                    {games[i % games.length]?.title ?? 'Sin juego'}
+                  </span>
+                </div>
+                <span className={styles.achievementTime}>—</span>
+              </div>
+            ))}
+          </div>
+
+          {/* RACHA */}
+          <div className={styles.streak}>
+            <span className={styles.streakFire}>🔥</span>
+            <div className={styles.streakInfo}>
+              <span className={styles.streakTitle}>RACHA ACTIVA</span>
+              <span className={styles.streakDays}>— días <span className={styles.streakTag}>¡Sigue así!</span></span>
+            </div>
+          </div>
+          <div className={styles.streakDots}>
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className={`${styles.streakDot} ${i < 7 ? styles.streakDotActive : ''}`} />
+            ))}
+          </div>
+        </div>
+
+      </aside>
+
+      {/* MODAL */}
+      {selectedGame && (
+        <GameModal
+          game={{
+            ...selectedGame,
+            genres: selectedGame.genre ?? [],
+            cover: selectedGame.cover?.startsWith('//') ? `https:${selectedGame.cover}` : selectedGame.cover,
+            startDate: selectedGame.sessions?.at(-1)?.startDate ?? '—',
+            lastSession: (() => {
+              const d = selectedGame.sessions?.at(-1)?.startDate
+              if (!d) return '—'
+              const diff = Math.floor((new Date() - new Date(d)) / 86400000)
+              if (diff === 0) return 'Hoy'
+              if (diff === 1) return 'Ayer'
+              return `Hace ${diff} días`
+            })(),
+            sessions: selectedGame.sessions?.length ?? 0,  // 👈 CLAVE: convierte el array a número
+            progress: selectedGame.progress ?? 50,
+          }}
+          mode="in_progress"
+          onClose={() => setSelectedGame(null)}
+          onAction={(action) => {
+            if (action === 'complete') { onComplete(selectedGame); setSelectedGame(null) }
+            setSelectedGame(null)
+          }}
+        />
       )}
 
     </div>

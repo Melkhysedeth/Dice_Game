@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import styles from './InProgressCard.module.css'
+import GameModal from './GameModal'
 
 function InProgressCard({ game, onComplete }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -57,48 +58,29 @@ function InProgressCard({ game, onComplete }) {
 
       {/* MODAL */}
       {isOpen && (
-        <div className={styles.backdrop} onClick={() => setIsOpen(false)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-
-            <div className={styles.modalHeader}>
-              <div>
-                {game.isSagaEntry && (
-                  <span className={styles.modalSagaBadge}>{game.sagaTitle}</span>
-                )}
-                <h2 className={styles.modalTitle}>{game.title}</h2>
-                <p className={styles.modalDeveloper}>{game.developer}</p>
-              </div>
-              <button className={styles.closeBtn} onClick={() => setIsOpen(false)}>✕</button>
-            </div>
-
-            <div className={styles.sessionInfo}>
-              <div className={styles.sessionItem}>
-                <span className={styles.sessionLabel}>INICIADO</span>
-                <span className={styles.sessionValue}>{session.startDate}</span>
-              </div>
-              <div className={styles.sessionItem}>
-                <span className={styles.sessionLabel}>TIEMPO</span>
-                <span className={styles.sessionValue}>{getDaysPlaying()}</span>
-              </div>
-              <div className={styles.sessionItem}>
-                <span className={styles.sessionLabel}>PARTIDA</span>
-                <span className={styles.sessionValue}>
-                  {session.isFirstTime ? 'Primera vez' : 'Rejugando'}
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.modalActions}>
-              <button
-                className={styles.completeBtn}
-                onClick={() => { onComplete(game); setIsOpen(false) }}
-              >
-                ✓ MARCAR COMO COMPLETADO
-              </button>
-            </div>
-
-          </div>
-        </div>
+        <GameModal
+          game={{
+            ...game,
+            genres: game.genre ?? [],
+            cover: game.cover?.startsWith('//') ? `https:${game.cover}` : game.cover,
+            startDate: game.sessions?.at(-1)?.startDate ?? '—',
+            lastSession: (() => {
+              const d = game.sessions?.at(-1)?.startDate
+              if (!d) return '—'
+              const diff = Math.floor((new Date() - new Date(d)) / 86400000)
+              if (diff === 0) return 'Hoy'
+              if (diff === 1) return 'Ayer'
+              return `Hace ${diff} días`
+            })(),
+            progress: game.progress ?? 50,
+          }}
+          mode="in_progress"
+          onClose={() => setIsOpen(false)}
+          onAction={(action) => {
+            if (action === 'complete') { onComplete(game); setIsOpen(false) }
+            setIsOpen(false)
+          }}
+        />
       )}
     </>
   )

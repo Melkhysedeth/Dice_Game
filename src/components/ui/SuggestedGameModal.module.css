@@ -1,9 +1,9 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(7, 10, 15, 0.92);
-  backdrop-filter: blur(16px);
-  z-index: 400;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 300;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,6 +135,7 @@
   background: radial-gradient(ellipse, rgba(124,58,237,0.4) 0%, transparent 70%);
   border-radius: 50%;
   animation: glowPulse 2.5s ease-in-out infinite;
+  box-shadow: 0px 20px 100px -10px rgba(138, 43, 226, 0.8);
 }
 
 @keyframes glowPulse {
