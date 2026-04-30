@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './InProgressView.module.css'
 import GameModal from '../components/GameModal'
+import { LayoutGrid, Gamepad2, Trophy, Dices, Star, Clock, Users, Plus, House } from 'lucide-react'
 
 function InProgressView({ games, onComplete, onRandomGame }) {
   const navigate = useNavigate()
@@ -50,33 +51,33 @@ function InProgressView({ games, onComplete, onRandomGame }) {
           <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
           <nav className={styles.sideNav}>
             <button className={styles.sideNavItem} onClick={() => navigate('/')}>
-              <span>🏠</span> Inicio
+              <House size={20} /> Inicio
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/biblioteca')}>
-              <span>▦</span> Biblioteca
+              <LayoutGrid size={20} /> Biblioteca
               <span className={styles.sideNavBadge}>0</span>
             </button>
             <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
-              <span>🎮</span> En progreso
+              <Gamepad2 size={20} /> En progreso
               <span className={styles.sideNavBadgeOrange}>{totalGames}</span>
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/salon')}>
-              <span>🏆</span> Salón de la fama
+              <Trophy size={20} /> Salón de la fama
               <span className={styles.sideNavBadgeGold}>0</span>
             </button>
             <button className={styles.sideNavItem} onClick={onRandomGame}>
-              <span>🎲</span> Juegos al azar
-            </button>
+              <Dices size={20} /> Juegos al azar
+            </button> 
           </nav>
         </div>
 
         <div className={styles.sideSection}>
           <span className={styles.sideSectionTitle}>LISTAS</span>
           <nav className={styles.sideNav}>
-            <button className={styles.sideNavItem}><span>★</span> Favoritos</button>
-            <button className={styles.sideNavItem}><span>⏱</span> Juegos cortos</button>
-            <button className={styles.sideNavItem}><span>👥</span> Cooperativos</button>
-            <button className={styles.sideNavItem}><span>+</span> Nueva lista</button>
+            <button className={styles.sideNavItem}><Star size={18} /> Favoritos</button>
+            <button className={styles.sideNavItem}><Clock size={18} /> Juegos cortos</button>
+            <button className={styles.sideNavItem}><Users size={18} /> Cooperativos</button>
+            <button className={styles.sideNavItem}><Plus size={18} /> Nueva lista</button>
           </nav>
         </div>
 
@@ -332,8 +333,14 @@ function InProgressView({ games, onComplete, onRandomGame }) {
           mode="in_progress"
           onClose={() => setSelectedGame(null)}
           onAction={(action) => {
-            if (action === 'complete') { onComplete(selectedGame); setSelectedGame(null) }
-            setSelectedGame(null)
+            if (action === 'complete') {
+              onComplete(selectedGame)
+              setSelectedGame(null)
+            }
+            if (action === 'delete') {
+              // por ahora solo cierra, conectar cuando tengas delete en in_progress
+              setSelectedGame(null)
+            }
           }}
         />
       )}

@@ -1,78 +1,92 @@
 :root {
 
-  /* ================================
+   /* ================================
      COLORES BASE
   ================================ */
-  --bg:           #070a0f;   /* Fondo principal de la app */
-  --surface:      #0d1117;   /* Fondo de tarjetas y paneles */
-  --surface-2:    #111820;   /* Superficie elevada (modales) */
+   --bg: #070a0f;
+   /* Fondo principal de la app */
+   --surface: #0d1117;
+   /* Fondo de tarjetas y paneles */
+   --surface-2: #111820;
+   /* Superficie elevada (modales) */
 
-  /* ================================
+   /* ================================
      BORDES
   ================================ */
-  --border:       #1e2d3d;   /* Borde estándar */
-  --border-hover: #2e4a6a;   /* Borde al hacer hover */
+   --border: #1e2d3d;
+   /* Borde estándar */
+   --border-hover: #2e4a6a;
+   /* Borde al hacer hover */
 
-  /* ================================
+   /* ================================
      COLORES DE ACENTO
   ================================ */
-  --accent:       #00d4ff;   /* Azul neón — color principal */
-  --accent-dim:   rgba(0, 212, 255, 0.15);  /* Azul suave para fondos */
-  --accent-2:     #37ae58;   /* Verde — acciones importantes */
-  --accent-3:     #a855f7;   /* Violeta — sagas */
+   --accent: #00d4ff;
+   /* Azul neón — color principal */
+   --accent-dim: rgba(0, 212, 255, 0.15);
+   /* Azul suave para fondos */
+   --accent-2: #37ae58;
+   /* Verde — acciones importantes */
+   --accent-3: #a855f7;
+   /* Violeta — sagas */
 
-  /* ================================
+   /* ================================
      TEXTO
   ================================ */
-  --text:         #c9d8e8;   /* Texto principal */
-  --text-dim:     #7a90a0;   /* Texto secundario / desactivado */
-  --text-bright:  #ffffff;   /* Títulos y énfasis */
+   --text: #c9d8e8;
+   /* Texto principal */
+   --text-dim: #7a90a0;
+   /* Texto secundario / desactivado */
+   --text-bright: #ffffff;
+   /* Títulos y énfasis */
 
-  /* ================================
+   /* ================================
      ESTADOS DE LOS JUEGOS
   ================================ */
-  --state-library:    #00d4ff;   /* Biblioteca — azul */
-  --state-progress:   #37ae58;   /* En progreso — verde */
-  --state-fame:       #fbbf24;   /* Salón de la fama — dorado */
+   --state-library: #00d4ff;
+   /* Biblioteca — azul */
+   --state-progress: #37ae58;
+   /* En progreso — verde */
+   --state-fame: #fbbf24;
+   /* Salón de la fama — dorado */
 
-  /* ================================
+   /* ================================
      TIPOGRAFÍA
   ================================ */
-  --font-display: 'Bebas Neue', sans-serif;    /* Títulos grandes */
-  --font-body:    'Rajdhani', sans-serif;      /* Texto general */
-  --font-mono:    'Share Tech Mono', monospace; /* Datos, años, códigos */
-  --font-cards: 'Quantico', sans-serif; /* Tarjetas de juego */
-  --font-body2: 'Inter', sans-serif; /* Encabezados */
+   --font-display: 'Lora', serif;   /* Títulos grandes, hero, sagas */
+   --font-body: 'Inter', sans-serif;   /* Texto general, nav, UI */
+   --font-mono: 'Space Mono', monospace;   /* Datos, años, badges, códigos */
+   --font-cards: 'Lora', serif;   /* Títulos de tarjetas */
 
-  /* ================================
+   /* ================================
      ESPACIADO
   ================================ */
-  --space-xs:   4px;
-  --space-sm:   8px;
-  --space-md:   16px;
-  --space-lg:   24px;
-  --space-xl:   40px;
-  --space-2xl:  60px;
+   --space-xs: 4px;
+   --space-sm: 8px;
+   --space-md: 16px;
+   --space-lg: 24px;
+   --space-xl: 40px;
+   --space-2xl: 60px;
 
-  /* ================================
+   /* ================================
      BORDES REDONDEADOS
   ================================ */
-  --radius-sm:  4px;
-  --radius-md:  8px;
-  --radius-card: 12px;
+   --radius-sm: 4px;
+   --radius-md: 8px;
+   --radius-card: 12px;
 
-  /* ================================
+   /* ================================
      SOMBRAS / GLOWS
   ================================ */
-  --glow-accent:    0 0 20px rgba(0, 212, 255, 0.2);
-  --glow-accent-lg: 0 0 60px rgba(0, 212, 255, 0.15);
-  --glow-progress:  0 0 20px rgba(255, 107, 53, 0.3);
-  --glow-fame:      0 0 20px rgba(251, 191, 36, 0.3);
+   --glow-accent: 0 0 20px rgba(0, 212, 255, 0.2);
+   --glow-accent-lg: 0 0 60px rgba(0, 212, 255, 0.15);
+   --glow-progress: 0 0 20px rgba(255, 107, 53, 0.3);
+   --glow-fame: 0 0 20px rgba(251, 191, 36, 0.3);
 
-  /* ================================
+   /* ================================
      TRANSICIONES
   ================================ */
-  --transition-fast:   0.15s ease;
-  --transition-normal: 0.25s ease;
-  --transition-slow:   0.4s cubic-bezier(0.2, 0, 0, 1);
+   --transition-fast: 0.15s ease;
+   --transition-normal: 0.25s ease;
+   --transition-slow: 0.4s cubic-bezier(0.2, 0, 0, 1);
 }

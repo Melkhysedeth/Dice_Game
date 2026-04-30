@@ -4,8 +4,8 @@
 .root {
   display: grid;
   grid-template-columns: 220px 1fr 280px;
-  min-height: 100vh;
-  padding-top: 64px;
+  min-height: 100%;
+  padding-top: 0;
   max-width: 1440px;
   margin: 0 auto;
   animation: fadeIn 0.25s ease;

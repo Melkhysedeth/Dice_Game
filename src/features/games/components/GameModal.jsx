@@ -218,11 +218,16 @@ function ModalLibrary({ game, onClose, onAction }) {
 
       {/* Footer */}
       <div className={styles.modalFooter}>
-        <button className={styles.btnSecondary} onClick={() => onAction?.("favorite")}>
-          <IconHeart /> Añadir a favoritos
+        <button className={styles.btnGhost} onClick={() => onAction?.('edit')}>
+          <IconEdit /> Editar
         </button>
-        <button className={styles.btnPrimary} onClick={() => onAction?.("start")}>
+        <button className={styles.btnPrimary} onClick={() => onAction?.('start')}>
           <IconPlay /> Empezar a jugar
+        </button>
+        <button className={styles.btnIcon} onClick={() => {
+          if (window.confirm(`¿Eliminar "${game.title}"?`)) onAction?.('delete')
+        }}>
+          <IconDots />
         </button>
       </div>
     </div>
@@ -303,13 +308,13 @@ function ModalInProgress({ game, onClose, onAction }) {
       </div>
 
       <div className={styles.modalFooter}>
-        <button className={styles.btnGhost} onClick={() => onAction?.("note")}>
+        <button className={styles.btnGhost} onClick={() => onAction?.('note')}>
           <IconNote /> Añadir nota
         </button>
-        <button className={styles.btnGreen} onClick={() => onAction?.("continue")}>
-          <IconPlay /> Continuar jugando
+        <button className={styles.btnGreen} onClick={() => onAction?.('complete')}>
+          <IconTrophy /> Marcar completado
         </button>
-        <button className={styles.btnIcon} onClick={() => onAction?.("more")}>
+        <button className={styles.btnIcon} onClick={() => onAction?.('more')}>
           <IconDots />
         </button>
       </div>

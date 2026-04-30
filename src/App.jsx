@@ -13,10 +13,11 @@ import styles from './styles/App.module.css'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import LibraryScroll from './features/games/components/LibraryScroll'
 import Footer from './components/layout/Footer'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import LibraryView from './features/games/views/LibraryView'
 import InProgressView from './features/games/views/InProgressView'
 import HallOfFameView from './features/games/views/HallOfFameView'
+import { ChartColumn, Gamepad2, Trophy } from 'lucide-react'
 
 function App() {
   const {
@@ -40,7 +41,8 @@ function App() {
     deleteSagaEntry,
     deleteSaga,
     updateSagaCover,
-    updateEntryCover
+    updateEntryCover,
+    addEmptySaga
   } = useGames()
 
   const {
@@ -53,6 +55,8 @@ function App() {
 
   const [showAddGame, setShowAddGame] = useState(false)
   const [editModal, setEditModal] = useState(null)
+  const navigate = useNavigate()
+  const [pendingSaga, setPendingSaga] = useState(null)
 
   const librarySingles = libraryGames.filter(g => !g.isSagaEntry)
   const { filteredSingles, filteredSagas } = filterGames(librarySingles, sagas)
@@ -117,21 +121,21 @@ function App() {
                       <p className={styles.heroTagline}>Organiza, juega y celebra cada aventura.</p>
                       <div className={styles.kpis}>
                         <div className={styles.kpiCard}>
-                          <span className={styles.kpiIcon}>📊</span>
+                          <span className={styles.kpiIcon}><ChartColumn size={25} /></span>
                           <div className={styles.kpiInfo}>
                             <span className={styles.kpiLabel}>Juegos totales</span>
                             <span className={styles.kpiValue}>{totalGames}</span>
                           </div>
                         </div>
                         <div className={styles.kpiCard}>
-                          <span className={styles.kpiIcon}>🎮</span>
+                          <span className={styles.kpiIcon}><Gamepad2 size={25} /></span>
                           <div className={styles.kpiInfo}>
                             <span className={styles.kpiLabel}>Horas jugadas</span>
                             <span className={styles.kpiValue}>532h</span>
                           </div>
                         </div>
                         <div className={styles.kpiCard}>
-                          <span className={styles.kpiIcon}>🏆</span>
+                          <span className={styles.kpiIcon}><Trophy size={25} /></span>
                           <div className={styles.kpiInfo}>
                             <span className={styles.kpiLabel}>Logros obtenidos</span>
                             <span className={styles.kpiValue}>{completedGames.length}</span>
@@ -166,6 +170,8 @@ function App() {
                     games={filteredSingles}
                     sagas={filteredSagas}
                     onStartPlaying={startPlaying}
+                    onRandomGame={pickRandomGame}
+                    onOpenSaga={(saga) => { setPendingSaga(saga); navigate('/biblioteca') }}
                   />
                 </section>
 
@@ -173,7 +179,7 @@ function App() {
 
               <aside className={styles.sidebar}>
                 <div className={styles.sideCard}>
-                  <h3 className={styles.sideCardTitle}><span>📊</span> Resumen de tu colección</h3>
+                  <h3 className={styles.sideCardTitle}><span><ChartColumn size={25} /></span> Resumen de tu colección</h3>
                   <div className={styles.donutWrapper}>
                     <ResponsiveContainer width="100%" height={180}>
                       <PieChart>
@@ -269,7 +275,7 @@ function App() {
         {/* ── BIBLIOTECA ── */}
         <Route path="/biblioteca" element={
           <LibraryView
-            games={libraryGames}
+            games={libraryGames.filter(g => !g.isSagaEntry)}
             sagas={sagas}
             onStartPlaying={startPlaying}
             onEdit={handleEditSingle}
@@ -282,6 +288,9 @@ function App() {
             onUpdateEntryCover={updateEntryCover}
             onAddGame={() => setShowAddGame(true)}
             onRandomGame={pickRandomGame}
+            pendingSaga={pendingSaga}
+            onPendingSagaConsumed={() => setPendingSaga(null)}
+            onAddEmptySaga={addEmptySaga}
           />
         } />
 
@@ -297,11 +306,11 @@ function App() {
         {/* -- SALON DE LA FAMA -- */}
         <Route path="/salon" element={
           <HallOfFameView
-          games={completedGames}
-          onReturnToLibrary={returnToLibrary}
-          onRandomGame={pickRandomGame}
+            games={completedGames}
+            onReturnToLibrary={returnToLibrary}
+            onRandomGame={pickRandomGame}
           />
-        }/>
+        } />
 
       </Routes>
 
@@ -319,6 +328,7 @@ function App() {
           onAddToSaga={addEntryToSaga}
           onAddNewSaga={addNewSaga}
           existingSagas={sagas}
+          onAddEmptySaga={addEmptySaga}
         />
       )}
       {editModal && (

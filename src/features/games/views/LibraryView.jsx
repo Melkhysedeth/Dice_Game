@@ -1,14 +1,16 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AddGameModal from '../components/AddGameModal'
 import styles from './LibraryView.module.css'
 import GameModal from '../components/GameModal'
 import SagaView from './SagaView'
+import { LayoutGrid, Gamepad2, Trophy, Star, Clock, Users, Plus, Dices, House} from 'lucide-react'
 
 function LibraryView({
   games, sagas, onStartPlaying, onEdit, onDelete,
   onEditSaga, onDeleteSaga, onEditEntry, onDeleteEntry,
-  onUpdateSagaCover, onUpdateEntryCover, onAddGame, onRandomGame
+  onUpdateSagaCover, onUpdateEntryCover, onAddGame, onRandomGame,
+  pendingSaga, onPendingSagaConsumed
 }) {
   const navigate = useNavigate()
   const [activeGenre, setActiveGenre] = useState('Todos')
@@ -16,6 +18,14 @@ function LibraryView({
   const [search, setSearch] = useState('')
   const [selectedGame, setSelectedGame] = useState(null)
   const [selectedSaga, setSelectedSaga] = useState(null)
+  const [activeType, setActiveType] = useState('todos') // 'todos' | 'sagas' | 'singles'
+
+  useEffect(() => {
+    if (pendingSaga) {
+      setSelectedSaga(pendingSaga)
+      onPendingSagaConsumed()
+    }
+  }, [pendingSaga])
 
   // Recopilar todos los géneros únicos
   const allGenres = useMemo(() => {
@@ -39,20 +49,22 @@ function LibraryView({
 
   // Filtrar
   const filteredGames = useMemo(() => {
+    if (activeType === 'sagas') return []  // ← agregar
     return games.filter(g => {
       const matchGenre = activeGenre === 'Todos' || g.genre?.includes(activeGenre)
       const matchSearch = g.title.toLowerCase().includes(search.toLowerCase())
       return matchGenre && matchSearch
     })
-  }, [games, activeGenre, search])
+  }, [games, activeGenre, activeType, search])  // ← agregar activeType
 
   const filteredSagas = useMemo(() => {
+    if (activeType === 'singles') return []  // ← agregar
     return sagas.filter(s => {
       const matchGenre = activeGenre === 'Todos' || s.genre?.includes(activeGenre)
       const matchSearch = s.title.toLowerCase().includes(search.toLowerCase())
       return matchGenre && matchSearch
     })
-  }, [sagas, activeGenre, search])
+  }, [sagas, activeGenre, activeType, search])  // ← agregar activeType
 
   const totalFiltered = filteredGames.length + filteredSagas.length
   const totalAll = games.length + sagas.length
@@ -67,6 +79,16 @@ function LibraryView({
   const genreColors = ['var(--accent)', '#22c55e', '#a855f7', '#f5a623']
 
   function getCover(item) {
+    // Si es una saga, busca la primera entry con cover
+    if (item.entries) {
+      const firstWithCover = item.entries.find(e => e.cover)
+      if (firstWithCover) {
+        const url = firstWithCover.cover
+        return url.startsWith('//') ? `https:${url}` : url
+      }
+      return null
+    }
+    // Si es un juego individual
     if (!item.cover) return null
     return item.cover.startsWith('//') ? `https:${item.cover}` : item.cover
   }
@@ -90,43 +112,132 @@ function LibraryView({
     )
   }
 
+  function SagaCover({ saga }) {
+    const covers = saga.entries
+      .map(e => e.cover ? (e.cover.startsWith('//') ? `https:${e.cover}` : e.cover) : null)
+      .filter(Boolean)
+
+    const [idx, setIdx] = useState(0)
+    const [fade, setFade] = useState(true)
+
+    useEffect(() => {
+      if (covers.length <= 1) return
+      const interval = setInterval(() => {
+        setFade(false)
+        setTimeout(() => {
+          setIdx(prev => (prev + 1) % covers.length)
+          setFade(true)
+        }, 300)
+      }, 2500)
+      return () => clearInterval(interval)
+    }, [covers.length])
+
+    if (covers.length === 0) return <div className={styles.cardPlaceholder}><span>📚</span></div>
+
+    return (
+      <img
+        src={covers[idx]}
+        alt={saga.title}
+        className={styles.cardImg}
+        style={{
+          opacity: fade ? 1 : 0,
+          transition: 'opacity 0.3s ease'
+        }}
+      />
+    )
+  }
+
+  function GenreDropdown({ allGenres, genreStats, totalAll, activeGenre, onSelect }) {
+    const [open, setOpen] = useState(false)
+    const activeLabel = activeGenre === 'Todos' ? ' Todos' : activeGenre
+    const activeCount = activeGenre === 'Todos' ? totalAll : (genreStats[activeGenre] || 0)
+
+    return (
+      <div className={styles.genreDropdown}>
+        <span className={styles.sideSectionTitle}>GÉNEROS</span>
+        <button
+          className={styles.genreDropdownTrigger}
+          onClick={() => setOpen(o => !o)}
+        >
+          <span className={styles.genreDropdownLabel}>
+            <span className={styles.genreDropdownDot} />
+            {activeLabel}
+            <span className={styles.genreDropdownCount}>{activeCount}</span>
+          </span>
+          <span className={`${styles.genreDropdownArrow} ${open ? styles.genreDropdownArrowOpen : ''}`}>
+            ▾
+          </span>
+        </button>
+
+        {open && (
+          <div className={styles.genreDropdownList}>
+            {allGenres.map(genre => (
+              <button
+                key={genre}
+                className={`${styles.genreDropdownItem} ${activeGenre === genre ? styles.genreDropdownItemActive : ''}`}
+                onClick={() => { onSelect(genre); setOpen(false) }}
+              >
+                <span className={styles.genreDropdownItemDot} />
+                {genre}
+                <span className={styles.genreDropdownItemCount}>
+                  {genre === 'Todos' ? totalAll : (genreStats[genre] || 0)}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
 
     <div className={styles.root}>
 
       {/* ── SIDEBAR IZQUIERDO ── */}
       <aside className={styles.sidebar}>
+        {/* NAVEGACIÓN */}
         <div className={styles.sideSection}>
-          <span className={styles.sideSectionTitle}>MI BIBLIOTECA</span>
+          <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
           <nav className={styles.sideNav}>
             <button className={styles.sideNavItem} onClick={() => navigate('/')}>
-              <span>📊</span> Resumen
+              <House size={20} /> Inicio
             </button>
             <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
-              <span>▦</span> Biblioteca
+              <LayoutGrid size={20} /> Biblioteca              
               <span className={styles.sideNavBadge}>{totalAll}</span>
             </button>
-            <button className={styles.sideNavItem}>
-              <span>◉</span> En progreso
-              <span className={styles.sideNavBadge} style={{ background: 'rgba(255,107,53,0.15)', color: 'var(--accent-2)' }}>0</span>
+            <button className={styles.sideNavItem} onClick={() => navigate('/en-progreso')}>
+              <Gamepad2 size={20} /> En progreso
             </button>
-            <button className={styles.sideNavItem}>
-              <span>✦</span> Salón de la fama
-              <span className={styles.sideNavBadge} style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>0</span>
+            <button className={styles.sideNavItem} onClick={() => navigate('/salon')}>
+              <Trophy size={20} /> Salón de la fama
             </button>
             <button className={styles.sideNavItem} onClick={onRandomGame}>
-              <span>🎲</span> Juegos al azar
+              <Dices size={20} /> Juegos al azar
             </button>
           </nav>
         </div>
 
+        {/* GÉNEROS — desplegable */}
+        <div className={styles.sideSection}>
+          <GenreDropdown
+            allGenres={allGenres}
+            genreStats={genreStats}
+            totalAll={totalAll}
+            activeGenre={activeGenre}
+            onSelect={setActiveGenre}
+          />
+        </div>
+
+        {/* LISTAS */}
         <div className={styles.sideSection}>
           <span className={styles.sideSectionTitle}>LISTAS</span>
           <nav className={styles.sideNav}>
-            <button className={styles.sideNavItem}><span>★</span> Favoritos</button>
-            <button className={styles.sideNavItem}><span>⏱</span> Juegos cortos</button>
-            <button className={styles.sideNavItem}><span>👥</span> Cooperativos</button>
-            <button className={styles.sideNavItem}><span>+</span> Nueva lista</button>
+            <button className={styles.sideNavItem}><Star size={18} /> Favoritos</button>
+            <button className={styles.sideNavItem}><Clock size={18} /> Juegos cortos</button>
+            <button className={styles.sideNavItem}><Users size={18} /> Cooperativos</button>
+            <button className={styles.sideNavItem}><Plus size={18} /> Nueva lista</button>
           </nav>
         </div>
 
@@ -171,18 +282,20 @@ function LibraryView({
           </div>
         </div>
 
-        {/* FILTROS POR GÉNERO */}
+        {/* FILTROS TIPO */}
         <div className={styles.genreTabs}>
-          {allGenres.map(genre => (
+          {[
+            { id: 'todos', label: 'Todos', count: totalAll },
+            { id: 'sagas', label: 'Sagas', count: sagas.length },
+            { id: 'singles', label: 'Juego individual', count: games.length },
+          ].map(tab => (
             <button
-              key={genre}
-              className={`${styles.genreTab} ${activeGenre === genre ? styles.genreTabActive : ''}`}
-              onClick={() => setActiveGenre(genre)}
+              key={tab.id}
+              className={`${styles.genreTab} ${activeType === tab.id ? styles.genreTabActive : ''}`}
+              onClick={() => setActiveType(tab.id)}
             >
-              {genre}
-              <span className={styles.genreTabCount}>
-                {genre === 'Todos' ? totalAll : (genreStats[genre] || 0)}
-              </span>
+              {tab.label}
+              <span className={styles.genreTabCount}>{tab.count}</span>
             </button>
           ))}
         </div>
@@ -192,22 +305,25 @@ function LibraryView({
           <div className={styles.statsBannerLeft}>
             <div className={styles.statsBannerIcon}>▦</div>
             <div>
-              <p className={styles.statsBannerCount}>{totalFiltered} juegos en tu biblioteca</p>
+              <p className={styles.statsBannerCount}>{filteredGames.length + filteredSagas.reduce((acc, s) => acc + s.entries.length, 0)} juegos en tu biblioteca</p>
               <p className={styles.statsBannerSub}>Listos para tu próxima aventura</p>
             </div>
           </div>
           <div className={styles.statsBannerGenres}>
             {topGenres.map(([genre, count], i) => (
               <div key={genre} className={styles.statsBannerGenre}>
-                <div className={styles.statsBannerGenreTop}>
-                  <span className={styles.statsBannerGenreName}>{genre}</span>
-                  <span className={styles.statsBannerGenreCount}>{count} juegos</span>
-                </div>
+                {/* 1. Nombre del Género */}
+                <span className={styles.statsBannerGenreName}>{genre}</span>
+
+                {/* 2. Cantidad de juegos */}
+                <span className={styles.statsBannerGenreCount}>{count} juegos</span>
+
+                {/* 3. La Barra debajo de todo */}
                 <div className={styles.statsBannerBar}>
                   <div
                     className={styles.statsBannerBarFill}
                     style={{
-                      width: `${(count / totalAll) * 100}%`,
+                      width: `${totalAll > 0 ? (count / totalAll) * 100 : 0}%`,
                       background: genreColors[i]
                     }}
                   />
@@ -227,13 +343,7 @@ function LibraryView({
               onClick={() => setSelectedSaga(saga)}
             >
               <div className={styles.cardCover}>
-                {getCover(saga) ? (
-                  <img src={getCover(saga)} alt={saga.title} className={styles.cardImg} />
-                ) : (
-                  <div className={styles.cardPlaceholder}>
-                    <span>📚</span>
-                  </div>
-                )}
+                <SagaCover saga={saga} />
                 <div className={styles.cardOverlay} />
                 <button
                   className={styles.cardMenu}
@@ -310,6 +420,18 @@ function LibraryView({
           onAction={(action) => {
             if (action === 'start') {
               onStartPlaying(selectedGame.data)
+              setSelectedGame(null)
+            }
+            if (action === 'delete') {
+              selectedGame.type === 'saga'
+                ? onDeleteSaga(selectedGame.data.id)
+                : onDelete(selectedGame.data)
+              setSelectedGame(null)
+            }
+            if (action === 'edit') {
+              selectedGame.type === 'saga'
+                ? onEditSaga(selectedGame.data)
+                : onEdit(selectedGame.data)
               setSelectedGame(null)
             }
           }}

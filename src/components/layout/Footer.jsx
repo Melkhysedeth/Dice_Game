@@ -23,17 +23,6 @@ function Footer({ onRandomGame }) {
             Tu biblioteca personal de juegos.<br />
             Organiza, juega y celebra cada aventura.
           </p>
-          <div className={styles.brandStats}>
-            <span className={styles.brandStat}>
-              <span className={styles.statIcon}>📊</span> Biblioteca
-            </span>
-            <span className={styles.brandStat}>
-              <span className={styles.statIcon}>🎮</span> En progreso
-            </span>
-            <span className={styles.brandStat}>
-              <span className={styles.statIcon}>🏆</span> Salón de la fama
-            </span>
-          </div>
         </div>
 
         {/* EXPLORA */}
@@ -104,9 +93,9 @@ function Footer({ onRandomGame }) {
           </div>
           <div className={styles.bottomRight}>
             <span className={styles.followText}>Síguenos en</span>
-            <a href="#" className={`${styles.social} ${styles.discord}`}>Discord</a>
+            <a href="#" className={`${styles.social} ${styles.facebook}`}>f</a>
             <a href="#" className={`${styles.social} ${styles.twitter}`}>𝕏</a>
-            <a href="#" className={`${styles.social} ${styles.instagram}`}>Ig</a>
+            <a href="#" className={`${styles.social} ${styles.twitch}`}>tw</a>
             <a href="#" className={`${styles.social} ${styles.youtube}`}>▶</a>
           </div>
         </div>

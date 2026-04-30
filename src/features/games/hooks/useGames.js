@@ -183,7 +183,7 @@ export function useGames() {
         id: entryData.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
         title: entryData.title,
         year: parseInt(entryData.year),
-        cover: null,
+        cover: entryData.cover || null,
         status: 'library',
         sessions: []
       }
@@ -210,6 +210,20 @@ export function useGames() {
     }
     setSagas(prev => [...prev, newSaga])
   }
+
+  function addEmptySaga(sagaData) {
+  const newSaga = {
+    id: sagaData.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
+    title: sagaData.title,
+    developer: sagaData.developer || '',
+    genre: sagaData.genre || [],
+    platform: sagaData.platform || [],
+    cover: null,
+    entries: []   // ← sin entries
+  }
+  setSagas(prev => [...prev, newSaga])
+  return newSaga.id  // ← retorna el id para seleccionarla automáticamente
+}
 
   function updateSingleGame(gameId, gameData) {
     setSingles(prev => prev.map(g => {
@@ -312,6 +326,7 @@ export function useGames() {
     deleteSagaEntry,
     deleteSaga,
     updateSagaCover,
-    updateEntryCover
+    updateEntryCover,
+    addEmptySaga
     }
 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './HallOfFameView.module.css'
 import GameModal from '../components/GameModal'
+import { LayoutGrid, Gamepad2, Trophy, Dices, Star, Clock, Users, Plus, House } from 'lucide-react'
 
 function HallOfFameView({ games, onReturnToLibrary, onRandomGame }) {
   const navigate = useNavigate()
@@ -35,24 +36,24 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame }) {
           <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
           <nav className={styles.sideNav}>
             <button className={styles.sideNavItem} onClick={() => navigate('/')}>
-              <span>⌂</span> Inicio
+              <House size={20} /> Inicio
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/biblioteca')}>
-              <span>▦</span> Biblioteca
+              <LayoutGrid size={20} /> Biblioteca
               <span className={styles.sideNavBadge}>68</span>
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/en-progreso')}>
-              <span>◉</span> En progreso
+              <Gamepad2 size={20} /> En progreso
               <span className={styles.sideNavBadge} style={{ background: 'rgba(255,107,53,0.15)', color: 'var(--accent-2)' }}>32</span>
             </button>
             <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
-              <span>✦</span> Salón de la fama
+              <Trophy size={20} /> Salón de la fama
               <span className={styles.sideNavBadge} style={{ background: 'rgba(251,191,36,0.15)', color: 'var(--state-fame)' }}>
                 {games.length}
               </span>
             </button>
             <button className={styles.sideNavItem} onClick={onRandomGame}>
-              <span>🎲</span> Juegos al azar
+              <Dices size={20} /> Juegos al azar
             </button>
           </nav>
         </div>
@@ -60,10 +61,10 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame }) {
         <div className={styles.sideSection}>
           <span className={styles.sideSectionTitle}>LISTAS</span>
           <nav className={styles.sideNav}>
-            <button className={styles.sideNavItem}><span>★</span> Favoritos</button>
-            <button className={styles.sideNavItem}><span>⏱</span> Juegos cortos</button>
-            <button className={styles.sideNavItem}><span>👥</span> Cooperativos</button>
-            <button className={styles.sideNavItem}><span>+</span> Nueva lista</button>
+            <button className={styles.sideNavItem}><Star size={18} /> Favoritos</button>
+            <button className={styles.sideNavItem}><Clock size={18} /> Juegos cortos</button>
+            <button className={styles.sideNavItem}><Users size={18} /> Cooperativos</button>
+            <button className={styles.sideNavItem}><Plus size={18} /> Nueva lista</button>
           </nav>
         </div>
 
@@ -272,8 +273,10 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame }) {
           mode="hall_of_fame"
           onClose={() => setSelectedGame(null)}
           onAction={(action) => {
-            if (action === 'replay') { onReturnToLibrary(selectedGame); setSelectedGame(null) }
-            setSelectedGame(null)
+            if (action === 'replay') {
+              onReturnToLibrary(selectedGame)
+              setSelectedGame(null)
+            }
           }}
         />
       )}
