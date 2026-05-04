@@ -4,13 +4,13 @@ import AddGameModal from '../components/AddGameModal'
 import styles from './LibraryView.module.css'
 import GameModal from '../components/GameModal'
 import SagaView from './SagaView'
-import { LayoutGrid, Gamepad2, Trophy, Star, Clock, Users, Plus, Dices, House} from 'lucide-react'
+import { LayoutGrid, Gamepad2, Trophy, Star, Clock, Users, Plus, Dices, House } from 'lucide-react'
 
 function LibraryView({
   games, sagas, onStartPlaying, onEdit, onDelete,
   onEditSaga, onDeleteSaga, onEditEntry, onDeleteEntry,
   onUpdateSagaCover, onUpdateEntryCover, onAddGame, onRandomGame,
-  pendingSaga, onPendingSagaConsumed
+  pendingSaga, onPendingSagaConsumed, inProgressCount = 0, completedCount = 0
 }) {
   const navigate = useNavigate()
   const [activeGenre, setActiveGenre] = useState('Todos')
@@ -101,7 +101,7 @@ function LibraryView({
         allSagas={sagas}          // ← agregar esta línea
         onBack={() => setSelectedSaga(null)}
         onStartPlaying={onStartPlaying}
-        onAddEntry={() => { }}
+        onAddEntry={(sagaId, entryData) => onAddToSaga(sagaId, entryData)}
         onEditEntry={onEditEntry}
         onDeleteEntry={onDeleteEntry}
         onEditSaga={onEditSaga}
@@ -204,17 +204,20 @@ function LibraryView({
               <House size={20} /> Inicio
             </button>
             <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
-              <LayoutGrid size={20} /> Biblioteca              
+              <LayoutGrid size={20} /> Biblioteca
               <span className={styles.sideNavBadge}>{totalAll}</span>
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/en-progreso')}>
               <Gamepad2 size={20} /> En progreso
+              <span className={styles.sideNavBadge} style={{ background: 'rgba(255,107,53,0.15)', color: 'var(--accent-2)' }}>
+                {inProgressCount}
+              </span>
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/salon')}>
               <Trophy size={20} /> Salón de la fama
-            </button>
-            <button className={styles.sideNavItem} onClick={onRandomGame}>
-              <Dices size={20} /> Juegos al azar
+              <span className={styles.sideNavBadge} style={{ background: 'rgba(251,191,36,0.15)', color: 'var(--state-fame)' }}>
+                {completedCount}
+              </span>
             </button>
           </nav>
         </div>

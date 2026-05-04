@@ -291,6 +291,9 @@ function App() {
             pendingSaga={pendingSaga}
             onPendingSagaConsumed={() => setPendingSaga(null)}
             onAddEmptySaga={addEmptySaga}
+            onAddToSaga={addEntryToSaga}
+            inProgressCount={inProgressGames.length}
+            completedCount={completedGames.length}
           />
         } />
 
@@ -300,6 +303,8 @@ function App() {
             games={inProgressGames}
             onComplete={completeGame}
             onRandomGame={pickRandomGame}
+            libraryCount={libraryGames.filter(g => !g.isSagaEntry).length + sagas.length}
+            completedCount={completedGames.length}
           />
         } />
 
@@ -309,6 +314,8 @@ function App() {
             games={completedGames}
             onReturnToLibrary={returnToLibrary}
             onRandomGame={pickRandomGame}
+            libraryCount={libraryGames.filter(g => !g.isSagaEntry).length + sagas.length}
+            completedCount={completedGames.length}
           />
         } />
 

@@ -4,7 +4,7 @@ import styles from './HallOfFameView.module.css'
 import GameModal from '../components/GameModal'
 import { LayoutGrid, Gamepad2, Trophy, Dices, Star, Clock, Users, Plus, House } from 'lucide-react'
 
-function HallOfFameView({ games, onReturnToLibrary, onRandomGame }) {
+function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount = 0, inProgressCount = 0 }) {
   const navigate = useNavigate()
   const [selectedGame, setSelectedGame] = useState(null)
   const [visibleCount, setVisibleCount] = useState(8)
@@ -40,11 +40,13 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame }) {
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/biblioteca')}>
               <LayoutGrid size={20} /> Biblioteca
-              <span className={styles.sideNavBadge}>68</span>
+              <span className={styles.sideNavBadge}>{libraryCount}</span>
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/en-progreso')}>
               <Gamepad2 size={20} /> En progreso
-              <span className={styles.sideNavBadge} style={{ background: 'rgba(255,107,53,0.15)', color: 'var(--accent-2)' }}>32</span>
+              <span className={styles.sideNavBadge} style={{ background: 'rgba(255,107,53,0.15)', color: 'var(--accent-2)' }}>
+                {inProgressCount}
+              </span>
             </button>
             <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
               <Trophy size={20} /> Salón de la fama

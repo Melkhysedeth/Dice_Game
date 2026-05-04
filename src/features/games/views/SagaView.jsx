@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './SagaView.module.css'
+import AddGameModal from '../components/AddGameModal'
 
 function fixCover(url) {
   if (!url) return null
@@ -9,7 +10,7 @@ function fixCover(url) {
 }
 
 function getStatusLabel(status) {
-  if (status === 'completed')   return { label: 'Completado',  color: '#f5c518' }
+  if (status === 'completed') return { label: 'Completado', color: '#f5c518' }
   if (status === 'in_progress') return { label: 'En progreso', color: '#22c55e' }
   return { label: 'Pendiente', color: '#a78bfa' }
 }
@@ -29,7 +30,7 @@ function EntryRow({ entry, saga, index, onStartPlaying, onEditEntry, onDeleteEnt
           ? <img src={cover} alt={entry.title} className={styles.entryCoverImg} />
           : <div className={styles.entryCoverEmpty}>🎮</div>
         }
-        {entry.status === 'completed'   && <div className={styles.entryCompletedDot} />}
+        {entry.status === 'completed' && <div className={styles.entryCompletedDot} />}
         {entry.status === 'in_progress' && <div className={styles.entryProgressRing} />}
       </div>
 
@@ -41,7 +42,7 @@ function EntryRow({ entry, saga, index, onStartPlaying, onEditEntry, onDeleteEnt
         <div className={styles.entryMeta}>
           <span className={styles.entryYear}>{entry.year}</span>
           <span className={styles.entryDot}>·</span>
-          <span className={styles.entryPlatform}>{saga.platform?.slice(0,2).join(' · ')}</span>
+          <span className={styles.entryPlatform}>{saga.platform?.slice(0, 2).join(' · ')}</span>
         </div>
       </div>
 
@@ -127,9 +128,10 @@ function EntryModal({ entry, saga, onClose, onStartPlaying, onEditEntry, onDelet
 function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onEditEntry, onDeleteEntry, onEditSaga, onDeleteSaga, onUpdateEntryCover, onRandomGame }) {
   const navigate = useNavigate()
   const [selectedEntry, setSelectedEntry] = useState(null)
-  const [heroCoverIdx, setHeroCoverIdx]   = useState(0)
+  const [heroCoverIdx, setHeroCoverIdx] = useState(0)
   const [heroCoverFade, setHeroCoverFade] = useState(true)
   const intervalRef = useRef(null)
+  const [showAddEntry, setShowAddEntry] = useState(false)
 
   const coversPool = saga.entries.map(e => fixCover(e.cover)).filter(Boolean)
 
@@ -145,11 +147,11 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
     return () => clearInterval(intervalRef.current)
   }, [coversPool.length])
 
-  const total      = saga.entries.length
-  const completed  = saga.entries.filter(e => e.status === 'completed').length
+  const total = saga.entries.length
+  const completed = saga.entries.filter(e => e.status === 'completed').length
   const inProgress = saga.entries.filter(e => e.status === 'in_progress').length
-  const pending    = saga.entries.filter(e => e.status === 'library').length
-  const progress   = total > 0 ? Math.round((completed / total) * 100) : 0
+  const pending = saga.entries.filter(e => e.status === 'library').length
+  const progress = total > 0 ? Math.round((completed / total) * 100) : 0
   const sortedByYear = [...saga.entries].sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
   const heroCover = coversPool[heroCoverIdx] ?? null
 
@@ -278,7 +280,9 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
             <div className={styles.entriesSection}>
               <div className={styles.entriesSectionHeader}>
                 <span className={styles.entriesSectionTitle}>JUEGOS DE LA SAGA</span>
-                <button className={styles.addEntryBtn} onClick={onAddEntry}>+ Agregar título</button>
+                <button className={styles.addEntryBtn} onClick={() => setShowAddEntry(true)}>
+                  + Agregar título
+                </button>
               </div>
               <div className={styles.entriesList}>
                 {saga.entries.map((entry, i) => (
@@ -422,6 +426,21 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
           onStartPlaying={onStartPlaying}
           onEditEntry={(sagaId, entry) => { onEditEntry(sagaId, entry); setSelectedEntry(null) }}
           onDeleteEntry={(sagaId, entryId) => { onDeleteEntry(sagaId, entryId); setSelectedEntry(null) }}
+        />
+      )}
+
+      {showAddEntry && (
+        <AddGameModal
+          onClose={() => setShowAddEntry(false)}
+          onAddSingle={() => { }}
+          onAddToSaga={(sagaId, entryData) => {
+            onAddEntry(sagaId, entryData)
+            setShowAddEntry(false)
+          }}
+          onAddNewSaga={() => { }}
+          onAddEmptySaga={() => { }}
+          existingSagas={[saga]}
+          defaultSagaId={saga.id}
         />
       )}
     </div>

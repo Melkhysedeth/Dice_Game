@@ -6,9 +6,6 @@ apasionado. Resuelve dos problemas concretos:
 1. No saber qué jugar después
 2. No tener registro de qué juegos ya jugó y cuándo
 
-La app recomienda un juego al azar de la biblioteca y lleva el historial
-completo de partidas.
-
 ## Los 3 estados de un juego
 
 ### 📚 Biblioteca (Por jugar)
@@ -19,138 +16,129 @@ completo de partidas.
 ### 🎮 En Progreso
 - Juego actualmente siendo jugado
 - Sale de la biblioteca cuando el botón aleatorio lo selecciona
-- Solo puede haber un juego en progreso a la vez (a definir)
+- Máximo 3 juegos en progreso simultáneamente
 
 ### 🏆 Salón de la Fama (Jugados)
 - Juegos completados
 - Guarda: fecha de inicio, fecha de fin, si fue primera vez o rejugado
 - Desde aquí se puede devolver un juego a la biblioteca para rejugarlo
-- Al devolverlo a la biblioteca puede volver a salir en el aleatorio
-
-## Restrcciones
-- Máximo 3 juegos en progreso simultáneamente 
-- Inicialmente solo PC. Versión móvil (app) queda para el futuro 
 
 ## Flujo principal
 Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 → Salón de la Fama → [opcional: devolver a biblioteca para rejugar]
 
-## Datos de cada juego
-- Nombre
-- Saga (si pertenece a una)
-- Desarrolladora
-- Año de lanzamiento
-- Género / Categoría
-- Es saga: sí/no
-- Si es saga: lista de entregas con sus años
-- Estado: biblioteca | en_progreso | completado
-- Historial de partidas:
-  - Fecha de inicio
-  - Fecha de fin
-  - Primera vez o rejugado
-
 ## Stack
 - React + Vite
 - JavaScript (sin TypeScript)
 - CSS con variables (sin librería de estilos)
+- React Router v6 — rutas: /, /biblioteca, /en-progreso, /salon
 - Git para control de versiones
-- Base de datos: por definir (Supabase o Firebase en el futuro)
-- Por ahora: datos en JSON local
+- localStorage para persistencia
+- IGDB API para carátulas
+- Recharts para gráfica dona
+- Base de datos: Supabase (próximo paso)
 
-## Perfil del desarrollador
-- Principiante que aprende mientras construye
-- Entiende: variables, if/else, funciones básicas en JS
-- Objetivo: entender lo que construye, no solo copiar código
-- Sistema operativo: Windows
+## Tipografía
+- Lora (serif) — títulos grandes, hero, nombres de sagas, tarjetas
+- Inter (sans-serif) — cuerpo, nav, UI general
+- Space Mono (monospace) — datos, años, badges, códigos
 
 ## Estado actual del proyecto
-- Proyecto creado con Vite
-- Estructura de carpetas definida y creada
-- tokens.css con variables de diseño completas
-- globals.css con reset CSS y estilos base
-- Header.jsx con tipografía Bebas Neue, tagline y stats
-- games.json con estructura de datos definida
-- gameService.js con funciones de acceso a datos
-- useGames.js con lógica completa de estados
-- GameCard.jsx con hover overlay y muesca diagonal
-- SagaCard.jsx con modal expandido y botón JUGAR funcional
-- GameGrid.jsx organizando sagas y singles
-- InProgressCard.jsx y InProgressSection.jsx
-- HallOfFameCard.jsx y HallOfFameSection.jsx
-- RandomButton.jsx estilo pill naranja centrado
-- SuggestedGameModal.jsx completo
-- FilterBar.jsx con filtros Todos/Sagas/Juego único y búsqueda en tiempo real
-- useFilters.js hook con lógica de filtrado y búsqueda
-- AddGameModal.jsx con formulario inteligente
-  (individual / saga existente / saga nueva)
-- useGames.js con addSingleGame, addEntryToSaga, addNewSaga
-- Botón + AGREGAR JUEGO en sección Biblioteca
-- Editar singles, sagas y entregas de saga
-- Eliminar singles, sagas completas y entregas individuales
-- AddGameModal reutilizado para modo agregar y modo editar
-- Todas las tarjetas rediseñadas — solo carátula + título
-- Click en tarjeta abre modal con info completa + botones
-- GameCard, SagaCard, InProgressCard, HallOfFameCard rediseñadas
-- Fuente Quantico en tarjetas
-- Esquinas redondeadas en todas las tarjetas
-- Editar y eliminar juegos, sagas y entregas
+
+### Layout y navegación
+- AppHeader fijo con nav React Router, buscador y perfil
+- React Router con rutas: / | /biblioteca | /en-progreso | /salon
+- Layout dashboard: header + main + sidebar derecho
+- Vistas con sidebar izquierdo: Biblioteca, En Progreso, Salón de la Fama, SagaView
+- Lucida Reat para iconos 
+
+### Vista Inicio (Dashboard /)
+- Hero con vault-logo.png, bienvenida y 3 KPIs
+- Sección Tu Progreso — scroll horizontal con barras de progreso
+- Sección Biblioteca — scroll horizontal (LibraryScroll)
+  - Click en saga → navega a /biblioteca y abre SagaView
+  - Click en juego → abre GameModal en modo library
+  - SagaCover: rotación automática de carátulas de entries
+- Sidebar derecho: donut Recharts, RandomCard, actividad reciente
+- Footer completo
+
+### Vista Biblioteca (/biblioteca)
+- Sidebar izquierdo: nav + géneros dinámicos (reemplaza listas estáticas)
+- Tabs principales: Todos | Sagas | Juego individual
+- Stats banner con ícono redondo y barras de géneros (nombre arriba, barra abajo)
+- Grid 6 columnas con SagaCover rotando en sagas
+- GameModal al click en juego individual
+- SagaView al click en saga
+- FAB "+ Agregar juego"
+- Filtro de géneros en sidebar izquierdo
+
+### SagaView (dentro de /biblioteca)
+- Layout 3 columnas: sidebar izq + contenido + sidebar der
+- Hero con imagen rotando entre covers de entries (fade)
+- Degradado izquierda→derecha sobre la imagen
+- Progreso de saga con barra y stats
+- Lista de entries con cover, estado, fechas
+- Botón "+ Agregar título" → abre AddGameModal con saga preseleccionada
+- Sidebar derecho: info saga, orden recomendado, logros, gestionar
+
+### Vista En Progreso (/en-progreso)
+- Layout 2 columnas: sidebar izq + contenido
+- Sidebar: nav + stats (slots usados 0/3) + dado random
+- Stats banner con barras de progreso por juego
+- Grid de cards con badge % y barra naranja
+- Modal con sesión, progreso y botón completar
+
+### Vista Salón de la Fama (/salon)
+- Layout 3 columnas: sidebar izq + grid + sidebar der
+- Cards con ribbon "COMPLETADO" diagonal
+- Sidebar derecho: resumen logros, último completado, logros recientes
+- "Cargar más" paginado
+
+### Modales
+- GameModal unificado con 3 modos: library | in_progress | completed
+- Paleta del proyecto (variables CSS, sin colores hardcodeados)
+- AddGameModal rediseñado:
+  - Paso 1: búsqueda IGDB
+  - Paso 2: formulario con tipo (individual / parte de saga)
+  - Si es de saga: dropdown de sagas existentes + botón "+ Nueva" inline
+  - CreateSagaInline: formulario dentro del modal sin salir
+  - defaultSagaId para abrir preseleccionando una saga (usado en SagaView)
+
+### Datos y lógica
+- useGames.js con todas las funciones de estado
+- addEmptySaga() — crea saga sin entries (para flujo inline)
+- addEntryToSaga() — ahora guarda el cover de la entry
 - Persistencia con localStorage
-- FilterBar con filtros y búsqueda
-- AddGameModal para agregar y editar
-- Carátulas de juegos via IGDB API
-- Nuevo layout dashboard completo con grid main + sidebar
-- AppHeader fijo con nav (Inicio/Biblioteca/En progreso/Salón de la fama), buscador y perfil
-- Hero con vault-logo.png, bienvenida y 3 KPIs rectangulares
-- InProgressSection con scroll horizontal estilo Netflix, barras de progreso y flechas
-- LibraryScroll — nuevo componente solo para dashboard (sin filtros ni botón agregar)
-- Sidebar: donut Recharts real, RandomCard púrpura con dado animado y anillos, actividad reciente
-- App.module.css limpio sin duplicados
-- Salón de la Fama removido del dashboard (queda para vista propia)
-- FilterBar y botón agregar juego reservados para vista completa de Biblioteca
-- Se agrega el footer al diseño (hay que hacer algunas correcciones y conectar con datos reales)
-- React Router configurado — SPA con rutas / y /biblioteca
-- LibraryView completa: sidebar izquierdo, filtros por género (pills),
-  stats banner con barras, grid de cards con menú y favorito, FAB flotante
-- AddGameModal rediseñado: layout 2 columnas, drag & drop de imagen,
-  búsqueda IGDB, géneros como pills, footer con cancelar/agregar
-- SuggestedGameModal rediseñado: confetti, dado animado, carátula con
-  glow púrpura, info en grid, quote aleatoria, footer con 2 botones
-- Footer completo: 4 columnas + dado random + bottom bar con redes sociales
-- Vista En Progreso (/en-progreso)
-- Vista Salón de la Fama (/salon-de-la-fama)
+- IGDB API para búsqueda y carátulas
 
 ## Estructura de carpetas
 src/
 ├── components/
-│   ├── ui/           # Button, Badge, Modal...
-│   └── layout/       # Header...
+│   ├── ui/           # RandomButton, SuggestedGameModal...
+│   └── layout/       # AppHeader, Footer
 ├── features/
 │   ├── games/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   └── services/
+│   │   ├── components/  # GameCard, GameModal, AddGameModal, LibraryScroll...
+│   │   ├── hooks/       # useGames.js
+│   │   ├── services/    # igdbService.js
+│   │   └── views/       # LibraryView, SagaView, InProgressView, HallOfFameView
 │   └── filters/
-│       ├── components/
-│       └── hooks/
-├── data/             # games.json (temporal hasta tener DB)
-├── hooks/            # Hooks globales
-├── styles/           # globals.css, tokens.css, App.css
-└── utils/            # Funciones helpers
-## Decisiones tomadas
-- `features/` agrupa por dominio, no por tipo de archivo
-- `services/` abstrae acceso a datos para facilitar migración a DB
-- `data/games.json` es temporal, se reemplaza por DB en el futuro
-- Un solo juego en progreso a la vez (pendiente confirmar)
-
-## Próximo paso
-- Supabase como base de datos real
-- Modificar el modal de información de juegos 
-- Crear el modal de las sagas dentro de Biblioteca
-- Conectar nav del sidebar de LibraryView con las rutas
-- Paginación en Biblioteca
-- Supabase como base de datos real
-- Hacer modificaciones al modal de Nuevo juego 
-- Hacer que funcione el boton "Buscar Juegos, sagas"
+│       ├── components/  # FilterBar
+│       └── hooks/       # useFilters.js
+├── data/             # games.json (temporal)
+├── styles/           # globals.css, tokens.css, App.module.css
+└── assets/           # vault-logo.png
 
 ## Decisiones de diseño
-- El apartado de Sagas tendra un modal definido
+- Paleta oscura con acentos: cian (#00d4ff), naranja (#ff6b35), violeta (#a855f7), dorado (#fbbf24)
+- Sin librerías de estilos — CSS Modules + variables en tokens.css
+- Scroll horizontal estilo Netflix en dashboard
+- Sidebar izquierdo sticky en vistas principales
+- Géneros como filtros dinámicos (se generan desde los datos)
+
+## Próximos pasos
+- Supabase como base de datos real
+- Conectar contadores reales en sidebar de LibraryView (En progreso, Salón)
+- Completar acciones del GameModal (delete, edit desde modal)
+- Vista estadísticas completas
+- Horas jugadas reales

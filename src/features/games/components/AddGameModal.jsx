@@ -167,7 +167,7 @@ function CreateSagaInline({ onCreated, onCancel }) {
 function AddGameModal({
   onClose, onAddSingle, onAddToSaga, onAddNewSaga,
   onUpdateSingle, onUpdateEntry, onUpdateSaga, onAddEmptySaga,
-  existingSagas = [], editMode = false, editData = null
+  existingSagas = [], editMode = false, editData = null, defaultSagaId = null
 }) {
   const isEditingSingle = editMode && editData?.type === 'single'
   const isEditingEntry = editMode && editData?.type === 'entry'
@@ -175,11 +175,11 @@ function AddGameModal({
 
   const [step, setStep] = useState(editMode ? 'form' : 'search')
   const [prefilled, setPrefilled] = useState(null)
-  const [isSaga, setIsSaga] = useState(false)
+  const [isSaga, setIsSaga] = useState(!!defaultSagaId)
 
   // Lista de sagas dinámica — puede crecer si el usuario crea una inline
   const [localSagas, setLocalSagas] = useState(existingSagas)
-  const [selectedSagaId, setSelectedSagaId] = useState('')
+  const [selectedSagaId, setSelectedSagaId] = useState(defaultSagaId || '')
   const [showCreateSaga, setShowCreateSaga] = useState(false)
 
   // Form state

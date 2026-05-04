@@ -4,7 +4,7 @@ import styles from './InProgressView.module.css'
 import GameModal from '../components/GameModal'
 import { LayoutGrid, Gamepad2, Trophy, Dices, Star, Clock, Users, Plus, House } from 'lucide-react'
 
-function InProgressView({ games, onComplete, onRandomGame }) {
+function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, completedCount = 0 }) {
   const navigate = useNavigate()
   const [selectedGame, setSelectedGame] = useState(null)
   const [activePlatform, setActivePlatform] = useState('Todos')
@@ -55,7 +55,7 @@ function InProgressView({ games, onComplete, onRandomGame }) {
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/biblioteca')}>
               <LayoutGrid size={20} /> Biblioteca
-              <span className={styles.sideNavBadge}>0</span>
+              <span className={styles.sideNavBadge}>{libraryCount}</span>
             </button>
             <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
               <Gamepad2 size={20} /> En progreso
@@ -63,11 +63,11 @@ function InProgressView({ games, onComplete, onRandomGame }) {
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/salon')}>
               <Trophy size={20} /> Salón de la fama
-              <span className={styles.sideNavBadgeGold}>0</span>
+              <span className={styles.sideNavBadgeGold}>{completedCount}</span>
             </button>
             <button className={styles.sideNavItem} onClick={onRandomGame}>
               <Dices size={20} /> Juegos al azar
-            </button> 
+            </button>
           </nav>
         </div>
 
