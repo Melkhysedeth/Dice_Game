@@ -405,10 +405,30 @@
 .card {
   cursor: pointer;
   transition: transform var(--transition-normal);
+  position: relative;                        /* ← agregar */
 }
 
 .card:hover { transform: translateY(-4px); }
 
+.cardCover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.card {
+  cursor: pointer;
+  transition: transform var(--transition-normal);
+  position: relative;
+}
+
+.card:hover { transform: translateY(-4px); }
+
+/* Gradiente más oscuro y más alto */
 .cardCover {
   position: relative;
   width: 100%;
@@ -424,12 +444,31 @@
   box-shadow: 0 8px 32px rgba(0,212,255,0.15);
 }
 
+.cardCover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.85) 25%,
+    rgba(0, 0, 0, 0.3) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
 .cardImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform var(--transition-normal);
 }
+
+.card:hover .cardImg { transform: scale(1.04); }
+
 
 .cardPlaceholder {
   width: 100%;
@@ -442,10 +481,15 @@
   opacity: 0.3;
 }
 
-.cardOverlay {
+.cardOverlay { display: none; }
+
+.cardInfo {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(7,10,15,0.8) 0%, transparent 50%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 14px 16px 20px;
+  z-index: 2;
 }
 
 .cardMenu {
@@ -465,23 +509,36 @@
   justify-content: center;
   opacity: 0;
   transition: opacity var(--transition-fast);
+  z-index: 3;
 }
 
 .card:hover .cardMenu { opacity: 1; }
 
 .cardInfo {
-  padding: var(--space-sm) 2px 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 14px 16px 8px;
+  z-index: 2;
+  /* NO está dentro de cardCover, pero se posiciona sobre él
+     porque .card tiene position: relative y cardCover llena el card */
 }
 
 .cardTitle {
   font-family: var(--font-cards);
   font-size: 13px;
-  color: var(--text-bright);
-  margin: 0 0 6px;
-  white-space: nowrap;
+  color: #ffffff;
+  margin: 0;
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
   letter-spacing: 0.5px;
+  line-height: 1.3;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }
 
 .cardBottom {
@@ -496,7 +553,7 @@
   gap: 5px;
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-dim);
+  color: rgba(255,255,255,0.75);
   letter-spacing: 0.5px;
 }
 
@@ -511,12 +568,13 @@
 .cardHeart {
   background: none;
   border: none;
-  color: var(--text-dim);
-  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  font-size: 20px;             /* más grande */
   cursor: pointer;
-  padding: 2px;
+  padding: 2px 4px;
   transition: color var(--transition-fast);
   line-height: 1;
+  flex-shrink: 0;
 }
 .cardHeart:hover { color: #ef4444; }
 

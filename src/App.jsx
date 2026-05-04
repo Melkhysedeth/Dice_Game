@@ -114,7 +114,7 @@ function App() {
                       src="/src/assets/vault-logo.png"
                       alt="Game Vault"
                       className={styles.heroVaultImg}
-                      style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
+                      style={{ objectFit: 'cover', objectPosition: 'center 8%' }}
                     />
                     <div className={styles.heroText}>
                       <p className={styles.heroGreeting}>¡Bienvenido de vuelta, <span className={styles.heroNameAccent}>GamerXX!</span> 👋</p>
@@ -315,7 +315,7 @@ function App() {
             onReturnToLibrary={returnToLibrary}
             onRandomGame={pickRandomGame}
             libraryCount={libraryGames.filter(g => !g.isSagaEntry).length + sagas.length}
-            completedCount={completedGames.length}
+            inProgressCount={inProgressGames.length}
           />
         } />
 

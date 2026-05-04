@@ -347,7 +347,6 @@ function LibraryView({
             >
               <div className={styles.cardCover}>
                 <SagaCover saga={saga} />
-                <div className={styles.cardOverlay} />
                 <button
                   className={styles.cardMenu}
                   onClick={e => { e.stopPropagation() }}
@@ -379,7 +378,6 @@ function LibraryView({
                     <span>🎮</span>
                   </div>
                 )}
-                <div className={styles.cardOverlay} />
                 <button
                   className={styles.cardMenu}
                   onClick={e => { e.stopPropagation() }}

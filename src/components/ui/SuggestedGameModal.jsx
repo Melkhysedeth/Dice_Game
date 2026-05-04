@@ -1,16 +1,23 @@
 import { useEffect, useState } from 'react'
 import styles from './SuggestedGameModal.module.css'
+import { Gamepad2, MonitorCheck, Building2, Calendar, CircleDashed, Quote} from 'lucide-react'
 
 const QUOTES = [
-  { text: "Un héroe no nace, se forja en la batalla.", author: "Desconocido" },
-  { text: "La aventura te espera, solo necesitas dar el primer paso.", author: "Desconocido" },
-  { text: "Todo gran viaje comienza con una sola decisión.", author: "Desconocido" },
-  { text: "El destino favorece a los valientes.", author: "Proverbio" },
-  { text: "No hay gloria sin sacrificio.", author: "Desconocido" },
+  { text: "Un héroe no nace, se forja en la batalla.", author: "Kratos (God of War)" },
+  { text: "La aventura te espera, solo necesitas dar el primer paso.", author: "The Legend of Zelda" },
+  { text: "El hombre adecuado en el sitio equivocado puede cambiar el rumbo del mundo.", author: "G-Man (Half-Life 2)" },
+  { text: "El destino favorece a los valientes.", author: "Nathan Drake (Uncharted)" },
+  { text: "¿Qué es un hombre sino una miserable pila de secretos?", author: "Drácula (Castlevania: Symphony of the Night)" },
+  { text: "No somos herramientas del gobierno ni de nadie más. Luchar era lo único de lo que era capaz, pero al menos siempre luché por aquello en lo que creía.", author: "Gray Fox (Metal Gear Solid)" },
+  { text: "Un hombre elige, un esclavo obedece.", author: "Andrew Ryan (BioShock)" },
+  { text: "Nada es verdad, todo está permitido.", author: "Ezio Auditore (Assassin's Creed)" },
+  { text: "No aceptes el mundo tal como parece ser, atrévete a verlo como podría ser.", author: "Winston (Overwatch)" },
+  { text: "Incluso en el momento de la muerte, hay esperanza de que algo de nosotros sobreviva.", author: "Cortana (Halo 4)" },
+  { text: "¿A dónde van todos? ¿Al Bingo?", author: "Leon S. Kennedy (RE4)" },
 ]
 
 function Confetti() {
-  const pieces = Array.from({ length: 24 }, (_, i) => i)
+  const pieces = Array.from({ length: 50 }, (_, i) => i)
   const colors = ['#7c3aed', '#a78bfa', '#f5a623', '#00d4ff', '#ff6b35', '#22c55e', '#ec4899']
   return (
     <div className={styles.confettiWrapper}>
@@ -82,31 +89,31 @@ function SuggestedGameModal({ game, onConfirm, onDismiss, onClose }) {
 
             <div className={styles.infoGrid}>
               <div className={styles.infoRow}>
-                <span className={styles.infoIcon}>🎮</span>
+                <span className={styles.infoIcon}><Gamepad2 size={20} /></span>
                 <span className={styles.infoKey}>Género</span>
                 <span className={styles.infoVal}>{game.genre?.join(', ')}</span>
               </div>
               <div className={styles.infoRow}>
-                <span className={styles.infoIcon}>💾</span>
+                <span className={styles.infoIcon}><MonitorCheck size={20} /></span>
                 <span className={styles.infoKey}>Plataforma</span>
                 <span className={styles.infoVal}>{game.platform?.join(', ')}</span>
               </div>
               {game.developer && (
                 <div className={styles.infoRow}>
-                  <span className={styles.infoIcon}>🏢</span>
+                  <span className={styles.infoIcon}><Building2 size={20} /></span>
                   <span className={styles.infoKey}>Desarrollador</span>
                   <span className={styles.infoVal}>{game.developer}</span>
                 </div>
               )}
               {game.year && (
                 <div className={styles.infoRow}>
-                  <span className={styles.infoIcon}>📅</span>
+                  <span className={styles.infoIcon}><Calendar size={20} /></span>
                   <span className={styles.infoKey}>Año</span>
                   <span className={styles.infoVal}>{game.year}</span>
                 </div>
               )}
               <div className={styles.infoRow}>
-                <span className={styles.infoIcon}>⭕</span>
+                <span className={styles.infoIcon}><CircleDashed size={20} /></span>
                 <span className={styles.infoKey}>Estado</span>
                 <span className={styles.infoValBadge}>
                   <span className={styles.badgeDot} /> Pendiente
@@ -116,7 +123,7 @@ function SuggestedGameModal({ game, onConfirm, onDismiss, onClose }) {
 
             {/* QUOTE */}
             <div className={styles.quote}>
-              <span className={styles.quoteIcon}>"</span>
+              <span className={styles.quoteIcon}><Quote size={20} /></span>
               <div>
                 <p className={styles.quoteText}>{quote.text}</p>
                 <p className={styles.quoteAuthor}>— {quote.author}</p>
