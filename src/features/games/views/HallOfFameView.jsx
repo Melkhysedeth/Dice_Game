@@ -118,7 +118,7 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
 
                     {/* RIBBON diagonal */}
                     <div className={styles.ribbon}>
-                      <span>COMPLETADO</span>
+                      <span>   COMPLETADO</span>
                     </div>
 
                     {/* Estrella favorito */}
@@ -139,10 +139,9 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
                         <span className={styles.cardStar2}>★</span> 100%
                       </span>
                       <span className={styles.cardMetaItem}>
-                        ⏱ —
+                        ⏱ {getEndDate(game)}  {/* ← mueve la fecha aquí, al lado del reloj */}
                       </span>
                     </div>
-                    <div className={styles.cardDate}>{getEndDate(game)}</div>
                   </div>
                 </div>
               ))}

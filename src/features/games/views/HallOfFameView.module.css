@@ -140,7 +140,7 @@
    MAIN
 ══════════════════════════════ */
 .main {
-  padding: var(--space-xl);
+  padding: var(--space-xl) var(--space-lg);  /* ← era var(--space-xl) en todos lados */
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
@@ -209,25 +209,38 @@
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--space-lg);
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);  /* ← reduce el gap para ganar espacio */
 }
 
 /* CARD */
 .card {
   cursor: pointer;
-  transition: transform var(--transition-normal);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  position: relative;
+  /* Halo dorado SIEMPRE visible */
+  box-shadow:
+    0 0 0 1px rgba(212, 167, 19, 0.966),
+    0 0 8px rgba(255, 249, 72, 0.948),
+    0 4px 24px rgba(0, 0, 0, 0.634);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
-.card:hover { transform: translateY(-6px); }
+ 
+.card:hover {
+  transform: translateY(-6px);
+  /* Halo más intenso en hover */
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.6),
+    0 0 32px rgba(212, 175, 55, 0.35),
+    0 8px 40px rgba(0, 0, 0, 0.6);
+}
 
 .cardCover {
   position: relative;
   width: 100%;
-  aspect-ratio: 2 / 3;
-  border-radius: var(--radius-card);
+  aspect-ratio: 9 / 16;
   overflow: hidden;
-  border: 1px solid rgba(251,191,36,0.2);
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .card:hover .cardCover {
@@ -240,6 +253,11 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .cardImg {
+  transform: scale(1.04);
 }
 
 .cardPlaceholder {
@@ -248,7 +266,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(251,191,36,0.08), var(--surface-2));
+  background: linear-gradient(135deg, rgba(212,175,55,0.1), var(--surface-2));
   font-size: 48px;
   opacity: 0.3;
 }
@@ -256,36 +274,53 @@
 .cardOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(7,10,15,0.9) 0%, transparent 50%);
+  background: linear-gradient(
+    to top,
+    rgba(4, 5, 8, 0.97) 0%,
+    rgba(4, 5, 8, 0.85) 25%,
+    rgba(4, 5, 8, 0.3)  50%,
+    transparent         75%
+  );
 }
 
 /* RIBBON diagonal */
 .ribbon {
   position: absolute;
-  top: 16px;
-  right: -28px;
-  background: linear-gradient(135deg, var(--state-fame), #f59e0b);
-  color: var(--bg);
+  top: 18px;
+  right: -30px;
+  background: linear-gradient(
+    135deg,
+    #B8860B 0%,
+    #D4AF37 40%,
+    #FFD700 60%,
+    #D4AF37 80%,
+    #B8860B 100%
+  );
+  color: #1a1000;
   font-family: var(--font-mono);
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 900;
   letter-spacing: 1.5px;
-  padding: 4px 36px;
+  padding: 5px 38px;
   transform: rotate(45deg);
   transform-origin: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.5),
+    0 0 12px rgba(212,175,55,0.4);
   white-space: nowrap;
+  z-index: 3;
 }
 
+/* ESTRELLA favorito */
 .cardStar {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  background: rgba(7,10,15,0.7);
-  border: 1px solid rgba(251,191,36,0.3);
-  color: var(--state-fame);
-  width: 28px;
-  height: 28px;
+  top: 10px;
+  left: 10px;
+  background: rgba(7,10,15,0.75);
+  border: 1px solid rgba(212,175,55,0.4);
+  color: #D4AF37;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   cursor: pointer;
   font-size: 14px;
@@ -294,55 +329,71 @@
   justify-content: center;
   transition: all var(--transition-fast);
   opacity: 0;
+  z-index: 3;
 }
 .card:hover .cardStar { opacity: 1; }
-.cardStar:hover { background: rgba(251,191,36,0.2); }
+.cardStar:hover {
+  background: rgba(212,175,55,0.25);
+  box-shadow: 0 0 12px rgba(212,175,55,0.5);
+}
 
+/* INFO — dentro de la card, sobre el gradiente */
 .cardInfo {
-  padding: var(--space-sm) 2px 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 14px 14px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+  z-index: 2;
 }
 
 .cardTitle {
-  font-family: var(--font-cards);
-  font-size: 14px;
-  color: var(--text-bright);
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: #fff;
   margin: 0;
-  letter-spacing: 0.5px;
   line-height: 1.2;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.8);
 }
 
 .cardSaga {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-dim);
+  /* Color oro brillante */
+  color: #D4AF37;
   margin: 0;
   letter-spacing: 1px;
 }
 
 .cardMeta {
   display: flex;
-  gap: var(--space-md);
-  margin-top: 2px;
+  gap: 12px;
+  margin-top: 3px;
+  align-items: center;
 }
 
 .cardMetaItem {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-dim);
+  color: rgba(255,255,255,0.7);
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
-.cardStar2 { color: var(--state-fame); }
+/* Estrella dorada */
+.cardStar2 {
+  color: #D4AF37;
+  filter: drop-shadow(0 0 4px rgba(218, 176, 39, 0.6));
+}
 
 .cardDate {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-dim);
+  color: rgba(255,255,255,0.45);
   letter-spacing: 0.5px;
 }
 

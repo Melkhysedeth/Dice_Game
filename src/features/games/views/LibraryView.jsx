@@ -66,7 +66,8 @@ function LibraryView({
     })
   }, [sagas, activeGenre, activeType, search])  // ← agregar activeType
 
-  const totalFiltered = filteredGames.length + filteredSagas.length
+  const availableToPlay = filteredGames.length +
+    filteredSagas.reduce((acc, s) => acc + s.entries.filter(e => e.status === 'library').length, 0)
   const totalAll = games.length + sagas.length
 
   // Top géneros para las barras
@@ -75,6 +76,7 @@ function LibraryView({
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4)
   }, [genreStats])
+
 
   const genreColors = ['var(--accent)', '#22c55e', '#a855f7', '#f5a623']
 
@@ -288,7 +290,7 @@ function LibraryView({
         {/* FILTROS TIPO */}
         <div className={styles.genreTabs}>
           {[
-            { id: 'todos', label: 'Todos', count: totalAll },
+            { id: 'todos', label: 'Todos', count: filteredGames.length + filteredSagas.length },
             { id: 'sagas', label: 'Sagas', count: sagas.length },
             { id: 'singles', label: 'Juego individual', count: games.length },
           ].map(tab => (
@@ -308,7 +310,9 @@ function LibraryView({
           <div className={styles.statsBannerLeft}>
             <div className={styles.statsBannerIcon}>▦</div>
             <div>
-              <p className={styles.statsBannerCount}>{filteredGames.length + filteredSagas.reduce((acc, s) => acc + s.entries.length, 0)} juegos en tu biblioteca</p>
+              <p className={styles.statsBannerCount}>
+                {availableToPlay} Juegos disponibles para jugar
+              </p>
               <p className={styles.statsBannerSub}>Listos para tu próxima aventura</p>
             </div>
           </div>
@@ -397,12 +401,14 @@ function LibraryView({
 
         </div>
 
-        {totalFiltered === 0 && (
-          <div className={styles.empty}>
-            <span>🎮</span>
-            <p>No hay juegos en esta categoría</p>
-          </div>
-        )}
+        {
+          filteredGames.length + filteredSagas.length === 0 && (
+            <div className={styles.empty}>
+              <span>🎮</span>
+              <p>No hay juegos en esta categoría</p>
+            </div>
+          )
+        }
 
         {/* FAB FLOTANTE */}
         <button className={styles.fab} onClick={onAddGame}>
@@ -410,36 +416,38 @@ function LibraryView({
           <span className={styles.fabLabel}>Agregar juego</span>
         </button>
 
-      </main>
+      </main >
 
       {/* MODAL DETALLE */}
-      {selectedGame && (
-        <GameModal
-          game={selectedGame.type === 'saga' ? selectedGame.data : selectedGame.data}
-          mode="library"
-          onClose={() => setSelectedGame(null)}
-          onAction={(action) => {
-            if (action === 'start') {
-              onStartPlaying(selectedGame.data)
-              setSelectedGame(null)
-            }
-            if (action === 'delete') {
-              selectedGame.type === 'saga'
-                ? onDeleteSaga(selectedGame.data.id)
-                : onDelete(selectedGame.data)
-              setSelectedGame(null)
-            }
-            if (action === 'edit') {
-              selectedGame.type === 'saga'
-                ? onEditSaga(selectedGame.data)
-                : onEdit(selectedGame.data)
-              setSelectedGame(null)
-            }
-          }}
-        />
-      )}
+      {
+        selectedGame && (
+          <GameModal
+            game={selectedGame.type === 'saga' ? selectedGame.data : selectedGame.data}
+            mode="library"
+            onClose={() => setSelectedGame(null)}
+            onAction={(action) => {
+              if (action === 'start') {
+                onStartPlaying(selectedGame.data)
+                setSelectedGame(null)
+              }
+              if (action === 'delete') {
+                selectedGame.type === 'saga'
+                  ? onDeleteSaga(selectedGame.data.id)
+                  : onDelete(selectedGame.data)
+                setSelectedGame(null)
+              }
+              if (action === 'edit') {
+                selectedGame.type === 'saga'
+                  ? onEditSaga(selectedGame.data)
+                  : onEdit(selectedGame.data)
+                setSelectedGame(null)
+              }
+            }}
+          />
+        )
+      }
 
-    </div>
+    </div >
   )
 }
 

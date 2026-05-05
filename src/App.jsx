@@ -42,7 +42,8 @@ function App() {
     deleteSaga,
     updateSagaCover,
     updateEntryCover,
-    addEmptySaga
+    addEmptySaga,
+    singles
   } = useGames()
 
   const {
@@ -121,21 +122,27 @@ function App() {
                       <p className={styles.heroTagline}>Organiza, juega y celebra cada aventura.</p>
                       <div className={styles.kpis}>
                         <div className={styles.kpiCard}>
-                          <span className={styles.kpiIcon}><ChartColumn size={25} /></span>
+                          <span className={styles.kpiIcon} style={{ background: 'rgba(0,212,255,0.12)', color: 'var(--accent)' }}>
+                            <ChartColumn size={20} />
+                          </span>
                           <div className={styles.kpiInfo}>
                             <span className={styles.kpiLabel}>Juegos totales</span>
                             <span className={styles.kpiValue}>{totalGames}</span>
                           </div>
                         </div>
                         <div className={styles.kpiCard}>
-                          <span className={styles.kpiIcon}><Gamepad2 size={25} /></span>
+                          <span className={styles.kpiIcon} style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}>
+                            <Gamepad2 size={20} />
+                          </span>
                           <div className={styles.kpiInfo}>
                             <span className={styles.kpiLabel}>Horas jugadas</span>
                             <span className={styles.kpiValue}>532h</span>
                           </div>
                         </div>
                         <div className={styles.kpiCard}>
-                          <span className={styles.kpiIcon}><Trophy size={25} /></span>
+                          <span className={styles.kpiIcon} style={{ background: 'rgba(251,191,36,0.12)', color: 'var(--state-fame)' }}>
+                            <Trophy size={20} />
+                          </span>
                           <div className={styles.kpiInfo}>
                             <span className={styles.kpiLabel}>Logros obtenidos</span>
                             <span className={styles.kpiValue}>{completedGames.length}</span>
@@ -179,53 +186,70 @@ function App() {
 
               <aside className={styles.sidebar}>
                 <div className={styles.sideCard}>
-                  <h3 className={styles.sideCardTitle}><span><ChartColumn size={25} /></span> Resumen de tu colección</h3>
-                  <div className={styles.donutWrapper}>
-                    <ResponsiveContainer width="100%" height={180}>
-                      <PieChart>
-                        <Pie
-                          data={[
-                            { name: 'Biblioteca', value: libraryGames.length || 0.001 },
-                            { name: 'En progreso', value: inProgressGames.length || 0.001 },
-                            { name: 'Salón de la fama', value: completedGames.length || 0.001 },
-                          ]}
-                          cx="50%" cy="50%"
-                          innerRadius={52} outerRadius={72}
-                          paddingAngle={3} dataKey="value" strokeWidth={0}
-                        >
-                          <Cell fill="var(--accent)" />
-                          <Cell fill="var(--accent-2)" />
-                          <Cell fill="var(--state-fame)" />
-                        </Pie>
-                        <Tooltip
-                          contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', fontFamily: 'var(--font-body)', fontSize: '12px' }}
-                          cursor={false}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className={styles.donutCenter}>
-                      <span className={styles.donutTotal}>{totalGames}</span>
-                      <span className={styles.donutLabel}>Juegos</span>
+                  <h3 className={styles.sideCardTitle}>
+                    <span><ChartColumn size={25} /></span> Resumen de tu colección
+                  </h3>
+
+                  <div className={styles.donutRow}>
+                    {/* DONUT */}
+                    <div className={styles.donutWrapper}>
+                      <ResponsiveContainer width={160} height={160}>
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'Biblioteca', value: libraryGames.length || 0.001 },
+                              { name: 'En progreso', value: inProgressGames.length || 0.001 },
+                              { name: 'Salón de la fama', value: completedGames.length || 0.001 },
+                            ]}
+                            cx="50%" cy="50%"
+                            innerRadius={48} outerRadius={68}
+                            paddingAngle={3} dataKey="value" strokeWidth={0}
+                          >
+                            <Cell fill="var(--accent)" />
+                            <Cell fill="var(--accent-2)" />
+                            <Cell fill="var(--state-fame)" />
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', fontFamily: 'var(--font-body)', fontSize: '12px' }}
+                            cursor={false}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className={styles.donutCenter}>
+                        <span className={styles.donutTotal}>{totalGames}</span>
+                        <span className={styles.donutLabel}>Juegos</span>
+                      </div>
+                    </div>
+
+                    {/* LEYENDA */}
+                    <div className={styles.legend}>
+                      <div className={styles.legendItem}>
+                        <span className={styles.legendDot} style={{ background: 'var(--accent)' }} />
+                        <span className={styles.legendName}>Biblioteca</span>
+                        <span className={styles.legendVal} style={{ color: 'var(--accent)' }}>
+                          {libraryGames.length} ({libraryPct}%)
+                        </span>
+                      </div>
+                      <div className={styles.legendItem}>
+                        <span className={styles.legendDot} style={{ background: 'var(--accent-2)' }} />
+                        <span className={styles.legendName}>En progreso</span>
+                        <span className={styles.legendVal} style={{ color: 'var(--accent-2)' }}>
+                          {inProgressGames.length} ({progressPct}%)
+                        </span>
+                      </div>
+                      <div className={styles.legendItem}>
+                        <span className={styles.legendDot} style={{ background: 'var(--state-fame)' }} />
+                        <span className={styles.legendName}>Salón de la fama</span>
+                        <span className={styles.legendVal} style={{ color: 'var(--state-fame)' }}>
+                          {completedGames.length} ({famePct}%)
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className={styles.legend}>
-                    <div className={styles.legendItem}>
-                      <span className={styles.legendDot} style={{ background: 'var(--accent)' }} />
-                      <span>Biblioteca</span>
-                      <span className={styles.legendVal}>{libraryGames.length} ({libraryPct}%)</span>
-                    </div>
-                    <div className={styles.legendItem}>
-                      <span className={styles.legendDot} style={{ background: 'var(--accent-2)' }} />
-                      <span>En progreso</span>
-                      <span className={styles.legendVal}>{inProgressGames.length} ({progressPct}%)</span>
-                    </div>
-                    <div className={styles.legendItem}>
-                      <span className={styles.legendDot} style={{ background: 'var(--state-fame)' }} />
-                      <span>Salón de la fama</span>
-                      <span className={styles.legendVal}>{completedGames.length} ({famePct}%)</span>
-                    </div>
-                  </div>
-                  <button className={styles.statsLink}>Ver estadísticas completas →</button>
+
+                  <button className={styles.statsLink}>
+                    <ChartColumn size={14} /> Ver estadísticas completas →
+                  </button>
                 </div>
 
                 <div className={styles.randomCard}>
@@ -293,7 +317,7 @@ function App() {
             onAddEmptySaga={addEmptySaga}
             onAddToSaga={addEntryToSaga}
             inProgressCount={inProgressGames.length}
-            completedCount={completedGames.length}
+            completedCount={completedGames.length}  // ← todos los singles sin filtrar por status
           />
         } />
 

@@ -12,6 +12,13 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+/* Modo slim — vistas con sidebar propio */
+.headerSlim {
+  background: rgba(10, 11, 14, 0.97);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .inner {
@@ -21,7 +28,7 @@
   padding: 0 var(--space-xl);
   display: flex;
   align-items: center;
-  gap: var(--space-xl);
+  gap: 64px;        /* más separación entre logo y buscador */
 }
 
 /* ── LOGO ── */
@@ -43,17 +50,11 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 12px rgba(0,212,255,0.15);
+  transition: box-shadow 0.2s;
 }
 
-.logoIconGlyph {
-  font-size: 18px;
-  color: var(--accent);
-  animation: spin 12s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+.logoBlock:hover .logoIcon {
+  box-shadow: 0 0 20px rgba(0,212,255,0.3);
 }
 
 .logoText {
@@ -63,10 +64,9 @@
   letter-spacing: 1px;
 }
 
-.logoMy    { color: var(--text); }
-.logoGame  { color: var(--text-bright); }
-.logoUnderscore { color: var(--accent); }
-.logoVault { color: var(--accent); }
+.logoMy       { color: var(--text); }
+.logoGame     { color: var(--text-bright); }
+.logoVault    { color: var(--accent); }
 
 /* ── NAV ── */
 .nav {
@@ -74,6 +74,7 @@
   align-items: center;
   gap: 4px;
   flex: 1;
+  flex-shrink: 0;   /* ← agregar */
 }
 
 .navItem {
@@ -108,6 +109,8 @@
 .navIcon {
   font-size: 13px;
   opacity: 0.8;
+  display: flex;
+  align-items: center;
 }
 
 .navUnderline {
@@ -129,6 +132,13 @@
   margin-left: auto;
 }
 
+/* En vistas con sidebar el right ocupa todo el espacio disponible */
+.rightExpanded {
+  flex: 1;
+  margin-left: 0;
+  justify-content: flex-end;  /* empuja los iconos al extremo derecho */
+}
+
 .searchBox {
   display: flex;
   align-items: center;
@@ -137,8 +147,17 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 6px 12px;
-  min-width: 200px;
-  transition: border-color var(--transition-fast);
+  min-width: 160px;   /* ← reducir, antes 200px */
+  max-width: 220px;   /* ← agregar límite */
+  transition: border-color var(--transition-fast), min-width 0.2s ease;
+}
+
+/* Buscador más ancho en vistas internas */
+.searchBoxWide {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  margin-right: auto;
 }
 
 .searchBox:focus-within {
@@ -146,7 +165,6 @@
 }
 
 .searchIcon {
-  font-size: 13px;
   opacity: 0.5;
   flex-shrink: 0;
 }
@@ -176,9 +194,10 @@
   padding: 2px 5px;
   flex-shrink: 0;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
-/* campana */
+/* Botones icono (campana, estadísticas) */
 .iconBtn {
   position: relative;
   background: var(--surface-2);
@@ -190,12 +209,15 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: border-color var(--transition-fast);
+  color: var(--text-dim);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+  flex-shrink: 0;
 }
 
-.iconBtn:hover { border-color: var(--accent); }
-
-.bellIcon { font-size: 15px; }
+.iconBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
 .notifDot {
   position: absolute;
@@ -208,18 +230,19 @@
   border: 1.5px solid var(--bg);
 }
 
-/* perfil */
+/* Perfil */
 .profile {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;               /* antes 8px */
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 5px 10px 5px 5px;
+  padding: 5px 8px 5px 5px;   /* antes 5px 10px */
   cursor: pointer;
   transition: border-color var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .profile:hover { border-color: var(--accent); }
@@ -241,14 +264,13 @@
 
 .profileName {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 12px;        /* antes 13px */
   font-weight: 600;
   color: var(--text-bright);
-}
-
-.profileCaret {
-  font-size: 10px;
-  color: var(--text-dim);
+  max-width: 60px;        /* ← agregar */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .onlineDot {

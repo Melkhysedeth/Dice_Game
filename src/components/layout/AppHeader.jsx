@@ -1,67 +1,77 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-// 1. Importa los iconos de Lucide
 import { House, LayoutGrid, Gamepad2, Trophy, Search, Bell, ChevronDown } from 'lucide-react'
 import styles from './Header.module.css'
 
-// 2. Asigna los componentes a la propiedad icon (sin comillas)
 const NAV_ITEMS = [
-  { id: 'inicio', label: 'Inicio', icon: House, path: '/' },
-  { id: 'biblioteca', label: 'Biblioteca', icon: LayoutGrid, path: '/biblioteca' },
-  { id: 'progreso', label: 'En progreso', icon: Gamepad2, path: '/en-progreso' },
-  { id: 'fama', label: 'Salón de la fama', icon: Trophy, path: '/salon' },
+  { id: 'inicio',    label: 'Inicio',           icon: House,       path: '/' },
+  { id: 'biblioteca',label: 'Biblioteca',        icon: LayoutGrid,  path: '/biblioteca' },
+  { id: 'progreso',  label: 'En progreso',       icon: Gamepad2,    path: '/en-progreso' },
+  { id: 'fama',      label: 'Salón de la fama',  icon: Trophy,      path: '/salon' },
 ]
 
+// Rutas que tienen su propio sidebar con navegación
+const SIDEBAR_ROUTES = ['/biblioteca', '/en-progreso', '/salon']
+
 function AppHeader({ searchQuery, onSearch }) {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate  = useNavigate()
+  const location  = useLocation()
+
+  const hasSidebar = SIDEBAR_ROUTES.includes(location.pathname)
 
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${hasSidebar ? styles.headerSlim : ''}`}>
       <div className={styles.inner}>
 
-        {/* ... (LogoBlock se mantiene igual) ... */}
+        {/* LOGO — siempre visible */}
         <div className={styles.logoBlock} onClick={() => navigate('/')}>
           <div className={styles.logoIcon}>
-            <img src="/src/assets/vault-logo.png" alt="logo" style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '50%' }} />
+            <img
+              src="/src/assets/vault-logo.png"
+              alt="logo"
+              style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '50%' }}
+            />
           </div>
-          <div className={styles.logoText}>
-            <span className={styles.logoMy}>My</span>
-            <span className={styles.logoGame}> Game_</span>
-            <span className={styles.logoVault}>Vault</span>
-          </div>
+          {/* En vistas con sidebar ocultamos el texto del logo para ganar espacio */}
+          {!hasSidebar && (
+            <div className={styles.logoText}>
+              <span className={styles.logoMy}>My</span>
+              <span className={styles.logoGame}> Game_</span>
+              <span className={styles.logoVault}>Vault</span>
+            </div>
+          )}
         </div>
 
-        <nav className={styles.nav}>
-          {NAV_ITEMS.map(item => {
-            // 3. Extraemos el icono en una variable con Mayúscula
-            const IconComponent = item.icon;
+        {/* NAV — solo en el dashboard */}
+        {!hasSidebar && (
+          <nav className={styles.nav}>
+            {NAV_ITEMS.map(item => {
+              const Icon = item.icon
+              return (
+                <button
+                  key={item.id}
+                  className={`${styles.navItem} ${location.pathname === item.path ? styles.navActive : ''}`}
+                  onClick={() => navigate(item.path)}
+                >
+                  <span className={styles.navIcon}>
+                    <Icon size={18} strokeWidth={2} />
+                  </span>
+                  {item.label}
+                  {location.pathname === item.path && <span className={styles.navUnderline} />}
+                </button>
+              )
+            })}
+          </nav>
+        )}
 
-            return (
-              <button
-                key={item.id}
-                className={`${styles.navItem} ${location.pathname === item.path ? styles.navActive : ''}`}
-                onClick={() => navigate(item.path)}
-              >
-                <span className={styles.navIcon}>
-                  {/* 4. Renderizamos como componente */}
-                  <IconComponent size={18} strokeWidth={2} />
-                </span>
-                {item.label}
-                {location.pathname === item.path && <span className={styles.navUnderline} />}
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className={styles.right}>
-          <div className={styles.searchBox}>
-            {/* Reemplazo de emoji por Lucide */}
+        {/* BUSCADOR — siempre visible, se expande cuando no hay nav */}
+        <div className={`${styles.right} ${hasSidebar ? styles.rightExpanded : ''}`}>
+          <div className={`${styles.searchBox} ${hasSidebar ? styles.searchBoxWide : ''}`}>
             <Search size={16} className={styles.searchIcon} />
             <input
               className={styles.searchInput}
               type="text"
-              placeholder="Buscar juegos..."
+              placeholder={hasSidebar ? 'Buscar juegos, sagas, géneros...' : 'Buscar juegos...'}
               value={searchQuery}
               onChange={e => onSearch(e.target.value)}
             />
@@ -69,14 +79,20 @@ function AppHeader({ searchQuery, onSearch }) {
           </div>
 
           <button className={styles.iconBtn}>
-            <span className={styles.bellIcon}>🔔</span>
+            <Bell size={16} />
             <span className={styles.notifDot} />
           </button>
 
+          {/* Icono de estadísticas — solo en vistas internas */}
+          {hasSidebar && (
+            <button className={styles.iconBtn}>
+              <LayoutGrid size={16} />
+            </button>
+          )}
+
           <div className={styles.profile}>
             <div className={styles.avatar}>GX</div>
-            <span className={styles.profileName}>GamerXX</span>
-            {/* Reemplazo de caret flecha */}
+            {!hasSidebar && <span className={styles.profileName}>GamerXX</span>}
             <ChevronDown size={14} />
             <span className={styles.onlineDot} />
           </div>
