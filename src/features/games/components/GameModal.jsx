@@ -391,8 +391,8 @@ function ModalHallOfFame({ game, onClose, onAction }) {
         <div className={styles.reviewBlock}>
           <div className={styles.reviewLabel}>Calificación personal</div>
           <div className={styles.personalRatingRow}>
-            <StarRating value={personalRating} max={10} interactive onChange={setPersonalRating} />
-            <span className={styles.personalRatingNum}>{personalRating} / 10</span>
+            <StarRating value={personalRating} max={5} interactive onChange={setPersonalRating} />
+            <span className={styles.personalRatingNum}>{personalRating} / 5</span>
           </div>
         </div>
         <div className={styles.reviewBlock}>
@@ -419,7 +419,7 @@ function ModalHallOfFame({ game, onClose, onAction }) {
           <IconBarChart /> Ver estadísticas
         </button>
         <button className={styles.btnPrimary} onClick={() => onAction?.("replay")}>
-          <IconRefresh /> Jugar de nuevo
+          <IconRefresh /> Enviar a Biblioteca
         </button>
         <button className={styles.btnIcon} onClick={() => onAction?.("more")}>
           <IconDots />

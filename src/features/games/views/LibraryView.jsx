@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getCover } from '../../../utils/gameUtils'
 import AddGameModal from '../components/AddGameModal'
 import styles from './LibraryView.module.css'
 import GameModal from '../components/GameModal'

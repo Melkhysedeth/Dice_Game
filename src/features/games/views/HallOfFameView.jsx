@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './HallOfFameView.module.css'
 import GameModal from '../components/GameModal'
+import { getCover } from '../../../utils/gameUtils'
 import { LayoutGrid, Gamepad2, Trophy, Dices, Star, Clock, Users, Plus, House } from 'lucide-react'
 
 function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount = 0, inProgressCount = 0 }) {
@@ -12,10 +13,7 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
   const visibleGames = games.slice(0, visibleCount)
   const lastCompleted = games[0] ?? null
 
-  function getCover(game) {
-    if (!game.cover) return null
-    return game.cover.startsWith('//') ? `https:${game.cover}` : game.cover
-  }
+  const coverUrl = getCover(lastCompleted)
 
   function getEndDate(game) {
     const last = game.sessions?.[game.sessions.length - 1]
@@ -32,6 +30,7 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
 
       {/* ── SIDEBAR IZQUIERDO ── */}
       <aside className={styles.sidebar}>
+        {/* NAVEGACIÓN */}
         <div className={styles.sideSection}>
           <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
           <nav className={styles.sideNav}>

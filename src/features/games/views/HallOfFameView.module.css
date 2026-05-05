@@ -1,10 +1,11 @@
 /* ── ROOT — 3 columnas ── */
 .root {
   display: grid;
-  grid-template-columns: 220px 1fr 300px;
+  grid-template-columns: 280px 1fr 300px;
   min-height: 100vh;
   padding-top: 64px;
-  max-width: 1440px;
+  padding-left: 0;     /* ← sin indent */
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -14,7 +15,7 @@
 .sidebar {
   position: sticky;
   top: 64px;
-  height: calc(100vh - 64px);
+  height: 100vh;
   overflow-y: auto;
   scrollbar-width: none;
   background: var(--surface);
@@ -209,7 +210,7 @@
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: var(--space-md);  /* ← reduce el gap para ganar espacio */
 }
 
@@ -823,3 +824,24 @@
   transition: all var(--transition-fast);
 }
 .modalReturn:hover { background: var(--state-fame); color: var(--bg); }
+
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sidebarLogoText {
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: var(--text-bright);
+}
+
+.sidebarLogoDivider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 16px 8px;
+}

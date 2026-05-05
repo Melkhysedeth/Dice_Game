@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './InProgressView.module.css'
 import GameModal from '../components/GameModal'
+import { getCover } from '../../../utils/gameUtils'
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { LayoutGrid, Gamepad2, Trophy, Dices, Star, Clock, Users, Plus, House } from 'lucide-react'
 
 function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, completedCount = 0 }) {
@@ -9,12 +11,18 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
   const [selectedGame, setSelectedGame] = useState(null)
   const [activePlatform, setActivePlatform] = useState('Todos')
 
-  const totalGames = games.length
+  const inProgressCount = games.length; // los que están en progreso
+  const pendingCount = libraryCount; // sin datos aún
 
-  function getCover(game) {
-    if (!game.cover) return null
-    return game.cover.startsWith('//') ? `https:${game.cover}` : game.cover
-  }
+  const donutData = [
+    { name: 'En progreso', value: inProgressCount, color: '#22c55e' },
+    { name: 'Pendientes', value: libraryCount, color: '#a855f7' },
+    { name: 'Completados', value: completedCount, color: '#3b82f6' },
+  ];
+
+  const totalGames = inProgressCount + libraryCount + completedCount;
+
+  const coverUrl = getCover(games[0]) // Assuming you want the cover of the first game
 
   function getStartDate(game) {
     const session = game.sessions?.[game.sessions.length - 1]
@@ -47,6 +55,7 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
 
       {/* ── SIDEBAR IZQUIERDO ── */}
       <aside className={styles.sidebarLeft}>
+        {/* NAVEGACIÓN */}
         <div className={styles.sideSection}>
           <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
           <nav className={styles.sideNav}>
@@ -227,6 +236,22 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
           <h4 className={styles.rightCardTitle}>▦ RESUMEN DE PROGRESO</h4>
           <div className={styles.donutWrapper}>
             <div className={styles.donutFake}>
+              <ResponsiveContainer width="100%" height={120}>
+                <PieChart>
+                  <Pie
+                    data={donutData}
+                    cx="50%" cy="50%"
+                    innerRadius={38} outerRadius={55}
+                    paddingAngle={3}
+                    dataKey="value"
+                    strokeWidth={0}
+                  >
+                    {donutData.map((entry, index) => (
+                      <Cell key={index} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
               <div className={styles.donutCenter}>
                 <span className={styles.donutNum}>{totalGames}</span>
                 <span className={styles.donutSub}>Juegos</span>
@@ -236,17 +261,17 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
               <div className={styles.donutLegendItem}>
                 <span className={styles.donutDot} style={{ background: '#22c55e' }} />
                 <span>En progreso</span>
-                <span className={styles.donutLegendVal}>{totalGames} (100%)</span>
+                <span className={styles.donutLegendVal}>{inProgressCount} ({Math.round(inProgressCount / totalGames * 100) || 0}%)</span>
               </div>
               <div className={styles.donutLegendItem}>
                 <span className={styles.donutDot} style={{ background: '#a855f7' }} />
                 <span>Pendientes</span>
-                <span className={styles.donutLegendVal}>0 (0%)</span>
+                <span className={styles.donutLegendVal}>{libraryCount} ({Math.round(libraryCount / totalGames * 100) || 0}%)</span>
               </div>
               <div className={styles.donutLegendItem}>
                 <span className={styles.donutDot} style={{ background: '#3b82f6' }} />
                 <span>Completados</span>
-                <span className={styles.donutLegendVal}>0 (0%)</span>
+                <span className={styles.donutLegendVal}>{completedCount} ({Math.round(completedCount / totalGames * 100) || 0}%)</span>
               </div>
             </div>
           </div>

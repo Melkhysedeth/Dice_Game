@@ -15,20 +15,14 @@
   transition: all 0.2s ease;
 }
 
-/* Modo slim — vistas con sidebar propio */
-.headerSlim {
-  background: rgba(10, 11, 14, 0.97);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
 .inner {
-  max-width: 1440px;
+  max-width: 100%;
   margin: 0 auto;
   height: 100%;
   padding: 0 var(--space-xl);
   display: flex;
   align-items: center;
-  gap: 64px;        /* más separación entre logo y buscador */
+  gap: 64px;
 }
 
 /* ── LOGO ── */
@@ -64,9 +58,9 @@
   letter-spacing: 1px;
 }
 
-.logoMy       { color: var(--text); }
-.logoGame     { color: var(--text-bright); }
-.logoVault    { color: var(--accent); }
+.logoMy    { color: var(--text); }
+.logoGame  { color: var(--text-bright); }
+.logoVault { color: var(--accent); }
 
 /* ── NAV ── */
 .nav {
@@ -74,7 +68,7 @@
   align-items: center;
   gap: 4px;
   flex: 1;
-  flex-shrink: 0;   /* ← agregar */
+  flex-shrink: 0;
 }
 
 .navItem {
@@ -132,13 +126,6 @@
   margin-left: auto;
 }
 
-/* En vistas con sidebar el right ocupa todo el espacio disponible */
-.rightExpanded {
-  flex: 1;
-  margin-left: 0;
-  justify-content: flex-end;  /* empuja los iconos al extremo derecho */
-}
-
 .searchBox {
   display: flex;
   align-items: center;
@@ -147,17 +134,8 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 6px 12px;
-  min-width: 160px;   /* ← reducir, antes 200px */
-  max-width: 220px;   /* ← agregar límite */
+  min-width: 200px;
   transition: border-color var(--transition-fast), min-width 0.2s ease;
-}
-
-/* Buscador más ancho en vistas internas */
-.searchBoxWide {
-  flex: 1;
-  min-width: 0;
-  max-width: none;
-  margin-right: auto;
 }
 
 .searchBox:focus-within {
@@ -197,7 +175,7 @@
   white-space: nowrap;
 }
 
-/* Botones icono (campana, estadísticas) */
+/* Botones icono */
 .iconBtn {
   position: relative;
   background: var(--surface-2);
@@ -235,11 +213,11 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;               /* antes 8px */
+  gap: 8px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 5px 8px 5px 5px;   /* antes 5px 10px */
+  padding: 5px 10px 5px 5px;
   cursor: pointer;
   transition: border-color var(--transition-fast);
   flex-shrink: 0;
@@ -264,13 +242,9 @@
 
 .profileName {
   font-family: var(--font-body);
-  font-size: 12px;        /* antes 13px */
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-bright);
-  max-width: 60px;        /* ← agregar */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .onlineDot {

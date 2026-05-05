@@ -18,7 +18,7 @@
   padding-left: var(--space-xl);
   padding-right: var(--space-xl);
   padding-bottom: var(--space-2xl);
-  max-width: 1440px;
+  max-width: 100%;
   margin: 0 auto;
   align-items: start;
 }

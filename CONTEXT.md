@@ -46,11 +46,14 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 ## Estado actual del proyecto
 
 ### Layout y navegación
-- AppHeader fijo con nav React Router, buscador y perfil
+- AppHeader fijo con nav React Router — igual en TODAS las vistas (sin modo slim)
+- El header siempre muestra: logo + nav completa + GlobalSearch + campana + perfil
 - React Router con rutas: / | /biblioteca | /en-progreso | /salon
 - Layout dashboard: header + main + sidebar derecho
 - Vistas con sidebar izquierdo: Biblioteca, En Progreso, Salón de la Fama, SagaView
-- Lucida Reat para iconos 
+- Sidebar izquierdo: 260px de ancho, sticky con top: 64px, sin logo propio
+- AppSidebar.jsx eliminado — cada vista tiene su propio sidebar integrado
+- Lucide React para iconos
 
 ### Vista Inicio (Dashboard /)
 - Hero con vault-logo.png, bienvenida y 3 KPIs
@@ -82,10 +85,10 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - Sidebar derecho: info saga, orden recomendado, logros, gestionar
 
 ### Vista En Progreso (/en-progreso)
-- Layout 2 columnas: sidebar izq + contenido
+- Layout 3 columnas: sidebar izq + contenido + sidebar der
 - Sidebar: nav + stats (slots usados 0/3) + dado random
 - Stats banner con barras de progreso por juego
-- Grid de cards con badge % y barra naranja
+- Lista de juegos con cover, progreso y botón continuar
 - Modal con sesión, progreso y botón completar
 
 ### Vista Salón de la Fama (/salon)
@@ -95,7 +98,8 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - "Cargar más" paginado
 
 ### Modales
-- GameModal unificado con 3 modos: library | in_progress | completed
+- GameModal unificado con 3 modos: library | in_progress | hall_of_fame
+- Se abre desde las vistas Y desde GlobalSearch (usando createPortal)
 - Paleta del proyecto (variables CSS, sin colores hardcodeados)
 - AddGameModal rediseñado:
   - Paso 1: búsqueda IGDB
@@ -104,18 +108,31 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
   - CreateSagaInline: formulario dentro del modal sin salir
   - defaultSagaId para abrir preseleccionando una saga (usado en SagaView)
 
+### Búsqueda global (GlobalSearch)
+- Componente en src/components/layout/GlobalSearch.jsx + GlobalSearch.module.css
+- Reemplaza el buscador simple del AppHeader
+- Panel desplegable debajo del input con resultados agrupados por estado
+- Muestra: cover + nombre + badge de color por estado
+- Al hacer click abre GameModal con el modo correcto via createPortal
+- Ctrl+K para abrir, Escape para cerrar
+- Busca en: libraryGames, inProgressGames, completedGames, saga entries
+- AppHeader recibe props: libraryGames, inProgressGames, completedGames, sagas
+
 ### Datos y lógica
 - useGames.js con todas las funciones de estado
 - addEmptySaga() — crea saga sin entries (para flujo inline)
 - addEntryToSaga() — ahora guarda el cover de la entry
 - Persistencia con localStorage
 - IGDB API para búsqueda y carátulas
+- getCover() — función utilitaria en src/utils/gameUtils.js
+  - Normaliza URLs de IGDB que empiezan con //
+  - Usada en todas las vistas y GlobalSearch (reemplaza funciones locales duplicadas)
 
 ## Estructura de carpetas
 src/
 ├── components/
 │   ├── ui/           # RandomButton, SuggestedGameModal...
-│   └── layout/       # AppHeader, Footer
+│   └── layout/       # AppHeader, Header.module.css, GlobalSearch, GlobalSearch.module.css, Footer
 ├── features/
 │   ├── games/
 │   │   ├── components/  # GameCard, GameModal, AddGameModal, LibraryScroll...
@@ -125,6 +142,7 @@ src/
 │   └── filters/
 │       ├── components/  # FilterBar
 │       └── hooks/       # useFilters.js
+├── utils/            # gameUtils.js (getCover)
 ├── data/             # games.json (temporal)
 ├── styles/           # globals.css, tokens.css, App.module.css
 └── assets/           # vault-logo.png
@@ -133,12 +151,17 @@ src/
 - Paleta oscura con acentos: cian (#00d4ff), naranja (#ff6b35), violeta (#a855f7), dorado (#fbbf24)
 - Sin librerías de estilos — CSS Modules + variables en tokens.css
 - Scroll horizontal estilo Netflix en dashboard
-- Sidebar izquierdo sticky en vistas principales
+- Sidebar izquierdo sticky en vistas principales (top: 64px, sin logo)
 - Géneros como filtros dinámicos (se generan desde los datos)
+- Header idéntico en todas las vistas — sin modo slim
+
+## Refactorizaciones pendientes
+- Extraer SagaCover a componente reutilizable (actualmente en LibraryView.jsx)
+- Crear AppSidebar reutilizable (sidebar izq se repite en las 3 vistas con variaciones)
+- Centralizar CSS del sidebar (estilos duplicados en los 3 module.css de vistas)
 
 ## Próximos pasos
 - Supabase como base de datos real
-- Conectar contadores reales en sidebar de LibraryView (En progreso, Salón)
 - Completar acciones del GameModal (delete, edit desde modal)
 - Vista estadísticas completas
 - Horas jugadas reales

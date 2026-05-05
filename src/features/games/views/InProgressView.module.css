@@ -1,10 +1,11 @@
 /* ── ROOT ── */
 .root {
   display: grid;
-  grid-template-columns: 220px 1fr 280px;
+  grid-template-columns: 280px 1fr 280px;
   min-height: 100vh;
   padding-top: 64px;
-  max-width: 1440px;
+  padding-left: 0;     /* ← sin indent */
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -14,7 +15,7 @@
 .sidebarLeft {
   position: sticky;
   top: 64px;
-  height: calc(100vh - 64px);
+  height: 100vh;
   overflow-y: auto;
   scrollbar-width: none;
   background: var(--surface);
@@ -596,22 +597,17 @@
 /* DONUT FAKE */
 .donutWrapper {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
 }
 
 .donutFake {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: conic-gradient(
-    #22c55e 0% 100%
-  );
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
 }
 
 .donutFake::before {
@@ -623,11 +619,12 @@
 }
 
 .donutCenter {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
 }
 
 .donutNum {
@@ -989,3 +986,24 @@
   transition: all var(--transition-fast);
 }
 .modalEdit:hover { border-color: var(--accent); color: var(--accent); }
+
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sidebarLogoText {
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: var(--text-bright);
+}
+
+.sidebarLogoDivider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 16px 8px;
+}

@@ -3,10 +3,7 @@ import { useFilters } from './features/filters/hooks/useFilters'
 import { useState } from 'react'
 import AddGameModal from './features/games/components/AddGameModal'
 import AppHeader from './components/layout/AppHeader'
-import FilterBar from './features/filters/components/FilterBar'
-import GameGrid from './features/games/components/GameGrid'
 import InProgressSection from './features/games/components/InProgressSection'
-import HallOfFameSection from './features/games/components/HallOfFameSection'
 import RandomButton from './components/ui/RandomButton'
 import SuggestedGameModal from './components/ui/SuggestedGameModal'
 import styles from './styles/App.module.css'
@@ -26,6 +23,7 @@ function App() {
     completedGames,
     sagas,
     suggestedGame,
+    singles,
     pickRandomGame,
     dismissSuggestion,
     startPlaying,
@@ -42,8 +40,7 @@ function App() {
     deleteSaga,
     updateSagaCover,
     updateEntryCover,
-    addEmptySaga,
-    singles
+    addEmptySaga
   } = useGames()
 
   const {
@@ -61,6 +58,12 @@ function App() {
 
   const librarySingles = libraryGames.filter(g => !g.isSagaEntry)
   const { filteredSingles, filteredSagas } = filterGames(librarySingles, sagas)
+
+  // -- Stats para el sidebar --
+  const totalGames = libraryGames.length + inProgressGames.length + completedGames.length
+  const libraryPct = totalGames > 0 ? Math.round((libraryGames.length / totalGames) * 100) : 0
+  const progressPct = totalGames > 0 ? Math.round((inProgressGames.length / totalGames) * 100) : 0
+  const famePct = totalGames > 0 ? Math.round((completedGames.length / totalGames) * 100) : 0
 
   // -- Handlers de edición --
   function handleEditSingle(game) {
@@ -84,21 +87,21 @@ function App() {
     if (window.confirm('¿Eliminar toda la saga y sus entregas?')) deleteSaga(sagaId)
   }
 
-  // -- Stats para el sidebar --
-  const totalGames = libraryGames.length + inProgressGames.length + completedGames.length
-  const libraryPct = totalGames > 0 ? Math.round((libraryGames.length / totalGames) * 100) : 0
-  const progressPct = totalGames > 0 ? Math.round((inProgressGames.length / totalGames) * 100) : 0
-  const famePct = totalGames > 0 ? Math.round((completedGames.length / totalGames) * 100) : 0
+  const donutData = [
+    { name: 'Biblioteca', value: libraryGames.length || 1, color: 'var(--accent)' },
+    { name: 'En progreso', value: inProgressGames.length || 0, color: 'var(--accent-2)' },
+    { name: 'Salón de la fama', value: completedGames.length || 0, color: 'var(--state-fame)' },
+  ]
 
   return (
     <div className={styles.appRoot}>
 
+      {/* Header con búsqueda global */}
       <AppHeader
-        totalGames={totalGames}
-        inProgress={inProgressGames.length}
-        completed={completedGames.length}
-        onSearch={setSearchQuery}
-        searchQuery={searchQuery}
+        libraryGames={libraryGames}
+        inProgressGames={inProgressGames}
+        completedGames={completedGames}
+        sagas={sagas}
       />
 
       <Routes>
@@ -159,7 +162,9 @@ function App() {
                       <span className={styles.sectionAccent} />
                       Tu progreso
                     </h2>
-                    <button className={styles.seeAll}>Ver todos →</button>
+                    <button className={styles.seeAll} onClick={() => navigate('/en-progreso')}>
+                      Ver todos →
+                    </button>
                   </div>
                   <InProgressSection games={inProgressGames} onComplete={completeGame} />
                 </section>
@@ -171,7 +176,9 @@ function App() {
                       Biblioteca
                       <span className={styles.sectionSub}>(Pendientes por jugar)</span>
                     </h2>
-                    <button className={styles.seeAll}>Ver todos →</button>
+                    <button className={styles.seeAll} onClick={() => navigate('/biblioteca')}>
+                      Ver todos →
+                    </button>
                   </div>
                   <LibraryScroll
                     games={filteredSingles}
@@ -184,30 +191,29 @@ function App() {
 
               </main>
 
+              {/* SIDEBAR DERECHO — solo en dashboard */}
               <aside className={styles.sidebar}>
                 <div className={styles.sideCard}>
                   <h3 className={styles.sideCardTitle}>
-                    <span><ChartColumn size={25} /></span> Resumen de tu colección
+                    <ChartColumn size={16} /> Resumen de tu Colección
                   </h3>
-
                   <div className={styles.donutRow}>
-                    {/* DONUT */}
                     <div className={styles.donutWrapper}>
-                      <ResponsiveContainer width={160} height={160}>
+                      <ResponsiveContainer width="100%" height={160}>
                         <PieChart>
                           <Pie
-                            data={[
-                              { name: 'Biblioteca', value: libraryGames.length || 0.001 },
-                              { name: 'En progreso', value: inProgressGames.length || 0.001 },
-                              { name: 'Salón de la fama', value: completedGames.length || 0.001 },
-                            ]}
-                            cx="50%" cy="50%"
-                            innerRadius={48} outerRadius={68}
-                            paddingAngle={3} dataKey="value" strokeWidth={0}
+                            data={donutData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={50}
+                            outerRadius={72}
+                            paddingAngle={3}
+                            dataKey="value"
+                            strokeWidth={0}
                           >
-                            <Cell fill="var(--accent)" />
-                            <Cell fill="var(--accent-2)" />
-                            <Cell fill="var(--state-fame)" />
+                            {donutData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
                           </Pie>
                           <Tooltip
                             contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', fontFamily: 'var(--font-body)', fontSize: '12px' }}
@@ -221,7 +227,6 @@ function App() {
                       </div>
                     </div>
 
-                    {/* LEYENDA */}
                     <div className={styles.legend}>
                       <div className={styles.legendItem}>
                         <span className={styles.legendDot} style={{ background: 'var(--accent)' }} />
@@ -252,44 +257,44 @@ function App() {
                   </button>
                 </div>
 
-                <div className={styles.randomCard}>
-                  <h3 className={styles.randomTitle}>¿No sabes qué jugar?</h3>
-                  <p className={styles.randomSub}>Deja que el azar elija tu próxima aventura.</p>
-                  <div className={styles.diceWrapper}>
-                    <div className={styles.diceGlow} />
-                    <span className={styles.diceEmoji}>🎲</span>
+                  <div className={styles.randomCard}>
+                    <h3 className={styles.randomTitle}>¿No sabes qué jugar?</h3>
+                    <p className={styles.randomSub}>Deja que el azar elija tu próxima aventura.</p>
+                    <div className={styles.diceWrapper}>
+                      <div className={styles.diceGlow} />
+                      <span className={styles.diceEmoji}>🎲</span>
+                    </div>
+                    <button className={styles.randomBtn} onClick={pickRandomGame}>
+                      <span>🎲</span> JUEGO AL AZAR
+                    </button>
                   </div>
-                  <button className={styles.randomBtn} onClick={pickRandomGame}>
-                    <span>🎲</span> JUEGO AL AZAR
-                  </button>
-                </div>
 
-                <div className={styles.sideCard}>
-                  <h3 className={styles.sideCardTitle}><span>⚡</span> Actividad reciente</h3>
-                  <div className={styles.activityList}>
-                    {completedGames.slice(0, 3).map(game => (
-                      <div key={game.id} className={styles.activityItem}>
-                        <div className={styles.activityIcon}>🏆</div>
-                        <div className={styles.activityInfo}>
-                          <span className={styles.activityGame}>{game.title}</span>
-                          <span className={styles.activityMeta}>Completado</span>
+                  <div className={styles.sideCard}>
+                    <h3 className={styles.sideCardTitle}><span>⚡</span> Actividad reciente</h3>
+                    <div className={styles.activityList}>
+                      {completedGames.slice(0, 3).map(game => (
+                        <div key={game.id} className={styles.activityItem}>
+                          <div className={styles.activityIcon}>🏆</div>
+                          <div className={styles.activityInfo}>
+                            <span className={styles.activityGame}>{game.title}</span>
+                            <span className={styles.activityMeta}>Completado</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    {inProgressGames.slice(0, 2).map(game => (
-                      <div key={game.id} className={styles.activityItem}>
-                        <div className={styles.activityIcon}>🎮</div>
-                        <div className={styles.activityInfo}>
-                          <span className={styles.activityGame}>{game.title}</span>
-                          <span className={styles.activityMeta}>En progreso</span>
+                      ))}
+                      {inProgressGames.slice(0, 2).map(game => (
+                        <div key={game.id} className={styles.activityItem}>
+                          <div className={styles.activityIcon}>🎮</div>
+                          <div className={styles.activityInfo}>
+                            <span className={styles.activityGame}>{game.title}</span>
+                            <span className={styles.activityMeta}>En progreso</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    {completedGames.length === 0 && inProgressGames.length === 0 && (
-                      <p className={styles.emptyActivity}>Sin actividad aún.</p>
-                    )}
+                      ))}
+                      {completedGames.length === 0 && inProgressGames.length === 0 && (
+                        <p className={styles.emptyActivity}>Sin actividad aún.</p>
+                      )}
+                    </div>
                   </div>
-                </div>
               </aside>
             </div>
             <Footer onRandomGame={pickRandomGame} />
@@ -317,7 +322,7 @@ function App() {
             onAddEmptySaga={addEmptySaga}
             onAddToSaga={addEntryToSaga}
             inProgressCount={inProgressGames.length}
-            completedCount={completedGames.length}  // ← todos los singles sin filtrar por status
+            completedCount={completedGames.length}
           />
         } />
 
@@ -332,7 +337,7 @@ function App() {
           />
         } />
 
-        {/* -- SALON DE LA FAMA -- */}
+        {/* ── SALÓN DE LA FAMA ── */}
         <Route path="/salon" element={
           <HallOfFameView
             games={completedGames}
