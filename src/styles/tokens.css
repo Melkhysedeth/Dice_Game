@@ -53,11 +53,11 @@
    /* ================================
      TIPOGRAFÍA
   ================================ */
-   --font-display: 'Lora', serif;   /* Títulos grandes, hero, sagas */
-   --font-body: 'Inter', sans-serif;   /* Texto general, nav, UI */
-   --font-mono: 'Space Mono', monospace;   /* Datos, años, badges, códigos */
-   --font-cards: 'Lora', serif;   /* Títulos de tarjetas */
-
+   --font-display: 'changa', sans-serif;   /* Títulos grandes, hero, sagas */
+   --font-cards: 'changa', sans-serif;   /* Títulos de tarjetas */
+   --font-body: 'play', sans-serif;   /* Texto general, nav, UI */
+   --font-mono: 'Inter', sans-serif;   /* Datos, años, badges, códigos */
+   
    /* ================================
      ESPACIADO
   ================================ */

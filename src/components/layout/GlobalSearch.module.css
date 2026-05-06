@@ -1,7 +1,7 @@
 .wrapper {
   position: relative;
   flex: 1;
-  max-width: 340px;
+  max-width: 100%;
 }
 
 .searchBox {
@@ -76,7 +76,7 @@
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  min-width: 380px;
+  min-width: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -189,16 +189,12 @@
 }
 
 .badge {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  padding: 3px 7px;
-  border-radius: 20px;
-  border: 1px solid;
-  opacity: 0.85;
-  white-space: nowrap;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  border: none;
+  padding: 0;
   flex-shrink: 0;
 }
 

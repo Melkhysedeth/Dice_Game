@@ -53,14 +53,14 @@
 
 .logoText {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 26px;
   line-height: 1;
   letter-spacing: 1px;
 }
 
 .logoMy    { color: var(--text); }
 .logoGame  { color: var(--text-bright); }
-.logoVault { color: var(--accent); }
+.logoVault { color: #f5a623; }
 
 /* ── NAV ── */
 .nav {
@@ -124,6 +124,8 @@
   gap: var(--space-md);
   flex-shrink: 0;
   margin-left: auto;
+  flex: 1;           /* ocupa el espacio disponible */
+  max-width: 600px;  /* limita para que no se desborde */
 }
 
 .searchBox {

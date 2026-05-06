@@ -4,11 +4,12 @@ import { Search, X } from 'lucide-react'
 import GameModal from '../../features/games/components/GameModal'
 import { getCover } from '../../utils/gameUtils'
 import styles from './GlobalSearch.module.css'
+import { LayoutGrid, Gamepad2, Trophy } from 'lucide-react'
 
 const STATE_META = {
-  library: { label: 'Biblioteca', color: 'var(--accent)', emoji: '📚', mode: 'library' },
-  in_progress: { label: 'En progreso', color: 'var(--accent-2)', emoji: '🎮', mode: 'in_progress' },
-  completed: { label: 'Salón de la fama', color: 'var(--state-fame)', emoji: '🏆', mode: 'hall_of_fame' },
+  library: { label: 'Biblioteca', color: 'var(--accent)', icon: LayoutGrid, mode: 'library' },
+  in_progress: { label: 'En progreso', color: 'var(--accent-2)', icon: Gamepad2, mode: 'in_progress' },
+  completed: { label: 'Salón de la fama', color: 'var(--state-fame)', icon: Trophy, mode: 'hall_of_fame' },
 }
 
 function GlobalSearch({ libraryGames = [], inProgressGames = [], completedGames = [], sagas = [] }) {
@@ -135,10 +136,11 @@ function GlobalSearch({ libraryGames = [], inProgressGames = [], completedGames 
                 </div>
                 {groups.map(group => {
                   const meta = STATE_META[group.key]
+                  const Icon = meta.icon
                   return (
                     <div key={group.key} className={styles.group}>
                       <div className={styles.groupLabel} style={{ color: meta.color }}>
-                        <span>{meta.emoji}</span> {meta.label}
+                        <Icon size={13} /> {meta.label}
                       </div>
                       {group.items.map(game => {
                         const cover = getCover(game)
@@ -160,9 +162,7 @@ function GlobalSearch({ libraryGames = [], inProgressGames = [], completedGames 
                                 <span className={styles.saga}>{game.sagaTitle}</span>
                               )}
                             </div>
-                            <span className={styles.badge} style={{ color: meta.color, borderColor: meta.color }}>
-                              {meta.label}
-                            </span>
+                            <span className={styles.badge} style={{ background: meta.color }} />
                           </button>
                         )
                       })}

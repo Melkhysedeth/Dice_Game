@@ -4,7 +4,8 @@ import styles from './InProgressView.module.css'
 import GameModal from '../components/GameModal'
 import { getCover } from '../../../utils/gameUtils'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { LayoutGrid, Gamepad2, Trophy, Dices, Star, Clock, Users, Plus, House } from 'lucide-react'
+import AppSidebar from '../../../components/layout/AppSidebar'
+import { Gamepad2Icon } from 'lucide-react'
 
 function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, completedCount = 0 }) {
   const navigate = useNavigate()
@@ -54,51 +55,14 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
     <div className={styles.root}>
 
       {/* ── SIDEBAR IZQUIERDO ── */}
-      <aside className={styles.sidebarLeft}>
-        {/* NAVEGACIÓN */}
-        <div className={styles.sideSection}>
-          <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
-          <nav className={styles.sideNav}>
-            <button className={styles.sideNavItem} onClick={() => navigate('/')}>
-              <House size={20} /> Inicio
-            </button>
-            <button className={styles.sideNavItem} onClick={() => navigate('/biblioteca')}>
-              <LayoutGrid size={20} /> Biblioteca
-              <span className={styles.sideNavBadge}>{libraryCount}</span>
-            </button>
-            <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
-              <Gamepad2 size={20} /> En progreso
-              <span className={styles.sideNavBadgeOrange}>{totalGames}</span>
-            </button>
-            <button className={styles.sideNavItem} onClick={() => navigate('/salon')}>
-              <Trophy size={20} /> Salón de la fama
-              <span className={styles.sideNavBadgeGold}>{completedCount}</span>
-            </button>
-            <button className={styles.sideNavItem} onClick={onRandomGame}>
-              <Dices size={20} /> Juegos al azar
-            </button>
-          </nav>
-        </div>
-
-        <div className={styles.sideSection}>
-          <span className={styles.sideSectionTitle}>LISTAS</span>
-          <nav className={styles.sideNav}>
-            <button className={styles.sideNavItem}><Star size={18} /> Favoritos</button>
-            <button className={styles.sideNavItem}><Clock size={18} /> Juegos cortos</button>
-            <button className={styles.sideNavItem}><Users size={18} /> Cooperativos</button>
-            <button className={styles.sideNavItem}><Plus size={18} /> Nueva lista</button>
-          </nav>
-        </div>
-
-        <div className={styles.sideRandom}>
-          <h4 className={styles.sideRandomTitle}>¿No sabes qué jugar?</h4>
-          <p className={styles.sideRandomSub}>Deja que el azar elija tu próxima aventura</p>
-          <div className={styles.sideDice}>🎲</div>
-          <button className={styles.sideRandomBtn} onClick={onRandomGame}>
-            🚀 JUEGO AL AZAR
-          </button>
-        </div>
-      </aside>
+      <AppSidebar
+        activeRoute="en-progreso"  // o "biblioteca"
+        libraryCount={libraryCount}
+        inProgressCount={games.length}
+        completedCount={completedCount}
+        onRandomGame={onRandomGame}
+        widget="random"
+      />
 
       {/* ── CONTENIDO PRINCIPAL ── */}
       <main className={styles.main}>
@@ -106,7 +70,7 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
         {/* PAGE HEADER */}
         <div className={styles.pageHeader}>
           <div className={styles.pageHeaderLeft}>
-            <div className={styles.pageIcon}>🎮</div>
+            <div className={styles.pageIcon}><Gamepad2Icon size={45}/></div>
             <div>
               <h1 className={styles.pageTitle}>En progreso</h1>
               <p className={styles.pageSubtitle}>Juegos que estás jugando actualmente</p>

@@ -5,7 +5,8 @@ import AddGameModal from '../components/AddGameModal'
 import styles from './LibraryView.module.css'
 import GameModal from '../components/GameModal'
 import SagaView from './SagaView'
-import { LayoutGrid, Gamepad2, Trophy, Star, Clock, Users, Plus, Dices, House } from 'lucide-react'
+import AppSidebar from '../../../components/layout/AppSidebar'
+import { LibraryBigIcon } from 'lucide-react'
 
 function LibraryView({
   games, sagas, onStartPlaying, onEdit, onDelete,
@@ -198,65 +199,21 @@ function LibraryView({
     <div className={styles.root}>
 
       {/* ── SIDEBAR IZQUIERDO ── */}
-      <aside className={styles.sidebar}>
-        {/* NAVEGACIÓN */}
-        <div className={styles.sideSection}>
-          <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
-          <nav className={styles.sideNav}>
-            <button className={styles.sideNavItem} onClick={() => navigate('/')}>
-              <House size={20} /> Inicio
-            </button>
-            <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
-              <LayoutGrid size={20} /> Biblioteca
-              <span className={styles.sideNavBadge}>{totalAll}</span>
-            </button>
-            <button className={styles.sideNavItem} onClick={() => navigate('/en-progreso')}>
-              <Gamepad2 size={20} /> En progreso
-              <span className={styles.sideNavBadge} style={{ background: 'rgba(255,107,53,0.15)', color: 'var(--accent-2)' }}>
-                {inProgressCount}
-              </span>
-            </button>
-            <button className={styles.sideNavItem} onClick={() => navigate('/salon')}>
-              <Trophy size={20} /> Salón de la fama
-              <span className={styles.sideNavBadge} style={{ background: 'rgba(251,191,36,0.15)', color: 'var(--state-fame)' }}>
-                {completedCount}
-              </span>
-            </button>
-          </nav>
-        </div>
-
-        {/* GÉNEROS — desplegable */}
-        <div className={styles.sideSection}>
-          <GenreDropdown
-            allGenres={allGenres}
-            genreStats={genreStats}
-            totalAll={totalAll}
-            activeGenre={activeGenre}
-            onSelect={setActiveGenre}
-          />
-        </div>
-
-        {/* LISTAS */}
-        <div className={styles.sideSection}>
-          <span className={styles.sideSectionTitle}>LISTAS</span>
-          <nav className={styles.sideNav}>
-            <button className={styles.sideNavItem}><Star size={18} /> Favoritos</button>
-            <button className={styles.sideNavItem}><Clock size={18} /> Juegos cortos</button>
-            <button className={styles.sideNavItem}><Users size={18} /> Cooperativos</button>
-            <button className={styles.sideNavItem}><Plus size={18} /> Nueva lista</button>
-          </nav>
-        </div>
-
-        {/* DADO */}
-        <div className={styles.sideRandom}>
-          <h4 className={styles.sideRandomTitle}>¿No sabes qué jugar?</h4>
-          <p className={styles.sideRandomSub}>Deja que el azar elija tu próxima aventura.</p>
-          <div className={styles.sideDice}>🎲</div>
-          <button className={styles.sideRandomBtn} onClick={onRandomGame}>
-            <span>🎲</span> JUEGO AL AZAR
-          </button>
-        </div>
-      </aside>
+      <AppSidebar
+        activeRoute="biblioteca"
+        libraryCount={games.length + sagas.length}
+        inProgressCount={inProgressCount}
+        completedCount={completedCount}
+        onRandomGame={onRandomGame}
+        widget="random"
+        genreProps={{
+          allGenres,
+          genreStats,
+          totalAll,
+          activeGenre,
+          onSelect: setActiveGenre,
+        }}
+      />
 
       {/* ── CONTENIDO PRINCIPAL ── */}
       <main className={styles.main}>
@@ -264,7 +221,7 @@ function LibraryView({
         {/* HEADER DE SECCIÓN */}
         <div className={styles.pageHeader}>
           <div className={styles.pageHeaderLeft}>
-            <div className={styles.pageIcon}>▦</div>
+            <div className={styles.pageIcon}><LibraryBigIcon size={45} /></div>
             <div>
               <h1 className={styles.pageTitle}>Biblioteca</h1>
               <p className={styles.pageSubtitle}>Juegos pendientes por jugar</p>

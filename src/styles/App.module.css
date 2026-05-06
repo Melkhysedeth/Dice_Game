@@ -52,7 +52,7 @@
   position: absolute;
   top: 0; left: 0;
   width: 4px; height: 100%;
-  background: linear-gradient(to bottom, var(--accent), transparent);
+  background: linear-gradient(to bottom, #f5a623, transparent);
   border-radius: 2px 0 0 2px;
 }
 
@@ -87,8 +87,8 @@
 }
 
 .heroGreeting {
-  font-family: var(--font-body2);
-  font-size: 32px;
+  font-family: var(--font-cards);
+  font-size: 36px;
   color: var(--text-bright);
   margin: 0;
   line-height: 1.1;
@@ -99,7 +99,7 @@
 }
 
 .heroTagline {
-  font-family: var(--font-body2);
+  font-family: var(--font-body);
   font-size: 14px;
   color: var(--text-dim);
   margin: 0;
@@ -118,20 +118,19 @@
 .kpiCard {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 18px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 8px 16px 8px 8px;
   transition: border-color var(--transition-fast);
-  min-width: 160px;
+  min-width: 200px;
 }
-.kpiCard:hover { border-color: var(--accent); }
 
 /* Cuadrito de color con el ícono dentro */
 .kpiIcon {
-  width: 36px;
-  height: 36px;
+  width: 45px;
+  height: 45px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -152,19 +151,19 @@
 
 .kpiLabel {
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: 14px;
   color: var(--text-dim);
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  letter-spacing: 0.5px;
   line-height: 1;
   white-space: nowrap;
+  padding-top: 4px;
 }
 
 .kpiValue {
-  font-family: var(--font-display);
-  font-size: 20px;
+  font-family: var(--font-body);
+  font-size: 16px;
   color: var(--text-bright);
-  line-height: 1.2;
+  line-height: 2;
 }
 /* ================================================
    SECCIONES GENÉRICAS
@@ -186,8 +185,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  font-family: var(--font-cards);
-  font-size: 20px;
+  font-family: var(--font-body);
+  font-size: 18px;
   letter-spacing: 2px;
   color: var(--text-bright);
   margin: 0;
@@ -276,9 +275,9 @@
 }
 
 .sideCardTitle {
-  font-family: var(--font-cards);
-  font-size: 14px;
-  letter-spacing: 2px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  letter-spacing: 1px;
   color: var(--text-bright);
   text-transform: uppercase;
   margin: 0;
@@ -395,8 +394,8 @@
 }
 
 .randomTitle {
-  font-family: var(--font-cards);
-  font-size: 16px;
+  font-family: var(--font-body);
+  font-size: 18px;
   color: #c4b5fd;
   letter-spacing: 1px;
   margin: 0;
@@ -405,7 +404,7 @@
 
 .randomSub {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 14px;
   color: rgba(196, 181, 253, 0.6);
   text-align: center;
   margin: 0;

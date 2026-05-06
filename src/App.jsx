@@ -126,7 +126,7 @@ function App() {
                       <div className={styles.kpis}>
                         <div className={styles.kpiCard}>
                           <span className={styles.kpiIcon} style={{ background: 'rgba(0,212,255,0.12)', color: 'var(--accent)' }}>
-                            <ChartColumn size={20} />
+                            <ChartColumn size={25} />
                           </span>
                           <div className={styles.kpiInfo}>
                             <span className={styles.kpiLabel}>Juegos totales</span>
@@ -135,7 +135,7 @@ function App() {
                         </div>
                         <div className={styles.kpiCard}>
                           <span className={styles.kpiIcon} style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}>
-                            <Gamepad2 size={20} />
+                            <Gamepad2 size={25} />
                           </span>
                           <div className={styles.kpiInfo}>
                             <span className={styles.kpiLabel}>Horas jugadas</span>
@@ -144,7 +144,7 @@ function App() {
                         </div>
                         <div className={styles.kpiCard}>
                           <span className={styles.kpiIcon} style={{ background: 'rgba(251,191,36,0.12)', color: 'var(--state-fame)' }}>
-                            <Trophy size={20} />
+                            <Trophy size={25} />
                           </span>
                           <div className={styles.kpiInfo}>
                             <span className={styles.kpiLabel}>Logros obtenidos</span>

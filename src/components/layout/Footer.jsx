@@ -1,4 +1,9 @@
 import styles from './Footer.module.css'
+import {
+  LayoutGrid, Gamepad2, Trophy, Dices, Star, ThumbsUp,
+  User, BarChart2, FolderOpen, List, Settings, LogOut,
+  Info, HelpCircle, FileText, Headphones, Mail, Lock
+} from 'lucide-react'
 
 function Footer({ onRandomGame }) {
   return (
@@ -30,12 +35,12 @@ function Footer({ onRandomGame }) {
           <h4 className={`${styles.colTitle} ${styles.colTitleBlue}`}>Explora</h4>
           <div className={styles.colUnderline} style={{ background: '#00d4ff' }} />
           <ul className={styles.colList}>
-            <li><span>▦</span> Biblioteca</li>
-            <li><span>◉</span> En progreso</li>
-            <li><span>✦</span> Salón de la fama</li>
-            <li><span>🎲</span> Juegos al azar</li>
-            <li><span>★</span> Novedades</li>
-            <li><span>👍</span> Recomendados</li>
+            <li><LayoutGrid size={15} /> Biblioteca</li>
+            <li><Gamepad2 size={15} /> En progreso</li>
+            <li><Trophy size={15} /> Salón de la fama</li>
+            <li><Dices size={15} /> Juegos al azar</li>
+            <li><Star size={15} /> Novedades</li>
+            <li><ThumbsUp size={15} /> Recomendados</li>
           </ul>
         </div>
 
@@ -44,12 +49,12 @@ function Footer({ onRandomGame }) {
           <h4 className={`${styles.colTitle} ${styles.colTitleGreen}`}>Mi cuenta</h4>
           <div className={styles.colUnderline} style={{ background: '#22c55e' }} />
           <ul className={styles.colList}>
-            <li><span>👤</span> Mi perfil</li>
-            <li><span>📊</span> Estadísticas</li>
-            <li><span>📁</span> Colecciones</li>
-            <li><span>☰</span> Listas</li>
-            <li><span>⚙</span> Ajustes</li>
-            <li><span>↪</span> Cerrar sesión</li>
+            <li><User size={15} /> Mi perfil</li>
+            <li><BarChart2 size={15} /> Estadísticas</li>
+            <li><FolderOpen size={15} /> Colecciones</li>
+            <li><List size={15} /> Listas</li>
+            <li><Settings size={15} /> Ajustes</li>
+            <li><LogOut size={15} /> Cerrar sesión</li>
           </ul>
         </div>
 
@@ -58,22 +63,25 @@ function Footer({ onRandomGame }) {
           <h4 className={`${styles.colTitle} ${styles.colTitleYellow}`}>Sobre MGV</h4>
           <div className={styles.colUnderline} style={{ background: '#f5a623' }} />
           <ul className={styles.colList}>
-            <li><span>ℹ</span> ¿Qué es MGV?</li>
-            <li><span>?</span> Cómo funciona</li>
-            <li><span>📄</span> Blog</li>
-            <li><span>🎧</span> Soporte</li>
-            <li><span>✉</span> Contacto</li>
+            <li><Info size={15} /> ¿Qué es MGV?</li>
+            <li><HelpCircle size={15} /> Cómo funciona</li>
+            <li><FileText size={15} /> Blog</li>
+            <li><Headphones size={15} /> Soporte</li>
+            <li><Mail size={15} /> Contacto</li>
           </ul>
         </div>
 
         {/* RANDOM */}
         <div className={styles.randomCol}>
           <div className={styles.randomBox}>
-            <span className={styles.randomDice}>🎲</span>
+            <div className={styles.randomDiceWrap}>
+              <div className={styles.randomGlow} />
+              <span className={styles.randomDice}>🎲</span>
+            </div>
             <h4 className={styles.randomTitle}>¿NO SABES QUÉ JUGAR?</h4>
             <p className={styles.randomSub}>Deja que el azar elija tu próxima aventura.</p>
             <button className={styles.randomBtn} onClick={onRandomGame}>
-              <span>🎲</span> JUEGO AL AZAR
+              <Dices size={16} /> JUEGO AL AZAR
             </button>
           </div>
         </div>
@@ -84,7 +92,7 @@ function Footer({ onRandomGame }) {
       <div className={styles.bottom}>
         <div className={styles.bottomInner}>
           <div className={styles.bottomLeft}>
-            <span className={styles.lockIcon}>🔒</span>
+            <Lock size={13} />
             <span>© 2026 <strong>My Game_Vault</strong> · Todos los derechos reservados.</span>
             <span className={styles.sep}>|</span>
             <a href="#" className={styles.bottomLink}>Términos de uso</a>

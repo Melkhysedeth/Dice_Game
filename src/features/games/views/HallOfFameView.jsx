@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import styles from './HallOfFameView.module.css'
 import GameModal from '../components/GameModal'
 import { getCover } from '../../../utils/gameUtils'
-import { LayoutGrid, Gamepad2, Trophy, Dices, Star, Clock, Users, Plus, House } from 'lucide-react'
+import AppSidebar from '../../../components/layout/AppSidebar'
+import { Trophy, Clock, Flame, Star, Medal, Crown, Gem } from 'lucide-react'
 
 function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount = 0, inProgressCount = 0 }) {
   const navigate = useNavigate()
@@ -29,54 +30,14 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
     <div className={styles.root}>
 
       {/* ── SIDEBAR IZQUIERDO ── */}
-      <aside className={styles.sidebar}>
-        {/* NAVEGACIÓN */}
-        <div className={styles.sideSection}>
-          <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
-          <nav className={styles.sideNav}>
-            <button className={styles.sideNavItem} onClick={() => navigate('/')}>
-              <House size={20} /> Inicio
-            </button>
-            <button className={styles.sideNavItem} onClick={() => navigate('/biblioteca')}>
-              <LayoutGrid size={20} /> Biblioteca
-              <span className={styles.sideNavBadge}>{libraryCount}</span>
-            </button>
-            <button className={styles.sideNavItem} onClick={() => navigate('/en-progreso')}>
-              <Gamepad2 size={20} /> En progreso
-              <span className={styles.sideNavBadge} style={{ background: 'rgba(255,107,53,0.15)', color: 'var(--accent-2)' }}>
-                {inProgressCount}
-              </span>
-            </button>
-            <button className={`${styles.sideNavItem} ${styles.sideNavActive}`}>
-              <Trophy size={20} /> Salón de la fama
-              <span className={styles.sideNavBadge} style={{ background: 'rgba(251,191,36,0.15)', color: 'var(--state-fame)' }}>
-                {games.length}
-              </span>
-            </button>
-            <button className={styles.sideNavItem} onClick={onRandomGame}>
-              <Dices size={20} /> Juegos al azar
-            </button>
-          </nav>
-        </div>
-
-        <div className={styles.sideSection}>
-          <span className={styles.sideSectionTitle}>LISTAS</span>
-          <nav className={styles.sideNav}>
-            <button className={styles.sideNavItem}><Star size={18} /> Favoritos</button>
-            <button className={styles.sideNavItem}><Clock size={18} /> Juegos cortos</button>
-            <button className={styles.sideNavItem}><Users size={18} /> Cooperativos</button>
-            <button className={styles.sideNavItem}><Plus size={18} /> Nueva lista</button>
-          </nav>
-        </div>
-
-        {/* MOTIVACIÓN */}
-        <div className={styles.sideMotivation}>
-          <h4 className={styles.sideMotivationTitle}>¡Sigue completando!</h4>
-          <p className={styles.sideMotivationSub}>Cada juego completado te acerca a la leyenda.</p>
-          <div className={styles.sideTrophy}>🏆</div>
-          <button className={styles.sideMotivationBtn}>Ver mis logros</button>
-        </div>
-      </aside>
+      <AppSidebar
+        activeRoute="salon"
+        libraryCount={libraryCount}
+        inProgressCount={inProgressCount}
+        completedCount={games.length}
+        onRandomGame={onRandomGame}
+        widget="motivation"
+      /> {/* style={{ background: 'rgba(255,107,53,0.15)', color: 'var(--accent-2)' }} */}
 
       {/* ── CONTENIDO PRINCIPAL ── */}
       <main className={styles.main}>
@@ -84,7 +45,7 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
         {/* PAGE HEADER */}
         <div className={styles.pageHeader}>
           <div className={styles.pageHeaderLeft}>
-            <div className={styles.pageIcon}>🏆</div>
+            <div className={styles.pageIcon}><Trophy size={45} /></div>
             <div>
               <h1 className={styles.pageTitle}>Salón de la fama</h1>
               <p className={styles.pageSubtitle}>Los juegos que has completado al 100%</p>
@@ -176,28 +137,28 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
           <div className={styles.donutWrap}>
             <div className={styles.donut}>
               <span className={styles.donutNum}>{games.length}</span>
-              <span className={styles.donutLabel}>Juegos<br />completados</span>
+              <span className={styles.donutLabel}>juegos</span>
             </div>
           </div>
           <div className={styles.rightStats}>
             <div className={styles.rightStat}>
-              <span className={styles.rightStatIcon} style={{ color: 'var(--state-fame)' }}>⏱</span>
+              <Clock size={14} style={{ color: 'var(--state-fame)' }} />
               <span className={styles.rightStatLabel}>Horas totales</span>
               <span className={styles.rightStatVal}>—</span>
             </div>
             <div className={styles.rightStat}>
-              <span className={styles.rightStatIcon} style={{ color: 'var(--state-fame)' }}>🏆</span>
+              <Trophy size={14} style={{ color: 'var(--state-fame)' }} />
               <span className={styles.rightStatLabel}>Logros obtenidos</span>
               <span className={styles.rightStatVal}>—</span>
             </div>
             <div className={styles.rightStat}>
-              <span className={styles.rightStatIcon} style={{ color: '#ef4444' }}>🔥</span>
-              <span className={styles.rightStatLabel}>Rachas de completados</span>
+              <Flame size={14} style={{ color: '#ef4444' }} />
+              <span className={styles.rightStatLabel}>Rachas</span>
               <span className={styles.rightStatVal}>{games.length} juegos</span>
             </div>
             <div className={styles.rightStat}>
-              <span className={styles.rightStatIcon} style={{ color: 'var(--state-fame)' }}>★</span>
-              <span className={styles.rightStatLabel}>Calificación promedio</span>
+              <Star size={14} style={{ color: 'var(--state-fame)' }} />
+              <span className={styles.rightStatLabel}>Calificación</span>
               <span className={styles.rightStatVal}>— / 10</span>
             </div>
           </div>
@@ -235,7 +196,11 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
           <h3 className={styles.rightCardTitle}>LOGROS RECIENTES</h3>
           <div className={styles.achievementList}>
             {games.slice(0, 3).map((game, i) => {
-              const icons = ['🥇', '👑', '💎']
+              const icons = [
+                <Medal size={24} color="#FFD700" />,
+                <Crown size={24} color="#a855f7" />,
+                <Gem size={24} color="#22d3ee" />,
+              ]
               const labels = [
                 'Maestro de maestros',
                 'Leyenda viviente',

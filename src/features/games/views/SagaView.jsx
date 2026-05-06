@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './SagaView.module.css'
 import AddGameModal from '../components/AddGameModal'
+import { House, LibraryBigIcon, Gamepad2, Trophy, Dices, CircleDotDashed } from 'lucide-react'
 
 function fixCover(url) {
   if (!url) return null
@@ -22,7 +23,12 @@ function EntryRow({ entry, saga, index, onStartPlaying, onEditEntry, onDeleteEnt
   const lastSession = entry.sessions?.at(-1)
 
   return (
-    <div className={styles.entryRow} onClick={onClick}>
+    <div
+      className={`${styles.entryRow} ${entry.status === 'library' ? styles.entryRowLibrary :
+          entry.status === 'in_progress' ? styles.entryRowInProgress :
+            styles.entryRowCompleted
+        }`}
+        onClick={onClick}>
       <div className={styles.entryNumber}>{index + 1}</div>
 
       <div className={styles.entryCoverWrap}>
@@ -164,19 +170,19 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
           <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
           <nav className={styles.sideNav}>
             <button className={styles.sideNavItem} onClick={() => navigate('/')}>
-              <span>⌂</span> Inicio
+              <House size={20} />Inicio
             </button>
             <button className={`${styles.sideNavItem} ${styles.sideNavActive}`} onClick={onBack}>
-              <span>▦</span> Biblioteca
+              <LibraryBigIcon size={20} /> Biblioteca
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/en-progreso')}>
-              <span>◉</span> En progreso
+              <Gamepad2 size={20} /> En progreso
             </button>
             <button className={styles.sideNavItem} onClick={() => navigate('/salon')}>
-              <span>✦</span> Salón de la fama
+              <Trophy size={20} /> Salón de la fama
             </button>
             <button className={styles.sideNavItem} onClick={onRandomGame}>
-              <span>🎲</span> Juegos al azar
+              <Dices size={20} /> Juegos al azar
             </button>
           </nav>
         </div>
@@ -259,17 +265,17 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
               </div>
               <div className={styles.progressStats}>
                 <div className={styles.progressStat}>
-                  <span className={styles.progressStatIcon} style={{ color: '#f5c518' }}>🏆</span>
+                  <span className={styles.progressStatIcon} ><Trophy size={25} color="var(--state-fame)" /></span>
                   <span className={styles.progressStatNum}>{completed}</span>
                   <span className={styles.progressStatLabel}>Completados</span>
                 </div>
                 <div className={styles.progressStat}>
-                  <span className={styles.progressStatIcon} style={{ color: '#22c55e' }}>🎮</span>
+                  <span className={styles.progressStatIcon}><Gamepad2 size={25} color="var(--accent-2)" /></span>
                   <span className={styles.progressStatNum}>{inProgress}</span>
                   <span className={styles.progressStatLabel}>En progreso</span>
                 </div>
                 <div className={styles.progressStat}>
-                  <span className={styles.progressStatIcon} style={{ color: '#a78bfa' }}>○</span>
+                  <span className={styles.progressStatIcon} ><CircleDotDashed size={25} color="var(--accent)" /></span>
                   <span className={styles.progressStatNum}>{pending}</span>
                   <span className={styles.progressStatLabel}>Pendientes</span>
                 </div>
@@ -284,6 +290,7 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
                   + Agregar título
                 </button>
               </div>
+
               <div className={styles.entriesList}>
                 {saga.entries.map((entry, i) => (
                   <EntryRow

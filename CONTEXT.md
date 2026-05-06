@@ -46,96 +46,106 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 ## Estado actual del proyecto
 
 ### Layout y navegación
-- AppHeader fijo con nav React Router — igual en TODAS las vistas (sin modo slim)
-- El header siempre muestra: logo + nav completa + GlobalSearch + campana + perfil
+- AppHeader fijo — igual en TODAS las vistas (sin modo slim)
+- Header muestra: logo + nav completa + GlobalSearch + campana + perfil
+- Logo "Vault" cambia de color según la ruta activa (cian/naranja/verde/dorado)
+- Nav items con icono de color activo y subrayado del color de la sección
 - React Router con rutas: / | /biblioteca | /en-progreso | /salon
-- Layout dashboard: header + main + sidebar derecho
-- Vistas con sidebar izquierdo: Biblioteca, En Progreso, Salón de la Fama, SagaView
-- Sidebar izquierdo: 260px de ancho, sticky con top: 64px, sin logo propio
-- AppSidebar.jsx eliminado — cada vista tiene su propio sidebar integrado
-- Lucide React para iconos
+- Sidebar izquierdo: AppSidebar reutilizable, 260px, sticky top: 64px
+- AppSidebar acepta props: activeRoute, libraryCount, inProgressCount, completedCount, onRandomGame, widget, genreProps
+- widget='random' (dado violeta) para Biblioteca/En Progreso, widget='motivation' (trofeo dorado) para Salón
+- genreProps pasa datos de géneros solo a Biblioteca (dropdown desplegable)
+- Lucide React para todos los iconos en toda la app
 
 ### Vista Inicio (Dashboard /)
-- Hero con vault-logo.png, bienvenida y 3 KPIs
+- Hero con vault-logo.png, bienvenida y 3 KPIs (con padding-top y gap ajustados)
 - Sección Tu Progreso — scroll horizontal con barras de progreso
 - Sección Biblioteca — scroll horizontal (LibraryScroll)
   - Click en saga → navega a /biblioteca y abre SagaView
   - Click en juego → abre GameModal en modo library
   - SagaCover: rotación automática de carátulas de entries
 - Sidebar derecho: donut Recharts, RandomCard, actividad reciente
-- Footer completo
+- Footer completo con iconos Lucide React
 
 ### Vista Biblioteca (/biblioteca)
-- Sidebar izquierdo: nav + géneros dinámicos (reemplaza listas estáticas)
+- Sidebar izquierdo: AppSidebar con genreProps (dropdown de géneros)
 - Tabs principales: Todos | Sagas | Juego individual
-- Stats banner con ícono redondo y barras de géneros (nombre arriba, barra abajo)
-- Grid 6 columnas con SagaCover rotando en sagas
+- Stats banner: barras de géneros top 4 con gap reducido y tarjetas más anchas
+- Grid con SagaCover rotando en sagas
 - GameModal al click en juego individual
 - SagaView al click en saga
 - FAB "+ Agregar juego"
-- Filtro de géneros en sidebar izquierdo
 
 ### SagaView (dentro de /biblioteca)
 - Layout 3 columnas: sidebar izq + contenido + sidebar der
-- Hero con imagen rotando entre covers de entries (fade)
-- Degradado izquierda→derecha sobre la imagen
-- Progreso de saga con barra y stats
-- Lista de entries con cover, estado, fechas
-- Botón "+ Agregar título" → abre AddGameModal con saga preseleccionada
-- Sidebar derecho: info saga, orden recomendado, logros, gestionar
+- Hero con imagen rotando entre covers (fade) — min-height aumentado
+- Botón "Volver a Biblioteca" con padding-top en heroContent para no cortarse
+- Descripción con white-space: nowrap para no saltar de línea
+- Lista de entries: cada entry es card independiente con border y border-radius
+- Halo de color al hover según estado: cian (library), naranja (in_progress), dorado (completed)
+- Clases: entryRowLibrary, entryRowInProgress, entryRowCompleted
 
 ### Vista En Progreso (/en-progreso)
-- Layout 3 columnas: sidebar izq + contenido + sidebar der
-- Sidebar: nav + stats (slots usados 0/3) + dado random
-- Stats banner con barras de progreso por juego
-- Lista de juegos con cover, progreso y botón continuar
-- Modal con sesión, progreso y botón completar
+- Layout 3 columnas: 260px + 1fr + 320px
+- Sidebar izq: AppSidebar widget='random'
+- Lista de juegos con grid-template-columns ajustado
+- rowActions: flex-direction column, align-items flex-end, justify-content space-between, padding 12px 16px
+- Sidebar derecho 320px con padding var(--space-lg)
 
 ### Vista Salón de la Fama (/salon)
 - Layout 3 columnas: sidebar izq + grid + sidebar der
-- Cards con ribbon "COMPLETADO" diagonal
-- Sidebar derecho: resumen logros, último completado, logros recientes
+- Cards con ribbon "COMPLETADO" diagonal dorado (top/right ajustados para centrar)
+- Cards con halo dorado permanente y más intenso en hover
+- Sidebar derecho:
+  - Donut CSS conic-gradient color dorado (state-fame), anillo delgado
+  - Número de juegos + label "juegos" dentro del donut
+  - Stats con iconos Lucide: Clock, Trophy, Flame, Star
+  - Último completado con cover + info
+  - Logros recientes con iconos Lucide: Medal, Crown, Gem (colores dorado/violeta/cian)
 - "Cargar más" paginado
 
 ### Modales
 - GameModal unificado con 3 modos: library | in_progress | hall_of_fame
 - Se abre desde las vistas Y desde GlobalSearch (usando createPortal)
 - Paleta del proyecto (variables CSS, sin colores hardcodeados)
-- AddGameModal rediseñado:
+- AddGameModal:
   - Paso 1: búsqueda IGDB
   - Paso 2: formulario con tipo (individual / parte de saga)
   - Si es de saga: dropdown de sagas existentes + botón "+ Nueva" inline
   - CreateSagaInline: formulario dentro del modal sin salir
-  - defaultSagaId para abrir preseleccionando una saga (usado en SagaView)
+  - defaultSagaId para abrir preseleccionando una saga
 
 ### Búsqueda global (GlobalSearch)
-- Componente en src/components/layout/GlobalSearch.jsx + GlobalSearch.module.css
-- Reemplaza el buscador simple del AppHeader
-- Panel desplegable debajo del input con resultados agrupados por estado
-- Muestra: cover + nombre + badge de color por estado
-- Al hacer click abre GameModal con el modo correcto via createPortal
+- src/components/layout/GlobalSearch.jsx + GlobalSearch.module.css
+- Panel desplegable debajo del input, ancho flexible (flex: 1)
+- Resultados agrupados por estado con iconos Lucide (LayoutGrid, Gamepad2, Trophy)
+- Badge = círculo de color (sin texto)
+- Título de resultado en font-body sin negrita
+- Al click abre GameModal con modo correcto via createPortal
 - Ctrl+K para abrir, Escape para cerrar
-- Busca en: libraryGames, inProgressGames, completedGames, saga entries
-- AppHeader recibe props: libraryGames, inProgressGames, completedGames, sagas
+
+### Footer
+- Iconos Lucide React en todas las listas
+- Columnas centradas con justify-items: center, max-width: 1440px
+- Texto 14px items, 15px títulos
+- Sección dado: caja violeta, glow pulsante, dado animado, botón con sombra intensa
 
 ### Datos y lógica
 - useGames.js con todas las funciones de estado
-- addEmptySaga() — crea saga sin entries (para flujo inline)
-- addEntryToSaga() — ahora guarda el cover de la entry
+- addEmptySaga(), addEntryToSaga() — guardan cover de la entry
 - Persistencia con localStorage
 - IGDB API para búsqueda y carátulas
-- getCover() — función utilitaria en src/utils/gameUtils.js
-  - Normaliza URLs de IGDB que empiezan con //
-  - Usada en todas las vistas y GlobalSearch (reemplaza funciones locales duplicadas)
+- getCover() — src/utils/gameUtils.js, normaliza URLs IGDB (//)
 
 ## Estructura de carpetas
 src/
 ├── components/
-│   ├── ui/           # RandomButton, SuggestedGameModal...
-│   └── layout/       # AppHeader, Header.module.css, GlobalSearch, GlobalSearch.module.css, Footer
+│   ├── ui/           # RandomButton, SuggestedGameModal
+│   └── layout/       # AppHeader, Header.module.css, GlobalSearch, GlobalSearch.module.css,
+│                     # Footer, Footer.module.css, AppSidebar, AppSidebar.module.css
 ├── features/
 │   ├── games/
-│   │   ├── components/  # GameCard, GameModal, AddGameModal, LibraryScroll...
+│   │   ├── components/  # GameCard, GameModal, AddGameModal, LibraryScroll, SagaCover (pendiente extracción)
 │   │   ├── hooks/       # useGames.js
 │   │   ├── services/    # igdbService.js
 │   │   └── views/       # LibraryView, SagaView, InProgressView, HallOfFameView
@@ -148,17 +158,17 @@ src/
 └── assets/           # vault-logo.png
 
 ## Decisiones de diseño
-- Paleta oscura con acentos: cian (#00d4ff), naranja (#ff6b35), violeta (#a855f7), dorado (#fbbf24)
+- Paleta oscura: cian (#00d4ff), naranja (#ff6b35), violeta (#a855f7), dorado (#fbbf24)
 - Sin librerías de estilos — CSS Modules + variables en tokens.css
 - Scroll horizontal estilo Netflix en dashboard
-- Sidebar izquierdo sticky en vistas principales (top: 64px, sin logo)
-- Géneros como filtros dinámicos (se generan desde los datos)
-- Header idéntico en todas las vistas — sin modo slim
+- Sidebar izquierdo sticky (top: 64px, sin logo)
+- Géneros dinámicos desde los datos
+- Header idéntico en todas las vistas
+- Logo "Vault" cambia de color por ruta
+- Todos los iconos con Lucide React
 
 ## Refactorizaciones pendientes
 - Extraer SagaCover a componente reutilizable (actualmente en LibraryView.jsx)
-- Crear AppSidebar reutilizable (sidebar izq se repite en las 3 vistas con variaciones)
-- Centralizar CSS del sidebar (estilos duplicados en los 3 module.css de vistas)
 
 ## Próximos pasos
 - Supabase como base de datos real

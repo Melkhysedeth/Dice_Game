@@ -1,18 +1,19 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { House, LayoutGrid, Gamepad2, Trophy, Bell, ChevronDown } from 'lucide-react'
+import { House, LibraryBigIcon, Gamepad2, Trophy, Bell, ChevronDown } from 'lucide-react'
 import GlobalSearch from './GlobalSearch'
 import styles from './Header.module.css'
 
 const NAV_ITEMS = [
-  { id: 'inicio',     label: 'Inicio',           icon: House,      path: '/' },
-  { id: 'biblioteca', label: 'Biblioteca',        icon: LayoutGrid, path: '/biblioteca' },
-  { id: 'progreso',   label: 'En progreso',       icon: Gamepad2,   path: '/en-progreso' },
-  { id: 'fama',       label: 'Salón de la fama',  icon: Trophy,     path: '/salon' },
+  { id: 'inicio', label: 'Inicio', icon: House, path: '/', color: '#f5a623' },
+  { id: 'biblioteca', label: 'Biblioteca', icon: LibraryBigIcon, path: '/biblioteca', color: 'var(--accent)' },
+  { id: 'progreso', label: 'En Progreso', icon: Gamepad2, path: '/en-progreso', color: 'var(--accent-2)' },
+  { id: 'fama', label: 'Salón de la Fama', icon: Trophy, path: '/salon', color: 'var(--state-fame)' },
 ]
 
 function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [], sagas = [] }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const activeColor = NAV_ITEMS.find(i => i.path === location.pathname)?.color ?? 'var(--accent)'
 
   return (
     <header className={styles.header}>
@@ -30,7 +31,7 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
           <div className={styles.logoText}>
             <span className={styles.logoMy}>My</span>
             <span className={styles.logoGame}> Game_</span>
-            <span className={styles.logoVault}>Vault</span>
+            <span className={styles.logoVault} style={{ color: activeColor }}>Vault</span>
           </div>
         </div>
 
@@ -42,12 +43,21 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
               <button
                 key={item.id}
                 className={`${styles.navItem} ${location.pathname === item.path ? styles.navActive : ''}`}
-                onClick={() => navigate(item.path)}
-              >
-                <span className={styles.navIcon}><Icon size={18} strokeWidth={2} /></span>
+                onClick={() => navigate(item.path)}>
+                <span
+                  className={styles.navIcon}
+                  style={{ color: location.pathname === item.path ? item.color : 'inherit' }}>
+                  <Icon size={20} strokeWidth={2} />
+                </span>
                 {item.label}
-                {location.pathname === item.path && <span className={styles.navUnderline} />}
+                {location.pathname === item.path && (
+                  <span
+                    className={styles.navUnderline}
+                    style={{ backgroundColor: item.color }}
+                  />
+                )}
               </button>
+
             )
           })}
         </nav>
