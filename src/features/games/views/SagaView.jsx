@@ -3,7 +3,10 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './SagaView.module.css'
 import AddGameModal from '../components/AddGameModal'
-import { House, LibraryBigIcon, Gamepad2, Trophy, Dices, CircleDotDashed } from 'lucide-react'
+import { 
+  House, LibraryBigIcon, Gamepad2, Trophy, 
+  Dices, CircleDotDashed, Building2, Sword, Calendar, 
+  CalendarCheck, Milestone } from 'lucide-react'
 
 function fixCover(url) {
   if (!url) return null
@@ -244,9 +247,6 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
             <p className={styles.heroDesc}>
               {saga.description || `Explora la saga completa de ${saga.title} — ${total} ${total === 1 ? 'juego' : 'juegos'} en total.`}
             </p>
-            <button className={styles.heroDetailBtn} onClick={() => onEditSaga(saga)}>
-              ⚙ Ver detalles de la saga
-            </button>
           </div>
         </div>
 
@@ -327,35 +327,35 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
         <div className={styles.sideCard}>
           <h4 className={styles.sideCardTitle}>INFORMACIÓN DE LA SAGA</h4>
           <div className={styles.infoItem}>
-            <span className={styles.infoIcon}>🏢</span>
+            <span className={styles.infoIcon}><Building2 size={20} /></span>
             <div className={styles.infoContent}>
               <span className={styles.infoLabel}>Desarrollador</span>
               <span className={styles.infoVal}>{saga.developer || '—'}</span>
             </div>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.infoIcon}>🎯</span>
+            <span className={styles.infoIcon}><Sword size={20} /></span>
             <div className={styles.infoContent}>
               <span className={styles.infoLabel}>Género</span>
               <span className={styles.infoVal}>{saga.genre?.join(', ') || '—'}</span>
             </div>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.infoIcon}>📅</span>
+            <span className={styles.infoIcon}><Calendar size={20} /></span>
             <div className={styles.infoContent}>
               <span className={styles.infoLabel}>Primera aparición</span>
               <span className={styles.infoVal}>{sortedByYear[0]?.year ?? '—'}</span>
             </div>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.infoIcon}>📅</span>
+            <span className={styles.infoIcon}><CalendarCheck size={20} /></span>
             <div className={styles.infoContent}>
               <span className={styles.infoLabel}>Último lanzamiento</span>
               <span className={styles.infoVal}>{sortedByYear.at(-1)?.year ?? '—'}</span>
             </div>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.infoIcon}>🎮</span>
+            <span className={styles.infoIcon}><Milestone size={20} /></span>
             <div className={styles.infoContent}>
               <span className={styles.infoLabel}>Juegos en la saga</span>
               <span className={styles.infoVal}>{total}</span>

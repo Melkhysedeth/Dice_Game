@@ -1,7 +1,7 @@
 /* ── ROOT ── */
 .root {
   display: grid;
-  grid-template-columns: 280px 1fr 380px;
+  grid-template-columns: 300px 1fr 400px;
   min-height: 100vh;
   padding-top: 64px;
   padding-left: 0;     /* ← sin indent */

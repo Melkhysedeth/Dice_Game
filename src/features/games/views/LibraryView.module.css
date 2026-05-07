@@ -1,7 +1,7 @@
 /* ── ROOT ── */
 .root {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px 1fr;
   min-height: 100vh;
   padding-top: 64px;
   padding-left: 0;
@@ -279,6 +279,12 @@
   position: relative;
 }
 
+.cardSaga {
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.6),
+              0 0 20px rgba(168, 85, 247, 0.25);
+              border-radius: var(--radius-card);
+}
+
 .card:hover { transform: translateY(-4px); }
 
 /* Gradiente más oscuro y más alto */
@@ -336,15 +342,6 @@
 
 .cardOverlay { display: none; }
 
-.cardInfo {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 14px 16px 20px;
-  z-index: 2;
-}
-
 .cardMenu {
   position: absolute;
   top: 8px;
@@ -380,7 +377,7 @@
 
 .cardTitle {
   font-family: var(--font-cards);
-  font-size: 13px;
+  font-size: 14px;
   color: #ffffff;
   margin: 0;
   white-space: normal;
@@ -405,7 +402,7 @@
   align-items: center;
   gap: 5px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: rgba(255,255,255,0.75);
   letter-spacing: 0.5px;
 }
@@ -768,4 +765,40 @@
   height: 1px;
   background: var(--border);
   margin: 0 16px 8px;
+}
+
+
+.cardMenuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  overflow: hidden;
+}
+.cardMenuDropdown button {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 10px 16px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.cardMenuDropdown button:hover { background: var(--surface-2); }
+
+.sagaBadge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #a855f7;
+  letter-spacing: 2px;
+  margin-left: 6px;
+  vertical-align: middle;
 }

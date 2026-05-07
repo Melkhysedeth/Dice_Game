@@ -304,6 +304,29 @@ export function useGames() {
     setSagas(prev => prev.filter(saga => saga.id !== sagaId))
   }
 
+  function moveGameToSaga(gameId, sagaId) {
+  // Encuentra el juego en singles
+  const game = singles.find(g => g.id === gameId)
+  if (!game) return
+
+  // Agrégalo como entry a la saga destino
+  setSagas(prev => prev.map(saga => {
+    if (saga.id !== sagaId) return saga
+    const newEntry = {
+      id: game.id,
+      title: game.title,
+      year: game.year,
+      cover: game.cover || null,
+      status: game.status,
+      sessions: game.sessions || []
+    }
+    return { ...saga, entries: [...saga.entries, newEntry] }
+  }))
+
+  // Elimínalo de singles
+  setSingles(prev => prev.filter(g => g.id !== gameId))
+}
+
   return {
     singles,
     sagas,
@@ -327,6 +350,7 @@ export function useGames() {
     deleteSaga,
     updateSagaCover,
     updateEntryCover,
-    addEmptySaga
+    addEmptySaga,
+    moveGameToSaga
     }
 }

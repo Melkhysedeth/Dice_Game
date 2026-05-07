@@ -68,10 +68,13 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - Footer completo con iconos Lucide React
 
 ### Vista Biblioteca (/biblioteca)
-- Sidebar izquierdo: AppSidebar con genreProps (dropdown de géneros)
+- Sidebar izquierdo: AppSidebar con genreProps (dropdown de géneros desplegable)
 - Tabs principales: Todos | Sagas | Juego individual
-- Stats banner: barras de géneros top 4 con gap reducido y tarjetas más anchas
-- Grid con SagaCover rotando en sagas
+- Stats banner: barras de géneros top 4, borde de color dinámico por género, box-shadow con profundidad
+- Grid unificado ordenado por fecha de agregado (timestamp en el id) — sagas y singles mezclados, más reciente primero
+- Sagas identificadas con halo morado permanente y punto morado en badge
+- Menú ⋮ en cada card: dropdown con Comenzar a jugar | Editar | Eliminar
+- Corazón ♡/♥ toggle favoritos (local, sin persistencia aún)
 - GameModal al click en juego individual
 - SagaView al click en saga
 - FAB "+ Agregar juego"
@@ -148,7 +151,7 @@ src/
 │   │   ├── components/  # GameCard, GameModal, AddGameModal, LibraryScroll, SagaCover (pendiente extracción)
 │   │   ├── hooks/       # useGames.js
 │   │   ├── services/    # igdbService.js
-│   │   └── views/       # LibraryView, SagaView, InProgressView, HallOfFameView
+│   │   └── views/       # HomeView, LibraryView, SagaView, InProgressView, HallOfFameView
 │   └── filters/
 │       ├── components/  # FilterBar
 │       └── hooks/       # useFilters.js
@@ -170,8 +173,31 @@ src/
 ## Refactorizaciones pendientes
 - Extraer SagaCover a componente reutilizable (actualmente en LibraryView.jsx)
 
+## Imágenes de banner para SagaView — PENDIENTE
+El hero de SagaView actualmente rota carátulas de IGDB (verticales, se pixelan en el hero).
+La solución acordada es la siguiente:
+
+### Flujo de imagen de banner para sagas:
+1. **Primero:** Buscar automáticamente en IGDB los `artworks` del juego al crear/editar la saga
+   - IGDB tiene endpoint `artworks` con imágenes horizontales de alta resolución
+   - Si hay resultados, mostrar un selector para que el usuario elija cuál prefiere
+2. **Si no hay artworks en IGDB:** El usuario puede agregar la imagen de dos maneras:
+   - **Por URL:** Pegar directamente la URL de una imagen encontrada en internet
+   - **Por archivo local:** Subir una imagen desde su dispositivo (guardada en Supabase Storage cuando se migre, o base64 temporal en localStorage)
+3. La imagen elegida se guarda en el objeto de la saga como `bannerUrl`
+4. SagaView usa `saga.bannerUrl` como fondo del hero — si no existe, cae al comportamiento actual (rotación de carátulas)
+
+### Consideraciones:
+- Las imágenes subidas son **por usuario** — cada quien sube la imagen que quiere para su saga
+- Con Supabase Storage (plan gratuito 1GB) es más que suficiente para una app personal
+- No se usa Cloudinary para evitar preocupaciones de créditos
+- La URL externa (opción 2a) no consume storage ni créditos — es la opción más liviana
+- Implementar cuando se conecte Supabase para usar Supabase Storage como destino del upload
+
 ## Próximos pasos
 - Supabase como base de datos real
+- Imágenes de banner para SagaView (ver sección arriba)
 - Completar acciones del GameModal (delete, edit desde modal)
 - Vista estadísticas completas
 - Horas jugadas reales
+- Modal de juegos mejorado

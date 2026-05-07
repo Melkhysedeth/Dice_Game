@@ -3,7 +3,7 @@
 /* ── ROOT — 3 columnas igual que LibraryView ── */
 .root {
   display: grid;
-  grid-template-columns: 280px 1fr 280px;
+  grid-template-columns: 300px 1fr 380px;
   min-height: 100%;
   padding-top: 0;
   max-width: 100%;
@@ -198,7 +198,7 @@
   overflow: hidden;
   display: flex;
   align-items: flex-end;
-  min-height: 350px;
+  min-height: 200px;
 }
 
 /* Imagen de fondo — nítida, posicionada a la derecha */
@@ -240,7 +240,7 @@
   flex-direction: column;
   gap: 10px;
   width: 60%;
-  padding-top: 80px;
+  padding-top: 70px;
 }
 
 .backBtn {
@@ -250,15 +250,15 @@
   color: rgba(255,255,255,0.6);
   font-family: var(--font-body);
   font-size: 14px;
-  padding: 5px 14px;
+  padding: 7px 14px;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
-  margin-top: 80px;
+  margin-bottom: 12px;
+  margin-top: 70px;
 }
 .backBtn:hover { background: rgba(255,255,255,0.12); color: #fff; }
 
@@ -283,42 +283,13 @@
 
 .heroDesc {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 15px;
   color: rgba(255,255,255,0.55);
   line-height: 1.5;
   margin: 0;
   max-width: 380px;
   white-space: nowrap;
 }
-
-.heroDetailBtn {
-  align-self: flex-start;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.75);
-  font-family: var(--font-body);
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-}
-.heroDetailBtn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-
-/* heroMain, heroImgWrap, heroInfo, heroSideInfo — ocultos, no los usamos en este layout */
-.heroMain { display: none; }
-.heroImgWrap { display: none; }
-.heroImgVisible { display: none; }
-.heroImg { display: none; }
-.heroInfo { display: none; }
-.heroSideInfo { display: none; }
-.heroInfoItem { display: none; }
-.heroInfoLabel { display: none; }
-.heroInfoVal { display: none; }
 
 /* ── BODY ── */
 .body {
@@ -356,8 +327,8 @@
 }
 
 .progressCardTitle {
-  font-family: var(--font-mono);
-  font-size: 15px;
+  font-family: var(--font-body);
+  font-size: 18px;
   color: var(--text-dim);
   letter-spacing: 1px;
 }
@@ -365,7 +336,7 @@
 .progressCardPct {
   font-family: var(--font-display);
   font-size: 1.6rem;
-  color: var(--accent);
+  color: var(--accent-3);
   line-height: 1;
 }
 
@@ -405,7 +376,7 @@
 
 .progressStatLabel {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-dim);
 }
 
@@ -427,8 +398,8 @@
 }
 
 .entriesSectionTitle {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-body);
+  font-size: 16px;
   color: var(--text-dim);
   letter-spacing: 2px;
 }
@@ -436,11 +407,11 @@
 .addEntryBtn {
   background: rgba(0,212,255,0.08);
   border: 1px solid rgba(0,212,255,0.2);
-  color: var(--accent);
+  color: var(--accent-3);
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 600;
-  padding: 6px 14px;
+  padding: 7px 14px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -547,7 +518,7 @@
 
 .entryTitle {
   font-family: var(--font-cards);
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-bright);
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -569,7 +540,7 @@
 
 .entryYear {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dim);
 }
 
@@ -580,7 +551,7 @@
 
 .entryPlatform {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dim);
 }
 
@@ -598,8 +569,8 @@
 }
 
 .entryStatusLabel {
-  font-family: var(--font-body);
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -608,7 +579,7 @@
   align-items: center;
   gap: 6px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-dim);
 }
 
@@ -679,10 +650,10 @@
 .sideCard:last-child { border-bottom: none; }
 
 .sideCardTitle {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
   color: var(--text-dim);
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   margin: 0;
 }
 
@@ -707,16 +678,16 @@
 }
 
 .infoLabel {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
   color: var(--text-dim);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .infoVal {
-  font-family: var(--font-body);
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-bright);
 }
@@ -776,7 +747,7 @@
 
 .orderNote {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-dim);
   line-height: 1.5;
   margin: 0;

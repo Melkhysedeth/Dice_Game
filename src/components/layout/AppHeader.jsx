@@ -23,7 +23,7 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
         <div className={styles.logoBlock} onClick={() => navigate('/')}>
           <div className={styles.logoIcon}>
             <img
-              src="/src/assets/vault-logo.png"
+              src="/src/assets/vault-logo3.png"
               alt="logo"
               style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '50%' }}
             />
