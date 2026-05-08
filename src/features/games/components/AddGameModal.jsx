@@ -187,7 +187,7 @@ function AddGameModal({
   const [title, setTitle] = useState(isEditingSingle ? editData.game.title : isEditingEntry ? editData.entry.title : '')
   const [developer, setDeveloper] = useState(isEditingSingle ? editData.game.developer : isEditingSaga ? editData.saga.developer : '')
   const [year, setYear] = useState(isEditingSingle ? editData.game.year : isEditingEntry ? editData.entry.year : '')
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState(prefilled?.summary || prefilled?.description || '')
   const [selectedGenres, setSelectedGenres] = useState(isEditingSingle ? editData.game.genre : isEditingSaga ? editData.saga.genre : [])
   const [selectedPlatforms, setSelectedPlatforms] = useState(isEditingSingle ? editData.game.platform : isEditingSaga ? editData.saga.platform : [])
   const [sagaTitle, setSagaTitle] = useState(isEditingSaga ? editData.saga.title : '')
@@ -260,10 +260,19 @@ function AddGameModal({
     }
     if (!title || !year) return
     if (!isSaga) {
-      onAddSingle({ title, developer, year, genre: selectedGenres, platform: selectedPlatforms, cover: selectedCover, description })
+      onAddSingle({ title, developer, year, genre: selectedGenres, platform: selectedPlatforms, cover: selectedCover, description, summary: prefilled?.summary || '' })
     } else {
       if (!selectedSagaId) return
-      onAddToSaga(selectedSagaId, { title, year, cover: selectedCover })
+      onAddToSaga(selectedSagaId, {
+        title,
+        year,
+        cover: selectedCover,
+        developer,
+        summary: prefilled?.summary || '',
+        genres: selectedGenres,
+        platforms: selectedPlatforms,
+        rating: prefilled?.rating || null,
+      })
     }
     onClose()
   }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './HallOfFameView.module.css'
-import GameModal from '../components/GameModal'
+import GameView from './GameView'
 import { getCover } from '../../../utils/gameUtils'
 import AppSidebar from '../../../components/layout/AppSidebar'
 import { Trophy, Clock, Flame, Star, Medal, Crown, Gem } from 'lucide-react'
@@ -24,6 +24,22 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
   function getStartDate(game) {
     const last = game.sessions?.[game.sessions.length - 1]
     return last?.startDate ?? '—'
+  }
+
+  if (selectedGame) {
+    return (
+      <GameView
+        game={selectedGame}
+        mode="hall_of_fame"
+        onBack={() => setSelectedGame(null)}
+        onAction={(action) => {
+          if (action === 'replay') {
+            onReturnToLibrary(selectedGame.id)
+            setSelectedGame(null)
+          }
+        }}
+      />
+    )
   }
 
   return (
@@ -233,7 +249,7 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
 
       {/* ── MODAL ── */}
       {selectedGame && (
-        <GameModal
+        <GameView
           game={selectedGame}
           mode="hall_of_fame"
           onClose={() => setSelectedGame(null)}

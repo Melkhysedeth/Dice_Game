@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styles from './InProgressCard.module.css'
-import GameModal from './GameModal'
+import GameView from '../views/GameView'
 
 function InProgressCard({ game, onComplete }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -58,7 +58,7 @@ function InProgressCard({ game, onComplete }) {
 
       {/* MODAL */}
       {isOpen && (
-        <GameModal
+        <GameView
           game={{
             ...game,
             genres: game.genre ?? [],

@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useState } from 'react'
 import { House, LibraryBigIcon, Gamepad2, Trophy, Bell, ChevronDown } from 'lucide-react'
 import GlobalSearch from './GlobalSearch'
 import styles from './Header.module.css'
@@ -10,9 +11,10 @@ const NAV_ITEMS = [
   { id: 'fama', label: 'Salón de la Fama', icon: Trophy, path: '/salon', color: 'var(--state-fame)' },
 ]
 
-function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [], sagas = [] }) {
+function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [], sagas = [], onLogout }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const [menuOpen, setMenuOpen] = useState(false)
   const activeColor = NAV_ITEMS.find(i => i.path === location.pathname)?.color ?? 'var(--accent)'
 
   return (
@@ -23,7 +25,7 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
         <div className={styles.logoBlock} onClick={() => navigate('/')}>
           <div className={styles.logoIcon}>
             <img
-              src="/src/assets/vault-logo3.png"
+              src="/src/assets/vault-logo2.png"
               alt="logo"
               style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '50%' }}
             />
@@ -76,11 +78,17 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
             <span className={styles.notifDot} />
           </button>
 
-          <div className={styles.profile}>
+          <div className={styles.profile} onClick={() => setMenuOpen(o => !o)}>
             <div className={styles.avatar}>GX</div>
-            <span className={styles.profileName}>GamerXX</span>
+            <span className={styles.profileName}>Melkysedeth</span>
             <ChevronDown size={14} />
             <span className={styles.onlineDot} />
+            {menuOpen && (
+              <div className={styles.dropdown}>
+                <button className={styles.dropdownItem}>👤 Perfil</button>
+                <button className={styles.dropdownItem} onClick={onLogout}>🚪 Cerrar sesión</button>
+              </div>
+            )}
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import GameModal from './GameModal'
+import GameView from '../views/GameView'
 import styles from './LibraryScroll.module.css'
 
 // Rota las carátulas de las entries de una saga
@@ -107,7 +107,7 @@ function LibraryScroll({ games, sagas, onStartPlaying, onRandomGame, onOpenSaga 
 
       {/* Modal juego individual */}
       {selectedGame && (
-        <GameModal
+        <Gameview
           game={selectedGame}
           mode="library"
           onClose={() => setSelectedGame(null)}

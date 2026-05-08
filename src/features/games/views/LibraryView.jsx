@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getCover } from '../../../utils/gameUtils'
 import AddGameModal from '../components/AddGameModal'
 import styles from './LibraryView.module.css'
-import GameModal from '../components/GameModal'
+import GameView from './GameView'
 import SagaView from './SagaView'
 import AppSidebar from '../../../components/layout/AppSidebar'
 import { LibraryBigIcon } from 'lucide-react'
@@ -208,6 +208,24 @@ function LibraryView({
     )
   }
 
+  if (selectedGame) {
+  return (
+    <GameView
+      game={selectedGame}
+      mode={selectedGame.status === 'completed' ? 'hall_of_fame'
+            : selectedGame.status === 'in_progress' ? 'in_progress'
+            : 'library'}
+      onBack={() => setSelectedGame(null)}
+      onAction={(action) => {
+        if (action === 'start') {
+          onStartPlaying(selectedGame)
+          setSelectedGame(null)
+        }
+      }}
+    />
+  )
+}
+
   return (
 
     <div className={styles.root}>
@@ -360,7 +378,7 @@ function LibraryView({
 
             const game = item.data
             return (
-              <div key={game.id} className={styles.card} onClick={() => setSelectedGame({ type: 'game', data: game })}>
+              <div key={game.id} className={styles.card} onClick={() => setSelectedGame(game)}>
                 <div className={styles.cardCover}>
                   {getCover(game)
                     ? <img src={getCover(game)} alt={game.title} className={styles.cardImg} />
@@ -419,33 +437,32 @@ function LibraryView({
       </main >
 
       {/* MODAL DETALLE */}
-      {
-        selectedGame && (
-          <GameModal
-            game={selectedGame.type === 'saga' ? selectedGame.data : selectedGame.data}
+      {selectedGame && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 100,
+          background: 'var(--bg)', overflow: 'auto'
+        }}>
+          <GameView
+            game={selectedGame.data}
             mode="library"
-            onClose={() => setSelectedGame(null)}
+            onBack={() => setSelectedGame(null)}
             onAction={(action) => {
               if (action === 'start') {
                 onStartPlaying(selectedGame.data)
                 setSelectedGame(null)
               }
               if (action === 'delete') {
-                selectedGame.type === 'saga'
-                  ? onDeleteSaga(selectedGame.data.id)
-                  : onDelete(selectedGame.data)
+                onDelete(selectedGame.data)
                 setSelectedGame(null)
               }
               if (action === 'edit') {
-                selectedGame.type === 'saga'
-                  ? onEditSaga(selectedGame.data)
-                  : onEdit(selectedGame.data)
+                onEdit(selectedGame.data)
                 setSelectedGame(null)
               }
             }}
           />
-        )
-      }
+        </div>
+      )}
 
     </div >
   )

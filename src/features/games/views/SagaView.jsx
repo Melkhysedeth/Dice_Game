@@ -3,10 +3,12 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './SagaView.module.css'
 import AddGameModal from '../components/AddGameModal'
-import { 
-  House, LibraryBigIcon, Gamepad2, Trophy, 
-  Dices, CircleDotDashed, Building2, Sword, Calendar, 
-  CalendarCheck, Milestone } from 'lucide-react'
+import GameView from './GameView'
+import {
+  House, LibraryBigIcon, Gamepad2, Trophy,
+  Dices, CircleDotDashed, Building2, Sword, Calendar,
+  CalendarCheck, Milestone
+} from 'lucide-react'
 
 function fixCover(url) {
   if (!url) return null
@@ -28,10 +30,10 @@ function EntryRow({ entry, saga, index, onStartPlaying, onEditEntry, onDeleteEnt
   return (
     <div
       className={`${styles.entryRow} ${entry.status === 'library' ? styles.entryRowLibrary :
-          entry.status === 'in_progress' ? styles.entryRowInProgress :
-            styles.entryRowCompleted
+        entry.status === 'in_progress' ? styles.entryRowInProgress :
+          styles.entryRowCompleted
         }`}
-        onClick={onClick}>
+      onClick={onClick}>
       <div className={styles.entryNumber}>{index + 1}</div>
 
       <div className={styles.entryCoverWrap}>
@@ -301,7 +303,13 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
                     onStartPlaying={onStartPlaying}
                     onEditEntry={onEditEntry}
                     onDeleteEntry={onDeleteEntry}
-                    onClick={() => setSelectedEntry(entry)}
+                    onClick={() => setSelectedEntry({
+                      ...entry,
+                      genres: entry.genres || entry.genre || saga.genre || [],
+                      platforms: entry.platforms || entry.platform || saga.platform || [],
+                      summary: entry.summary || entry.description || '',
+                      developer: entry.developer || saga.developer || '',
+                    })}
                   />
                 ))}
               </div>
@@ -426,14 +434,23 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
 
       {/* Modal entry */}
       {selectedEntry && (
-        <EntryModal
-          entry={selectedEntry}
-          saga={saga}
-          onClose={() => setSelectedEntry(null)}
-          onStartPlaying={onStartPlaying}
-          onEditEntry={(sagaId, entry) => { onEditEntry(sagaId, entry); setSelectedEntry(null) }}
-          onDeleteEntry={(sagaId, entryId) => { onDeleteEntry(sagaId, entryId); setSelectedEntry(null) }}
-        />
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99, overflowY: 'auto', background: 'var(--bg)' }}>
+          {console.log('selectedEntry:', selectedEntry)}
+          <GameView
+            game={{
+              ...selectedEntry,
+              genres: selectedEntry.genres || selectedEntry.genre || [],
+              platforms: selectedEntry.platforms || selectedEntry.platform || [],
+              summary: selectedEntry.summary || selectedEntry.description || '',
+              developer: selectedEntry.developer || saga.developer || '',
+            }}
+            mode={selectedEntry.status === 'in_progress' ? 'in_progress' : selectedEntry.status === 'completed' ? 'hall_of_fame' : 'library'}
+            onBack={() => setSelectedEntry(null)}
+            onAction={(action) => {
+              if (action === 'start') onStartPlaying(saga.id, selectedEntry.id)
+            }}
+          />
+        </div>
       )}
 
       {showAddEntry && (

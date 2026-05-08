@@ -49,15 +49,22 @@ export function useGames() {
     const sagaEntries = sagas.flatMap(saga =>
       saga.entries.map(entry => ({
         ...entry,
-        developer: saga.developer,
-        genre: saga.genre,
-        platform: saga.platform,
+        developer: entry.developer || saga.developer,
+        genres: entry.genres || entry.genre || saga.genre || [],
+        platforms: entry.platforms || entry.platform || saga.platform || [],
         sagaTitle: saga.title,
         sagaId: saga.id,
         isSagaEntry: true
       }))
     )
-    return [...singles, ...sagaEntries]
+
+    const normalizedSingles = singles.map(g => ({
+      ...g,
+      genres: g.genres || g.genre || [],
+      platforms: g.platforms || g.platform || [],
+    }))
+
+    return [...normalizedSingles, ...sagaEntries]
   }
 
   const libraryGames = getAllEntries().filter(g => g.status === 'library')
@@ -170,9 +177,13 @@ export function useGames() {
       genre: gameData.genre,
       platform: gameData.platform,
       cover: gameData.cover || null,
+      summary: gameData.summary || gameData.description || '',  // ← agrega esto
       status: 'library',
       sessions: []
     }
+    console.log('gameData recibido:', gameData)
+    console.log('summary:', gameData.summary)
+    console.log('description:', gameData.description)
     setSingles(prev => [...prev, newGame])
   }
 
@@ -185,7 +196,12 @@ export function useGames() {
         year: parseInt(entryData.year),
         cover: entryData.cover || null,
         status: 'library',
-        sessions: []
+        sessions: [],
+        developer: entryData.developer || '',
+        summary: entryData.summary || entryData.description || '',
+        genres: entryData.genres || entryData.genre || [],
+        platforms: entryData.platforms || entryData.platform || [],
+        rating: entryData.rating || null,
       }
       return { ...saga, entries: [...saga.entries, newEntry] }
     }))
@@ -212,18 +228,18 @@ export function useGames() {
   }
 
   function addEmptySaga(sagaData) {
-  const newSaga = {
-    id: sagaData.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
-    title: sagaData.title,
-    developer: sagaData.developer || '',
-    genre: sagaData.genre || [],
-    platform: sagaData.platform || [],
-    cover: null,
-    entries: []   // ← sin entries
+    const newSaga = {
+      id: sagaData.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
+      title: sagaData.title,
+      developer: sagaData.developer || '',
+      genre: sagaData.genre || [],
+      platform: sagaData.platform || [],
+      cover: null,
+      entries: []   // ← sin entries
+    }
+    setSagas(prev => [...prev, newSaga])
+    return newSaga.id  // ← retorna el id para seleccionarla automáticamente
   }
-  setSagas(prev => [...prev, newSaga])
-  return newSaga.id  // ← retorna el id para seleccionarla automáticamente
-}
 
   function updateSingleGame(gameId, gameData) {
     setSingles(prev => prev.map(g => {
@@ -305,27 +321,27 @@ export function useGames() {
   }
 
   function moveGameToSaga(gameId, sagaId) {
-  // Encuentra el juego en singles
-  const game = singles.find(g => g.id === gameId)
-  if (!game) return
+    // Encuentra el juego en singles
+    const game = singles.find(g => g.id === gameId)
+    if (!game) return
 
-  // Agrégalo como entry a la saga destino
-  setSagas(prev => prev.map(saga => {
-    if (saga.id !== sagaId) return saga
-    const newEntry = {
-      id: game.id,
-      title: game.title,
-      year: game.year,
-      cover: game.cover || null,
-      status: game.status,
-      sessions: game.sessions || []
-    }
-    return { ...saga, entries: [...saga.entries, newEntry] }
-  }))
+    // Agrégalo como entry a la saga destino
+    setSagas(prev => prev.map(saga => {
+      if (saga.id !== sagaId) return saga
+      const newEntry = {
+        id: game.id,
+        title: game.title,
+        year: game.year,
+        cover: game.cover || null,
+        status: game.status,
+        sessions: game.sessions || []
+      }
+      return { ...saga, entries: [...saga.entries, newEntry] }
+    }))
 
-  // Elimínalo de singles
-  setSingles(prev => prev.filter(g => g.id !== gameId))
-}
+    // Elimínalo de singles
+    setSingles(prev => prev.filter(g => g.id !== gameId))
+  }
 
   return {
     singles,
@@ -352,5 +368,5 @@ export function useGames() {
     updateEntryCover,
     addEmptySaga,
     moveGameToSaga
-    }
+  }
 }

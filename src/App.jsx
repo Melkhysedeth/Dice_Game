@@ -1,6 +1,8 @@
 import { useGames } from './features/games/hooks/useGames'
 import { useFilters } from './features/filters/hooks/useFilters'
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
+import StartView from './features/games/views/StartView'
 import AddGameModal from './features/games/components/AddGameModal'
 import AppHeader from './components/layout/AppHeader'
 import SuggestedGameModal from './components/ui/SuggestedGameModal'
@@ -50,6 +52,7 @@ function App() {
   const [editModal, setEditModal] = useState(null)
   const navigate = useNavigate()
   const [pendingSaga, setPendingSaga] = useState(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const librarySingles = libraryGames.filter(g => !g.isSagaEntry)
   const { filteredSingles, filteredSagas } = filterGames(librarySingles, sagas)
@@ -93,6 +96,7 @@ function App() {
 
       {/* Header con búsqueda global */}
       <AppHeader
+        onLogout={() => { setIsLoggedIn(false); navigate('/start') }}
         libraryGames={libraryGames}
         inProgressGames={inProgressGames}
         completedGames={completedGames}
@@ -100,26 +104,32 @@ function App() {
       />
 
       <Routes>
+        {/* ── START / LANDING ── */}
+        <Route path="/start" element={<StartView onLogin={() => { setIsLoggedIn(true); navigate('/') }} />} />
+
+        {/* ── HOME ── */}
         <Route path="/" element={
-          <HomeView
-            libraryGames={libraryGames}
-            inProgressGames={inProgressGames}
-            completedGames={completedGames}
-            filteredSingles={filteredSingles}
-            filteredSagas={filteredSagas}
-            totalGames={totalGames}
-            libraryPct={libraryPct}
-            progressPct={progressPct}
-            famePct={famePct}
-            donutData={donutData}
-            onComplete={completeGame}
-            onStartPlaying={startPlaying}
-            onRandomGame={pickRandomGame}
-            onNavigateToSaga={(saga) => {
-              setPendingSaga(saga)
-              navigate('/biblioteca')
-            }}
-          />
+          isLoggedIn
+            ? <HomeView
+              libraryGames={libraryGames}
+              inProgressGames={inProgressGames}
+              completedGames={completedGames}
+              filteredSingles={filteredSingles}
+              filteredSagas={filteredSagas}
+              totalGames={totalGames}
+              libraryPct={libraryPct}
+              progressPct={progressPct}
+              famePct={famePct}
+              donutData={donutData}
+              onComplete={completeGame}
+              onStartPlaying={startPlaying}
+              onRandomGame={pickRandomGame}
+              onNavigateToSaga={(saga) => {
+                setPendingSaga(saga)
+                navigate('/biblioteca')
+              }}
+            />
+            : <Navigate to="/start" replace />
         } />
 
         {/* ── BIBLIOTECA ── */}

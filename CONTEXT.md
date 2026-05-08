@@ -44,6 +44,22 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 - Space Mono (monospace) — datos, años, badges, códigos
 
 ## Estado actual del proyecto
+- mejoras GameView y flujo de datos IGDB
+- fix: GameView ahora lee genres/genre y platforms/platform (ambos formatos)
+- fix: addSingleGame guarda summary, genres y platforms correctamente
+- fix: addEntryToSaga guarda developer, summary, genres, platforms y rating
+- fix: getAllEntries normaliza genres/platforms para singles y saga entries
+- fix: handleSubmit cierra modal correctamente al agregar juego
+- fix: onAddToSaga pasa todos los campos (developer, summary, genres, platforms)
+- feat: PlatIcon usa react-icons/fa (FaPlaystation, FaXbox, FaWindows, etc)
+- feat: plataformas en grid 2 columnas con max 3 filas
+- feat: backBtn rediseñado con blur y hover animado
+- feat: hero height aumentado a 420px
+- fix: heroContent padding-top ajustado para navbar fijo de 64px
+- fix: SagaView abre GameView inline con datos enriquecidos de la saga
+- fix: selectedEntry enriquecido con genres/platforms/summary antes de abrir GameView
+- feat: StartView rediseño pantalla de bienvenida pre-login
+- feat: modal de login actualizado"
 
 ### Layout y navegación
 - AppHeader fijo — igual en TODAS las vistas (sin modo slim)
@@ -143,15 +159,15 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 ## Estructura de carpetas
 src/
 ├── components/
-│   ├── ui/           # RandomButton, SuggestedGameModal
+│   ├── ui/           # RandomButton, SuggestedGameModal, LoginModal
 │   └── layout/       # AppHeader, Header.module.css, GlobalSearch, GlobalSearch.module.css,
 │                     # Footer, Footer.module.css, AppSidebar, AppSidebar.module.css
 ├── features/
 │   ├── games/
-│   │   ├── components/  # GameCard, GameModal, AddGameModal, LibraryScroll, SagaCover (pendiente extracción)
+│   │   ├── components/  # GameCard, AddGameModal, LibraryScroll, (pendiente extracción)
 │   │   ├── hooks/       # useGames.js
 │   │   ├── services/    # igdbService.js
-│   │   └── views/       # HomeView, LibraryView, SagaView, InProgressView, HallOfFameView
+│   │   └── views/       # GameView, StartView, HomeView, LibraryView, SagaView, GameView, InProgressView, HallOfFameView
 │   └── filters/
 │       ├── components/  # FilterBar
 │       └── hooks/       # useFilters.js

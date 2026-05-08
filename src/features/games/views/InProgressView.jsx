@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './InProgressView.module.css'
-import GameModal from '../components/GameModal'
+import GameView from './GameView'
 import { getCover } from '../../../utils/gameUtils'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import AppSidebar from '../../../components/layout/AppSidebar'
@@ -51,6 +51,19 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
     ? games
     : games.filter(g => g.platform?.includes(activePlatform))
 
+  if (selectedGame) {
+    return (
+      <GameView
+        game={selectedGame}
+        mode="in_progress"
+        onBack={() => setSelectedGame(null)}
+        onAction={(action) => {
+          if (action === 'continue') { /* lógica */ }
+        }}
+      />
+    )
+  }
+
   return (
     <div className={styles.root}>
 
@@ -70,7 +83,7 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
         {/* PAGE HEADER */}
         <div className={styles.pageHeader}>
           <div className={styles.pageHeaderLeft}>
-            <div className={styles.pageIcon}><Gamepad2Icon size={45}/></div>
+            <div className={styles.pageIcon}><Gamepad2Icon size={45} /></div>
             <div>
               <h1 className={styles.pageTitle}>En progreso</h1>
               <p className={styles.pageSubtitle}>Juegos que estás jugando actualmente</p>
@@ -302,7 +315,7 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
 
       {/* MODAL */}
       {selectedGame && (
-        <GameModal
+        <GameView
           game={{
             ...selectedGame,
             genres: selectedGame.genre ?? [],

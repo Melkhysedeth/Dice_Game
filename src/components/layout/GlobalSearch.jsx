@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Search, X } from 'lucide-react'
-import GameModal from '../../features/games/components/GameModal'
+import GameView from '../../features/games/views/GameView'
 import { getCover } from '../../utils/gameUtils'
 import styles from './GlobalSearch.module.css'
 import { LayoutGrid, Gamepad2, Trophy } from 'lucide-react'
@@ -177,7 +177,7 @@ function GlobalSearch({ libraryGames = [], inProgressGames = [], completedGames 
 
       {/* MODAL — fuera del wrapper para no tener problemas de z-index */}
       {selectedGame && createPortal(
-        <GameModal
+        <GameView
           game={prepareGame(selectedGame)}
           mode={STATE_META[selectedGame._state].mode}
           onClose={() => setSelectedGame(null)}

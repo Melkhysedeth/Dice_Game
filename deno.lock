@@ -19,8 +19,11 @@
         "npm:eslint-plugin-react-refresh@~0.5.2",
         "npm:eslint@^9.39.4",
         "npm:globals@^17.5.0",
+        "npm:lucide-react@^1.14.0",
         "npm:react-dom@^19.2.5",
+        "npm:react-router-dom@^7.14.2",
         "npm:react@^19.2.5",
+        "npm:recharts@^3.8.1",
         "npm:vite@^8.0.9"
       ]
     }
