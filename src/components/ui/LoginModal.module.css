@@ -7,6 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .modal {
@@ -31,18 +32,17 @@
 }
 .close:hover { color: #fff; }
 
-.logoWrap {
+.logoWrap { 
   display: flex;
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center;
-  margin-bottom: 24px;   /* Más espacio respecto al título */
-  width: 100%;
+  justify-content: center;
+  margin-top: -20px; /* Esto lo "empuja" hacia arriba */
+  margin-bottom: 16px; 
 }
 
-.mainLogo {
-  width: 100px;          /* Ajusta este tamaño a tu gusto */
-  height: auto;         /* Mantiene la proporción */
-  object-fit: contain;
+.logoHex {
+  font-size: 50px;
+  color: #7c3aed;
+  line-height: 1;
 }
 
 .title {
@@ -176,3 +176,59 @@
 }
 .register a { color: #7c3aed; text-decoration: none; }
 .register a:hover { text-decoration: underline; }
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #1e1e30 inset;
+  -webkit-text-fill-color: var(--text-bright);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.toggle {
+  display: flex;
+  background: #1e1e30;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+  gap: 4px;
+}
+
+.toggleBtn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.toggleActive {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.errorMsg {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #f87171;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.successMsg {
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: #4ade80;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: center;
+}

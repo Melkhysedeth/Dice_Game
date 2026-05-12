@@ -159,22 +159,24 @@ Biblioteca → [botón aleatorio] → En Progreso → [marcar completado]
 ## Estructura de carpetas
 src/
 ├── components/
-│   ├── ui/           # RandomButton, SuggestedGameModal, LoginModal
+│   ├── ui/           # RandomButton, SuggestedGameModal, LoginModal (con sus CSS)
 │   └── layout/       # AppHeader, Header.module.css, GlobalSearch, GlobalSearch.module.css,
 │                     # Footer, Footer.module.css, AppSidebar, AppSidebar.module.css
 ├── features/
 │   ├── games/
 │   │   ├── components/  # GameCard, AddGameModal, LibraryScroll, (pendiente extracción)
-│   │   ├── hooks/       # useGames.js
-│   │   ├── services/    # igdbService.js
-│   │   └── views/       # GameView, StartView, HomeView, LibraryView, SagaView, GameView, InProgressView, HallOfFameView
+│   │   ├── hooks/       # useGames.js, useGameSupabase.js
+│   │   ├── services/    # gameService.js, igdbService.js
+│   │   └── views/       # GameView, StartView, HomeView, LibraryView, SagaView, InProgressView, HallOfFameView
 │   └── filters/
 │       ├── components/  # FilterBar
 │       └── hooks/       # useFilters.js
-├── utils/            # gameUtils.js (getCover)
+├── context/          # SidebarContext.jsx
+├── utils/            # gameUtils.js (getCover), migrateToSupabase.js
 ├── data/             # games.json (temporal)
 ├── styles/           # globals.css, tokens.css, App.module.css
-└── assets/           # vault-logo.png
+├── assets/           # vault-logo.png
+└── lib/              # supabase.js, useAuth.js
 
 ## Decisiones de diseño
 - Paleta oscura: cian (#00d4ff), naranja (#ff6b35), violeta (#a855f7), dorado (#fbbf24)
@@ -216,4 +218,3 @@ La solución acordada es la siguiente:
 - Completar acciones del GameModal (delete, edit desde modal)
 - Vista estadísticas completas
 - Horas jugadas reales
-- Modal de juegos mejorado

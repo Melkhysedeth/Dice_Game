@@ -138,7 +138,8 @@ function EntryModal({ entry, saga, onClose, onStartPlaying, onEditEntry, onDelet
 // ── Componente principal ─────────────────────────────────────────────────────
 function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onEditEntry, onDeleteEntry, onEditSaga, onDeleteSaga, onUpdateEntryCover, onRandomGame }) {
   const navigate = useNavigate()
-  const [selectedEntry, setSelectedEntry] = useState(null)
+  const [selectedEntryId, setSelectedEntryId] = useState(null)
+  const selectedEntry = saga.entries?.find(e => e.id === selectedEntryId) ?? null
   const [heroCoverIdx, setHeroCoverIdx] = useState(0)
   const [heroCoverFade, setHeroCoverFade] = useState(true)
   const intervalRef = useRef(null)
@@ -303,7 +304,7 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
                     onStartPlaying={onStartPlaying}
                     onEditEntry={onEditEntry}
                     onDeleteEntry={onDeleteEntry}
-                    onClick={() => setSelectedEntry({
+                    onClick={() => setSelectedEntryId(entry.id)({
                       ...entry,
                       genres: entry.genres || entry.genre || saga.genre || [],
                       platforms: entry.platforms || entry.platform || saga.platform || [],
@@ -379,7 +380,7 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
               const icon = entry.status === 'completed' ? '✓' : entry.status === 'in_progress' ? '▶' : '○'
               const iconColor = entry.status === 'completed' ? '#f5c518' : entry.status === 'in_progress' ? '#22c55e' : 'rgba(255,255,255,0.2)'
               return (
-                <div key={entry.id} className={styles.orderItem} onClick={() => setSelectedEntry(entry)}>
+                <div key={entry.id} className={styles.orderItem} onClick={() => setSelectedEntryId(entry.id)}>
                   <span className={styles.orderNum}>{i + 1}</span>
                   <div className={styles.orderInfo}>
                     <span className={styles.orderTitle}>{entry.title}</span>
@@ -445,7 +446,12 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
               developer: selectedEntry.developer || saga.developer || '',
             }}
             mode={selectedEntry.status === 'in_progress' ? 'in_progress' : selectedEntry.status === 'completed' ? 'hall_of_fame' : 'library'}
-            onBack={() => setSelectedEntry(null)}
+            onBack={() => setSelectedEntryId(null)}
+            onEdit={(game) => {
+              onEditEntry(saga.id, { ...game, isSagaEntry: true, sagaId: saga.id })
+              setSelectedEntryId(null)
+            }}
+            onDelete={(game) => { onDeleteEntry(saga.id, game.id); setSelectedEntryId(null) }}
             onAction={(action) => {
               if (action === 'start') onStartPlaying(saga.id, selectedEntry.id)
             }}

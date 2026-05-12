@@ -1,8 +1,13 @@
+/* ══════════════════════════════════════════
+   SIDEBAR — comportamiento estilo Supabase
+   ══════════════════════════════════════════ */
+
 .sidebar {
   position: sticky;
   top: 64px;
-  height: 100vh;
+  height: calc(100vh - 64px);
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: none;
   background: var(--surface);
   border-right: 1px solid var(--border);
@@ -10,14 +15,79 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  min-width: 80px;
+
+  /* ── Transición suave de ancho ── */
+  transition: width 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+
+  /* Asegura que la sidebar flote sobre el contenido cuando se expande por hover */
+  z-index: 100;
 }
 .sidebar::-webkit-scrollbar { display: none; }
 
+/* ── Estados de ancho ── */
+.sidebarCollapsed {
+  width: 64px;
+}
+
+.sidebarExpanded {
+  width: 300px;
+}
+
+/* ══ BOTÓN PIN ══ */
+.pinRow {
+  display: flex;
+  justify-content: center;
+  padding: 0 0 0 10px;
+  margin-bottom: -8px;
+}
+
+.pinBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.pinBtn:hover {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-bright);
+}
+
+.pinBtnActiveLibrary {
+  color: var(--accent);
+  border-color: rgba(0, 212, 255, 0.3);
+  background: rgba(0, 212, 255, 0.06);
+}
+
+.pinBtnActiveProgress {
+  color: var(--accent-2);
+  border-color: rgba(255, 107, 53, 0.3);
+  background: rgba(255, 107, 53, 0.06);
+}
+
+.pinBtnActiveFame {
+  color: var(--state-fame);
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.06);
+}
+
+/* ══ SECCIONES ══ */
 .sideSection {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 0 var(--space-md);
+  padding: 0 var(--space-lg);
 }
 
 .sideSectionTitle {
@@ -25,10 +95,13 @@
   font-size: 14px;
   color: var(--text-dim);
   letter-spacing: 1.5px;
-  padding: 4px var(--space-md);
-  margin-bottom: 4px;
+  padding: 4px 8px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
+/* ══ NAV ITEMS ══ */
 .sideNav {
   display: flex;
   flex-direction: column;
@@ -39,7 +112,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px var(--space-md);
+  padding: 9px 10px;
   background: none;
   border: none;
   color: var(--text-dim);
@@ -50,6 +123,8 @@
   transition: all var(--transition-fast);
   text-align: left;
   width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .sideNavItem:hover {
@@ -57,26 +132,43 @@
   color: var(--text-bright);
 }
 
+/* El icono nunca se encoge */
+.sideNavIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* El texto aparece/desaparece con la transición del contenedor */
+.sideNavLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Active states ── */
 .sideNavLibrary {
   background: rgba(0, 212, 255, 0.08) !important;
   color: var(--accent) !important;
   border-left: 2px solid var(--accent);
-  padding-left: calc(var(--space-md) - 2px);
+  padding-left: 8px;
 }
 
 .sideNavInProgress {
   background: rgba(255, 107, 53, 0.15) !important;
   color: var(--accent-2) !important;
-  border-left: 2px solid var(--accent);
-  padding-left: calc(var(--space-md) - 2px);
+  border-left: 2px solid var(--accent-2);
+  padding-left: 8px;
 }
+
 .sideNavHallOfFame {
   background: rgba(251, 191, 36, 0.15) !important;
   color: var(--state-fame) !important;
-  border-left: 2px solid var(--accent);
-  padding-left: calc(var(--space-md) - 2px);
+  border-left: 2px solid var(--state-fame);
+  padding-left: 8px;
 }
-/* Badges */
+
+/* ══ BADGES ══ */
 .sideNavBadge {
   margin-left: auto;
   background: rgba(0, 212, 255, 0.1);
@@ -85,6 +177,7 @@
   font-size: 10px;
   padding: 2px 7px;
   border-radius: 999px;
+  flex-shrink: 0;
 }
 
 .sideNavBadgeOrange {
@@ -95,6 +188,7 @@
   font-size: 10px;
   padding: 2px 7px;
   border-radius: 999px;
+  flex-shrink: 0;
 }
 
 .sideNavBadgeGold {
@@ -105,11 +199,137 @@
   font-size: 10px;
   padding: 2px 7px;
   border-radius: 999px;
+  flex-shrink: 0;
 }
 
-/* ── WIDGET: DADO (Biblioteca / En Progreso) ── */
+/* ══ GENRE DROPDOWN ══ */
+.genreDropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.genreDropdownTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.genreDropdownTrigger:hover {
+  border-color: var(--accent);
+  color: var(--text-bright);
+}
+
+.genreDropdownLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.genreDropdownDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.genreDropdownCount {
+  margin-left: 4px;
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.genreDropdownArrow {
+  font-size: 12px;
+  color: var(--text-dim);
+  transition: transform var(--transition-fast);
+  display: inline-block;
+}
+
+.genreDropdownArrowOpen {
+  transform: rotate(180deg);
+}
+
+.genreDropdownList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  animation: dropDown 0.15s ease;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+@keyframes dropDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.genreDropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.genreDropdownItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-bright);
+}
+
+.genreDropdownItemActive {
+  background: rgba(0, 212, 255, 0.08) !important;
+  color: var(--accent) !important;
+}
+
+.genreDropdownItemDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.genreDropdownItemCount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+/* ══ WIDGET: DADO ══ */
 .sideRandom {
-  margin: auto var(--space-md) var(--space-md);
+  margin: auto 8px 8px;
   background: linear-gradient(160deg, #1a1040, #0d0820);
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: var(--radius-card);
@@ -124,7 +344,6 @@
 .sideRandomTitle {
   font-family: var(--font-cards);
   font-size: 15px;
-  letter-spacing: 1.5px;
   color: #c4b5fd;
   margin: 0;
   letter-spacing: 0.5px;
@@ -170,9 +389,9 @@
   transform: translateY(-1px);
 }
 
-/* ── WIDGET: MOTIVACIÓN (Salón de la Fama) ── */
+/* ══ WIDGET: MOTIVACIÓN ══ */
 .sideMotivation {
-  margin: auto var(--space-md) var(--space-md);
+  margin: auto 8px 8px;
   background: linear-gradient(160deg, #1a1200, #100d00);
   border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: var(--radius-card);
@@ -232,139 +451,68 @@
   50%       { transform: translateY(-5px); }
 }
 
-.sideSectionToggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px var(--space-sm);
+/* ══ SIDEBAR FLOTANTE cuando se expande por hover ══
+   El layout no se "empuja" — la sidebar flota encima  */
+.sidebarCollapsed {
+  position: sticky; /* ya definido arriba, pero lo reafirmamos */
+}
+
+.sidebarFloating {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  height: calc(100vh - 64px);
+  z-index: 200;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Estado del botón pin por modo ── */
+.pinBtnCollapsed {
   color: var(--text-dim);
+  opacity: 0.5;
 }
 
-/* ── GENRE DROPDOWN ── */
-.genreDropdown {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+/* Indicador de modo en el pin */
+.pinModeIndicator {
+  font-size: 13px;
+  line-height: 1;
 }
 
-.genreDropdownTrigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 8px var(--space-sm);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.genreDropdownTrigger:hover {
-  border-color: var(--accent);
-  color: var(--text-bright);
-}
-
-.genreDropdownLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.genreDropdownDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex-shrink: 0;
-}
-
-.genreDropdownCount {
-  margin-left: 4px;
-  background: rgba(0,212,255,0.1);
-  color: var(--accent);
+/* Badge que muestra el modo actual */
+.modeBadge {
   font-family: var(--font-mono);
-  font-size: 10px;
-  padding: 1px 6px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 2px 6px;
   border-radius: 999px;
+  margin-right: 4px;
+  align-self: center;
 }
 
-.genreDropdownArrow {
-  font-size: 12px;
+.modeBadge[data-mode='collapsed'] {
+  background: rgba(255,255,255,0.06);
   color: var(--text-dim);
-  transition: transform var(--transition-fast);
-  display: inline-block;
 }
 
-.genreDropdownArrowOpen {
-  transform: rotate(180deg);
+.modeBadge[data-mode='hover'] {
+  background: rgba(0, 212, 255, 0.08);
+  color: var(--accent);
 }
 
-.genreDropdownList {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  animation: dropDown 0.15s ease;
-  max-height: 260px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+.modeBadge[data-mode='expanded'] {
+  background: rgba(0, 212, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(0, 212, 255, 0.3);
 }
 
-@keyframes dropDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.genreDropdownItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 7px 10px;
-  background: none;
-  border: none;
-  color: var(--text-dim);
-  font-family: var(--font-body);
-  font-size: 12px;
-  cursor: pointer;
-  text-align: left;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-
-.genreDropdownItem:hover {
-  background: rgba(255,255,255,0.04);
-  color: var(--text-bright);
-}
-
-.genreDropdownItemActive {
-  background: rgba(0,212,255,0.08) !important;
-  color: var(--accent) !important;
-}
-
-.genreDropdownItemDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.5;
-  flex-shrink: 0;
-}
-
-.genreDropdownItemCount {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  opacity: 0.5;
+/* Clase dedicada para hover expandido — flota encima sin afectar el grid */
+.sidebarHoverExpanded {
+  position: sticky !important;
+  top: 64px;
+  left: 0;
+  width: 300px;
+  height: calc(100vh - 64px);
+  z-index: 200;
+  box-shadow: 4px 0 32px rgba(0, 0, 0, 0.5);
 }

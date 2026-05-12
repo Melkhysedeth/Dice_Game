@@ -67,9 +67,10 @@
 }
 
 .navLinks a {
-    color: #ccc;
+    color: var(--text-bright);
+    font-family: var(--font-body);
     text-decoration: none;
-    font-size: 14px;
+    font-size: 15px;
     transition: color .2s;
 }
 
@@ -90,7 +91,8 @@
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 15px;
+    font-family: var(--font-body);
     font-weight: 600;
     cursor: pointer;
     transition: background .2s;
@@ -102,10 +104,10 @@
 
 .btnGhost {
     background: transparent;
-    color: #ccc;
+    color: var(--text-bright);
     border: none;
     padding: 10px 16px;
-    font-size: 14px;
+    font-size: 15px;
     cursor: pointer;
 }
 

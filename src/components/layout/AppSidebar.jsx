@@ -1,17 +1,27 @@
 import { useNavigate } from 'react-router-dom'
 import { House, LibraryBigIcon, Gamepad2, Trophy, Dices, Star, Clock, Users, Plus } from 'lucide-react'
 import styles from './AppSidebar.module.css'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { PanelLeftOpen, Pin, PanelLeftClose } from 'lucide-react'
+import { useSidebar } from '../../context/SidebarContext' // ajusta la ruta según tu estructura
 
-/**
- * Sidebar izquierdo reutilizable para Biblioteca, En Progreso y Salón de la Fama.
- *
- * Props:
- * - activeRoute: 'biblioteca' | 'en-progreso' | 'salon'
- * - libraryCount, inProgressCount, completedCount
- * - onRandomGame
- * - widget: 'random' (dado) | 'motivation' (trofeo) — widget inferior
- */
+/* ── Ítem de navegación reutilizable ── */
+function SideNavItem({ icon, label, expanded, active, activeClass, badge, badgeClass, onClick }) {
+  return (
+    <button
+      className={`${styles.sideNavItem} ${active ? activeClass : ''}`}
+      onClick={onClick}
+      title={!expanded ? label : undefined}
+    >
+      <span className={styles.sideNavIcon}>{icon}</span>
+      {expanded && <span className={styles.sideNavLabel}>{label}</span>}
+      {expanded && badge !== undefined && (
+        <span className={badgeClass}>{badge}</span>
+      )}
+    </button>
+  )
+}
+
 function AppSidebar({
   activeRoute,
   libraryCount = 0,
@@ -22,31 +32,83 @@ function AppSidebar({
   genreProps = null,
 }) {
   const navigate = useNavigate()
-  const [genresOpen, setGenresOpen] = useState(false)
+  const { sidebarMode, setSidebarMode } = useSidebar()
 
+  // hovered solo aplica cuando el modo es 'hover'
+  const [hovered, setHovered] = useState(false)
+  const hoverTimeout = useRef(null)
+
+  // La sidebar se ve expandida si:
+  // - modo 'expanded' (pinned)
+  // - modo 'hover' Y el mouse está encima
+  const expanded = sidebarMode === 'expanded' || (sidebarMode === 'hover' && hovered)
+
+  function handleMouseEnter() {
+    if (sidebarMode === 'hover') {
+      clearTimeout(hoverTimeout.current)
+      setHovered(true)
+    }
+  }
+
+  function handleMouseLeave() {
+    if (sidebarMode === 'hover') {
+      hoverTimeout.current = setTimeout(() => setHovered(false), 150)
+    }
+  }
+
+  // Ciclo de modos al hacer click en el botón pin:
+  // collapsed → hover → expanded → collapsed → ...
+  function cycleSidebarMode() {
+    setSidebarMode(current => {
+      if (current === 'collapsed') return 'hover'
+      if (current === 'hover') return 'expanded'
+      return 'collapsed'
+    })
+    setHovered(false)
+  }
+
+  // Ícono y tooltip del botón según el modo actual (muestra a dónde va al hacer click)
+  const pinLabel = {
+    collapsed: 'Activar hover (click para fijar)',
+    hover: 'Fijar sidebar abierta',
+    expanded: 'Colapsar sidebar',
+  }[sidebarMode]
+
+  const pinIcon = {
+    collapsed: <PanelLeftOpen size={16} />,   // colapsado → puede expandir
+    hover: <Pin size={16} />,              // hover → puede fijar
+    expanded: <PanelLeftClose size={16} />,  // expandido → puede cerrar
+  }[sidebarMode]
+
+  /* ── Genre Dropdown (solo visible cuando expanded) ── */
   function GenreDropdown({ allGenres, genreStats, totalAll, activeGenre, onSelect }) {
     const [open, setOpen] = useState(false)
-    const activeLabel = activeGenre === 'Todos' ? ' Todos' : activeGenre
+    const activeLabel = activeGenre === 'Todos' ? 'Todos' : activeGenre
     const activeCount = activeGenre === 'Todos' ? totalAll : (genreStats[activeGenre] || 0)
 
     return (
       <div className={styles.genreDropdown}>
-        <span className={styles.sideSectionTitle}>GÉNEROS</span>
+        {expanded && <span className={styles.sideSectionTitle}>GÉNEROS</span>}
         <button
           className={styles.genreDropdownTrigger}
           onClick={() => setOpen(o => !o)}
+          title={!expanded ? activeLabel : undefined}
         >
           <span className={styles.genreDropdownLabel}>
             <span className={styles.genreDropdownDot} />
-            {activeLabel}
-            <span className={styles.genreDropdownCount}>{activeCount}</span>
+            {expanded && (
+              <>
+                {activeLabel}
+                <span className={styles.genreDropdownCount}>{activeCount}</span>
+              </>
+            )}
           </span>
-          <span className={`${styles.genreDropdownArrow} ${open ? styles.genreDropdownArrowOpen : ''}`}>
-            ▾
-          </span>
+          {expanded && (
+            <span className={`${styles.genreDropdownArrow} ${open ? styles.genreDropdownArrowOpen : ''}`}>▾</span>
+          )}
         </button>
 
-        {open && (
+        {open && expanded && (
           <div className={styles.genreDropdownList}>
             {allGenres.map(genre => (
               <button
@@ -68,74 +130,92 @@ function AppSidebar({
   }
 
   return (
-    <aside className={styles.sidebar}>
+    <aside
+      className={`
+    ${styles.sidebar}
+    ${sidebarMode === 'expanded' ? styles.sidebarExpanded : ''}
+    ${sidebarMode === 'collapsed' ? styles.sidebarCollapsed : ''}
+    ${sidebarMode === 'hover' && !expanded ? styles.sidebarCollapsed : ''}
+    ${sidebarMode === 'hover' && expanded ? styles.sidebarHoverExpanded : ''}
+  `}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
 
-      {/* NAVEGACIÓN */}
+      {/* ── BOTÓN PIN con 3 modos ── */}
+      <div className={styles.pinRow}>
+        <button
+          className={`${styles.pinBtn} ${sidebarMode === 'expanded' ? (
+            activeRoute === 'biblioteca' ? styles.pinBtnActiveLibrary :
+              activeRoute === 'en-progreso' ? styles.pinBtnActiveProgress :
+                activeRoute === 'salon' ? styles.pinBtnActiveFame :
+                  styles.pinBtnActiveLibrary
+          ) : ''}`}
+          onClick={cycleSidebarMode}
+          title={pinLabel}
+        >
+          <span className={styles.pinModeIndicator} data-mode={sidebarMode}>
+            {pinIcon}
+          </span>
+        </button>
+      </div>
+
+      {/* ── NAVEGACIÓN ── */}
       <div className={styles.sideSection}>
-        <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>
+        {expanded && <span className={styles.sideSectionTitle}>NAVEGACIÓN</span>}
         <nav className={styles.sideNav}>
-
-          <button className={styles.sideNavItem} onClick={() => navigate('/')}>
-            <House size={20} /> Inicio
-          </button>
-
-          <button
-            className={`${styles.sideNavItem} ${activeRoute === 'biblioteca' ? styles.sideNavLibrary : ''}`}
+          <SideNavItem
+            icon={<House size={20} />} label="Inicio"
+            expanded={expanded} onClick={() => navigate('/')}
+          />
+          <SideNavItem
+            icon={<LibraryBigIcon size={20} />} label="Biblioteca"
+            expanded={expanded} active={activeRoute === 'biblioteca'}
+            activeClass={styles.sideNavLibrary}
+            badge={libraryCount} badgeClass={styles.sideNavBadge}
             onClick={() => navigate('/biblioteca')}
-          >
-            <LibraryBigIcon size={20} /> Biblioteca
-            <span className={styles.sideNavBadge}>{libraryCount}</span>
-          </button>
-
-          <button
-            className={`${styles.sideNavItem} ${activeRoute === 'en-progreso' ? styles.sideNavInProgress : ''}`}
+          />
+          <SideNavItem
+            icon={<Gamepad2 size={20} />} label="En Progreso"
+            expanded={expanded} active={activeRoute === 'en-progreso'}
+            activeClass={styles.sideNavInProgress}
+            badge={inProgressCount} badgeClass={styles.sideNavBadgeOrange}
             onClick={() => navigate('/en-progreso')}
-          >
-            <Gamepad2 size={20} /> En Progreso
-            <span className={styles.sideNavBadgeOrange}>{inProgressCount}</span>
-          </button>
-
-          <button
-            className={`${styles.sideNavItem} ${activeRoute === 'salon' ? styles.sideNavHallOfFame : ''}`}
+          />
+          <SideNavItem
+            icon={<Trophy size={20} />} label="Salón de la Fama"
+            expanded={expanded} active={activeRoute === 'salon'}
+            activeClass={styles.sideNavHallOfFame}
+            badge={completedCount} badgeClass={styles.sideNavBadgeGold}
             onClick={() => navigate('/salon')}
-          >
-            <Trophy size={20} /> Salón de la Fama
-            <span className={styles.sideNavBadgeGold}>{completedCount}</span>
-          </button>
-
-          <button className={styles.sideNavItem} onClick={onRandomGame}>
-            <Dices size={20} /> Juegos al azar
-          </button>
-
+          />
+          <SideNavItem
+            icon={<Dices size={20} />} label="Juegos al azar"
+            expanded={expanded} onClick={onRandomGame}
+          />
         </nav>
       </div>
 
-      {/* GÉNEROS — solo si se pasan datos */}
+      {/* ── GÉNEROS ── */}
       {genreProps && (
         <div className={styles.sideSection}>
-          <GenreDropdown
-            allGenres={genreProps.allGenres}
-            genreStats={genreProps.genreStats}
-            totalAll={genreProps.totalAll}
-            activeGenre={genreProps.activeGenre}
-            onSelect={genreProps.onSelect}
-          />
+          <GenreDropdown {...genreProps} />
         </div>
       )}
 
-      {/* LISTAS */}
+      {/* ── LISTAS ── */}
       <div className={styles.sideSection}>
-        <span className={styles.sideSectionTitle}>LISTAS</span>
+        {expanded && <span className={styles.sideSectionTitle}>LISTAS</span>}
         <nav className={styles.sideNav}>
-          <button className={styles.sideNavItem}><Star size={18} /> Favoritos</button>
-          <button className={styles.sideNavItem}><Clock size={18} /> Juegos cortos</button>
-          <button className={styles.sideNavItem}><Users size={18} /> Cooperativos</button>
-          <button className={styles.sideNavItem}><Plus size={18} /> Nueva lista</button>
+          <SideNavItem icon={<Star size={18} />} label="Favoritos" expanded={expanded} />
+          <SideNavItem icon={<Clock size={18} />} label="Juegos cortos" expanded={expanded} />
+          <SideNavItem icon={<Users size={18} />} label="Cooperativos" expanded={expanded} />
+          <SideNavItem icon={<Plus size={18} />} label="Nueva lista" expanded={expanded} />
         </nav>
       </div>
 
-      {/* WIDGET INFERIOR */}
-      {widget === 'random' && (
+      {/* ── WIDGET INFERIOR ── */}
+      {widget === 'random' && expanded && (
         <div className={styles.sideRandom}>
           <h4 className={styles.sideRandomTitle}>¿No sabes qué jugar?</h4>
           <p className={styles.sideRandomSub}>Deja que el azar elija tu próxima aventura</p>
@@ -146,7 +226,7 @@ function AppSidebar({
         </div>
       )}
 
-      {widget === 'motivation' && (
+      {widget === 'motivation' && expanded && (
         <div className={styles.sideMotivation}>
           <h4 className={styles.sideMotivationTitle}>¡Sigue completando!</h4>
           <p className={styles.sideMotivationSub}>Cada juego completado te acerca a la leyenda.</p>

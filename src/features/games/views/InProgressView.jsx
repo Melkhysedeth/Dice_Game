@@ -1,16 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './InProgressView.module.css'
 import GameView from './GameView'
 import { getCover } from '../../../utils/gameUtils'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import AppSidebar from '../../../components/layout/AppSidebar'
+import { useSidebar } from '../../../context/SidebarContext'
 import { Gamepad2Icon } from 'lucide-react'
 
-function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, completedCount = 0 }) {
+function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, completedCount = 0, onEdit, onDelete }) {
   const navigate = useNavigate()
   const [selectedGame, setSelectedGame] = useState(null)
   const [activePlatform, setActivePlatform] = useState('Todos')
+  const [menuOpen, setMenuOpen] = useState(null)
+
+  const { sidebarMode } = useSidebar()
+
+  useEffect(() => {
+    // En hover el sidebar flota, el contenido ocupa desde 64px
+    // En expanded el sidebar empuja, el contenido ocupa desde 300px
+    const width = sidebarMode === 'expanded' ? '300px' : '64px'
+    document.documentElement.style.setProperty('--sidebar-width', width)
+  }, [sidebarMode])
 
   const inProgressCount = games.length; // los que están en progreso
   const pendingCount = libraryCount; // sin datos aún
@@ -54,11 +65,31 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
   if (selectedGame) {
     return (
       <GameView
-        game={selectedGame}
+        game={{
+          ...selectedGame,
+          genres: selectedGame.genre ?? [],
+          cover: selectedGame.cover?.startsWith('//') ? `https:${selectedGame.cover}` : selectedGame.cover,
+          startDate: selectedGame.sessions?.at(-1)?.startDate ?? '—',
+          lastSession: (() => {
+            const d = selectedGame.sessions?.at(-1)?.startDate
+            if (!d) return '—'
+            const diff = Math.floor((new Date() - new Date(d)) / 86400000)
+            if (diff === 0) return 'Hoy'
+            if (diff === 1) return 'Ayer'
+            return `Hace ${diff} días`
+          })(),
+          sessions: selectedGame.sessions?.length ?? 0,
+          progress: selectedGame.progress ?? 50,
+        }}
         mode="in_progress"
-        onBack={() => setSelectedGame(null)}
+        onClose={() => setSelectedGame(null)}
+        onEdit={(game) => { onEdit(game); setSelectedGame(null) }}
+        onDelete={(game) => { onDelete(game); setSelectedGame(null) }}
         onAction={(action) => {
-          if (action === 'continue') { /* lógica */ }
+          if (action === 'complete') {
+            onComplete(selectedGame)
+            setSelectedGame(null)
+          }
         }}
       />
     )
@@ -183,10 +214,18 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
                     >
                       ▶ Continuar
                     </button>
-                    <button
-                      className={styles.rowMenuBtn}
-                      onClick={e => e.stopPropagation()}
-                    >⋮</button>
+                    <button className={styles.rowMenuBtn} onClick={e => {
+                      e.stopPropagation()
+                      setMenuOpen(menuOpen === game.id ? null : game.id)
+                    }}>⋮
+                      {menuOpen === game.id && (
+                        <div className={styles.cardMenuDropdown} onClick={e => e.stopPropagation()}>
+                          <button onClick={() => { onComplete(game); setMenuOpen(null) }}>Marcar como completado</button>
+                          <button onClick={() => { onEdit(game); setMenuOpen(null) }}>Editar juego</button>
+                          <button onClick={() => { onDelete(game); setMenuOpen(null) }}>Eliminar juego</button>
+                        </div>
+                      )}
+                    </button>
                   </div>
 
                 </div>
@@ -312,40 +351,6 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
         </div>
 
       </aside>
-
-      {/* MODAL */}
-      {selectedGame && (
-        <GameView
-          game={{
-            ...selectedGame,
-            genres: selectedGame.genre ?? [],
-            cover: selectedGame.cover?.startsWith('//') ? `https:${selectedGame.cover}` : selectedGame.cover,
-            startDate: selectedGame.sessions?.at(-1)?.startDate ?? '—',
-            lastSession: (() => {
-              const d = selectedGame.sessions?.at(-1)?.startDate
-              if (!d) return '—'
-              const diff = Math.floor((new Date() - new Date(d)) / 86400000)
-              if (diff === 0) return 'Hoy'
-              if (diff === 1) return 'Ayer'
-              return `Hace ${diff} días`
-            })(),
-            sessions: selectedGame.sessions?.length ?? 0,  // 👈 CLAVE: convierte el array a número
-            progress: selectedGame.progress ?? 50,
-          }}
-          mode="in_progress"
-          onClose={() => setSelectedGame(null)}
-          onAction={(action) => {
-            if (action === 'complete') {
-              onComplete(selectedGame)
-              setSelectedGame(null)
-            }
-            if (action === 'delete') {
-              // por ahora solo cierra, conectar cuando tengas delete en in_progress
-              setSelectedGame(null)
-            }
-          }}
-        />
-      )}
 
     </div>
   )

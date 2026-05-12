@@ -1,12 +1,13 @@
 /* ── ROOT — 3 columnas ── */
 .root {
   display: grid;
-  grid-template-columns: 300px 1fr 380px;
+   grid-template-columns: var(--sidebar-width, 64px) 1fr 380px;  /* 👈 */
   min-height: 100vh;
   padding-top: 64px;
   padding-left: 0;     /* ← sin indent */
   max-width: 100%;
   margin: 0 auto;
+  transition: grid-template-columns 220ms cubic-bezier(0.4, 0, 0.2, 1); /* 👈 */
 }
 
 /* ══════════════════════════════
@@ -38,7 +39,7 @@
 
 .pageTitle {
   font-family: var(--font-display);
-  font-size: 36px;
+  font-size: 45px;
   color: var(--state-fame);
   margin: 0;
   line-height: 1;
@@ -47,7 +48,7 @@
 
 .pageSubtitle {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-dim);
   margin: 4px 0 0;
 }

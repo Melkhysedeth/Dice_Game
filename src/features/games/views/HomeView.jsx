@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../../lib/supabase'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { ChartColumn, Gamepad2, Trophy, Dices } from 'lucide-react'
 import InProgressSection from '../components/InProgressSection'
@@ -21,8 +23,28 @@ function HomeView({
   onStartPlaying,
   onRandomGame,
   onNavigateToSaga,
+  currentUser
 }) {
   const navigate = useNavigate()
+
+  const [profileName, setProfileName] = useState(null)
+
+  useEffect(() => {
+    if (!currentUser?.id) return
+    supabase
+      .from('profiles')
+      .select('full_name, username')
+      .eq('id', currentUser.id)
+      .single()
+      .then(({ data }) => {
+        setProfileName(data?.full_name || data?.username || null)
+      })
+  }, [currentUser?.id])
+
+  const userName = profileName
+  ?? currentUser?.user_metadata?.full_name  // ← lo encuentra aquí
+  ?? currentUser?.email?.split('@')[0]
+  ?? 'Jugador'
 
   return (
     <>
@@ -31,30 +53,25 @@ function HomeView({
 
           {/* HERO */}
           <section className={styles.hero}>
-            {/* Barra amarilla izquierda */}
             <div className={styles.heroAccentBar} />
 
-            {/* Fila superior: Logo + texto | Botón aleatorio */}
+            {/* SOLO el logo + texto aquí */}
             <div className={styles.heroTop}>
-              {/* Logo + texto */}
               <div className={styles.heroContent}>
-                <img
-                  src="/src/assets/vault-logo2.png"
-                  alt="Game Vault"
-                  className={styles.heroVaultImg}
-                />
+                <img src="/src/assets/vault-logo2.png" alt="Game Vault" className={styles.heroVaultImg} />
                 <div className={styles.heroText}>
                   <p className={styles.heroGreetingLine1}>¡Bienvenido de vuelta,</p>
                   <p className={styles.heroGreetingLine2}>
-                    <span className={styles.heroNameAccent}>Melkhysedeth</span>{' '}
+                    <span className={styles.heroNameAccent}>{userName}</span>{' '}
                     <span className={styles.heroWave}>👋</span>
                   </p>
                   <p className={styles.heroTagline}>Organiza, juega y celebra cada aventura.</p>
                 </div>
               </div>
+            </div>
 
 
-              {/* Botón aleatorio (solo en hero) 
+            {/* Botón aleatorio (solo en hero) 
               <button className={styles.heroRandomBtn} onClick={onRandomGame}>
                 <Dices size={28} className={styles.heroRandomIcon} />
                 <span className={styles.heroRandomText}>
@@ -62,7 +79,6 @@ function HomeView({
                   <span className={styles.heroRandomSub}>Descubre tu próxima aventura</span>
                 </span>
               </button>*/}
-            </div>
 
             <div className={styles.kpis}>
               <div className={`${styles.kpiCard} ${styles.kpiCardCyan}`}>
@@ -96,10 +112,10 @@ function HomeView({
                 </div>
               </div>
             </div>
-          </section>
+          </section >
 
           {/* TU PROGRESO */}
-          <section className={styles.section}>
+          < section className={styles.section} >
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
                 <span className={styles.sectionAccent} />
@@ -110,10 +126,10 @@ function HomeView({
               </button>
             </div>
             <InProgressSection games={inProgressGames} onComplete={onComplete} />
-          </section>
+          </section >
 
           {/* BIBLIOTECA */}
-          <section className={styles.section}>
+          < section className={styles.section} >
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
                 <span className={styles.sectionAccent} style={{ background: 'var(--accent)' }} />
@@ -131,15 +147,15 @@ function HomeView({
               onRandomGame={onRandomGame}
               onNavigateToSaga={onNavigateToSaga}
             />
-          </section>
+          </section >
 
-        </main>
+        </main >
 
         {/* SIDEBAR DERECHO */}
-        <aside className={styles.sidebar}>
+        < aside className={styles.sidebar} >
 
           {/* DISTRIBUCIÓN */}
-          <div className={styles.sideCard}>
+          < div className={styles.sideCard} >
             <h3 className={styles.sideCardTitle}>
               <ChartColumn size={16} /> Resumen de tu colección
             </h3>
@@ -197,23 +213,23 @@ function HomeView({
             <button className={styles.statsLink}>
               <ChartColumn size={14} /> Ver estadísticas completas →
             </button>
-          </div>
+          </div >
 
           {/* RANDOM */}
-          <div className={styles.randomCard}>
-            <h3 className={styles.randomTitle}>¿No sabes qué jugar?</h3>
-            <p className={styles.randomSub}>Deja que el azar elija tu próxima aventura.</p>
-            <div className={styles.diceWrapper}>
-              <div className={styles.diceGlow} />
+          < div className={styles.randomCard} onClick={onRandomGame} >
+            <div className={styles.randomBg} />
+            <div className={styles.randomOverlay} />
+            <div className={styles.randomCardContent}>
+              <div className={styles.randomTop}>
+                <h3 className={styles.randomTitle}>¿No sabes qué jugar?</h3>
+                <p className={styles.randomSub}>Deja que el azar elija tu próxima aventura.</p>
+              </div>
               <span className={styles.diceEmoji}>🎲</span>
             </div>
-            <button className={styles.randomBtn} onClick={onRandomGame}>
-              <span>🎲</span> JUEGO AL AZAR
-            </button>
-          </div>
+          </div >
 
           {/* ACTIVIDAD RECIENTE */}
-          <div className={styles.sideCard}>
+          < div className={styles.sideCard} >
             <h3 className={styles.sideCardTitle}><span>⚡</span> Actividad reciente</h3>
             <div className={styles.activityList}>
               {completedGames.slice(0, 3).map(game => (
@@ -238,10 +254,10 @@ function HomeView({
                 <p className={styles.emptyActivity}>Sin actividad aún.</p>
               )}
             </div>
-          </div>
+          </div >
 
-        </aside>
-      </div>
+        </aside >
+      </div >
       <Footer onRandomGame={onRandomGame} />
     </>
   )

@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './HallOfFameView.module.css'
 import GameView from './GameView'
 import { getCover } from '../../../utils/gameUtils'
 import AppSidebar from '../../../components/layout/AppSidebar'
+import { useSidebar } from '../../../context/SidebarContext'
 import { Trophy, Clock, Flame, Star, Medal, Crown, Gem } from 'lucide-react'
 
-function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount = 0, inProgressCount = 0 }) {
+function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount, inProgressCount, onEdit, onDelete }) {
   const navigate = useNavigate()
   const [selectedGame, setSelectedGame] = useState(null)
   const [visibleCount, setVisibleCount] = useState(8)
@@ -15,6 +16,15 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
   const lastCompleted = games[0] ?? null
 
   const coverUrl = getCover(lastCompleted)
+
+  const { sidebarMode } = useSidebar()
+
+  useEffect(() => {
+    // En hover el sidebar flota, el contenido ocupa desde 64px
+    // En expanded el sidebar empuja, el contenido ocupa desde 300px
+    const width = sidebarMode === 'expanded' ? '300px' : '64px'
+    document.documentElement.style.setProperty('--sidebar-width', width)
+  }, [sidebarMode])
 
   function getEndDate(game) {
     const last = game.sessions?.[game.sessions.length - 1]
@@ -31,7 +41,9 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
       <GameView
         game={selectedGame}
         mode="hall_of_fame"
-        onBack={() => setSelectedGame(null)}
+        onClose={() => setSelectedGame(null)}
+        onEdit={(game) => { onEdit(game); setSelectedGame(null) }}
+        onDelete={(game) => { onDelete(game); setSelectedGame(null) }}
         onAction={(action) => {
           if (action === 'replay') {
             onReturnToLibrary(selectedGame.id)
@@ -246,21 +258,6 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount =
         </div>
 
       </aside>
-
-      {/* ── MODAL ── */}
-      {selectedGame && (
-        <GameView
-          game={selectedGame}
-          mode="hall_of_fame"
-          onClose={() => setSelectedGame(null)}
-          onAction={(action) => {
-            if (action === 'replay') {
-              onReturnToLibrary(selectedGame)
-              setSelectedGame(null)
-            }
-          }}
-        />
-      )}
 
     </div>
   )

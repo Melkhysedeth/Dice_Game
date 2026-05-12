@@ -387,9 +387,10 @@ function RightSidebar({ game, mode }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENTE PRINCIPAL
 // ─────────────────────────────────────────────────────────────────────────────
-export default function GameView({ game, mode = 'library', onBack, onAction }) {
+export default function GameView({ game, mode = 'library', onBack, onClose, onAction, onEdit, onDelete }) {
   const [activeTab, setActiveTab] = useState('Resumen')
   const [isFav, setIsFav] = useState(game?.isFavorite || false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   if (!game) return null
 
@@ -415,7 +416,7 @@ export default function GameView({ game, mode = 'library', onBack, onAction }) {
 
         <div className={styles.heroContent}>
           {/* ── Botón volver — posición absoluta para no afectar el layout ── */}
-          <button className={styles.backBtn} onClick={onBack}>
+          <button className={styles.backBtn} onClick={onBack ?? onClose}>
             ← Volver a Biblioteca
           </button>
 
@@ -483,9 +484,26 @@ export default function GameView({ game, mode = 'library', onBack, onAction }) {
               <button className={styles.btnSecondary} onClick={() => onAction?.('updateStatus')}>
                 <Edit2 size={13} /> Actualizar estado <span className={styles.btnChevron}>›</span>
               </button>
-              <button className={styles.btnSquare} onClick={() => onAction?.('more')}>
-                <MoreHorizontal size={16} />
-              </button>
+              <div style={{ position: 'relative' }}>
+                <button className={styles.btnSquare} onClick={() => setMenuOpen(v => !v)}>
+                  <MoreHorizontal size={16} />
+                </button>
+                {menuOpen && (
+                  <div className={styles.cardMenuDropdown} onClick={e => e.stopPropagation()}>
+                    {mode === 'in_progress' && (
+                      <button onClick={() => { onAction?.('complete'); setMenuOpen(false) }}>
+                        Marcar como completado
+                      </button>
+                    )}
+                    <button onClick={() => { onEdit?.(game); setMenuOpen(false) }}>
+                      Editar juego
+                    </button>
+                    <button onClick={() => { onDelete?.(game); setMenuOpen(false) }}>
+                      Eliminar juego
+                    </button>
+                  </div>
+                )}
+              </div>
               <button
                 className={`${styles.btnSquare} ${isFav ? styles.btnSquareFav : ''}`}
                 onClick={() => setIsFav(v => !v)}

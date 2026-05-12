@@ -86,9 +86,7 @@
   position: relative;
   z-index: 2;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-lg);
+  align-items: flex-start;
   flex: 1;
 }
 
@@ -136,6 +134,7 @@
   color: var(--text-bright);
   margin: 0;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 /* "Melkhysedeth! 👋" — línea 2, naranja */
@@ -148,6 +147,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .heroNameAccent {
@@ -520,133 +520,106 @@
    RANDOM CARD
    ================================================ */
 .randomCard {
-  background: linear-gradient(160deg, #1a1040 0%, #120d30 40%, #0d0820 100%);
-  border: 1px solid rgba(139,92,246,0.35);
+  position: relative;
   border-radius: var(--radius-card);
-  padding: var(--space-lg);
+  overflow: hidden;
+  margin: 0 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 8px 32px rgba(124,58,237,0.4),
+    0 0 0 1px rgba(139,92,246,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  min-height: 300px;
+}
+
+.randomTop {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
-  position: relative;
-  overflow: visible;
+  gap: 2px;
+  padding-top: 6px;
 }
 
-.randomCard::before {
-  content: '';
+.randomCard:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 
+    0 16px 48px rgba(124,58,237,0.6),
+    0 0 0 1px rgba(139,92,246,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+.randomBg {
   position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  height: 100px;
-  background: radial-gradient(ellipse, rgba(139,92,246,0.25) 0%, transparent 70%);
-  pointer-events: none;
+  inset: 0;
+  background-image: url('src/assets/Dice_Back.png');
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease;
+}
+
+.randomCard:hover .randomBg {
+  transform: scale(1.05);
+}
+
+.randomOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(13,8,32,0.55) 0%,
+    rgba(26,16,64,0.4) 50%,
+    rgba(13,8,32,0.75) 100%
+  );
+}
+
+.randomCardContent {
+  position: relative;
+  z-index: 2;
+  min-height: 300px;
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+
+.randomCard:hover .randomCta {
+  background: rgba(124,58,237,0.8);
+  border-color: rgba(168,85,247,0.9);
 }
 
 .randomTitle {
-  font-family: var(--font-body);
-  font-size: 18px;
-  color: #fff;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text-bright);
   letter-spacing: 1px;
   margin: 0;
-  text-align: center;
+  font-family: var(--font-display);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
 .randomSub {
   font-family: var(--font-body);
-  font-size: 14px;
-  color: #fff;
-  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--text-dim);
   margin: 0;
-  line-height: 1.4;
-}
-
-.diceWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 120px;
-  height: 120px;
-  margin: var(--space-sm) 0;
-}
-
-.diceGlow {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(139,92,246,0.4) 0%, transparent 70%);
-  animation: pulse 2.5s ease-in-out infinite;
-}
-
-.diceWrapper::before {
-  content: '';
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
-  border: 1px solid rgba(139,92,246,0.2);
-  animation: ringPulse 2.5s ease-in-out infinite;
-}
-
-.diceWrapper::after {
-  content: '';
-  position: absolute;
-  inset: -20px;
-  border-radius: 50%;
-  border: 1px solid rgba(139,92,246,0.1);
-  animation: ringPulse 2.5s ease-in-out infinite 0.4s;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; transform: scale(0.95); }
-  50%       { opacity: 1;   transform: scale(1.05); }
-}
-
-@keyframes ringPulse {
-  0%, 100% { opacity: 0.3; transform: scale(0.95); }
-  50%       { opacity: 0.8; transform: scale(1.05); }
 }
 
 .diceEmoji {
-  font-size: 64px;
-  line-height: 1;
-  animation: float 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(139,92,246,0.8));
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 80px;
+  filter: drop-shadow(0 0 16px rgba(168,85,247,0.8));
+  animation: diceBounce 2s infinite ease-in-out;
 }
 
-@keyframes float {
+@keyframes diceBounce {
   0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50%       { transform: translateY(-8px) rotate(5deg); }
-}
-
-.randomBtn {
-  width: 100%;
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
-  border: none;
-  color: #fff;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 3px;
-  padding: 14px var(--space-md);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all var(--transition-normal);
-  box-shadow: 0 4px 20px rgba(124,58,237,0.4);
-  text-transform: uppercase;
-}
-
-.randomBtn:hover {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-  box-shadow: 0 6px 28px rgba(124,58,237,0.6);
-  transform: translateY(-2px);
+  50% { transform: translateY(-8px) rotate(5deg); }
 }
 
 /* ================================================

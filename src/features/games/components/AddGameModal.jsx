@@ -99,17 +99,6 @@ function StepSearch({ onSelect, onSkip }) {
 // ─── Mini formulario crear saga inline ───────────────────────────────────────
 function CreateSagaInline({ onCreated, onCancel }) {
   const [sagaTitle, setSagaTitle] = useState('')
-  const [sagaDev, setSagaDev] = useState('')
-  const [sagaGenres, setSagaGenres] = useState([])
-  const [sagaPlatforms, setSagaPlatforms] = useState([])
-
-  function toggleG(g) { setSagaGenres(p => p.includes(g) ? p.filter(x => x !== g) : [...p, g]) }
-  function toggleP(p) { setSagaPlatforms(p2 => p2.includes(p) ? p2.filter(x => x !== p) : [...p2, p]) }
-
-  function handleCreate() {
-    if (!sagaTitle.trim()) return
-    onCreated({ title: sagaTitle, developer: sagaDev, genre: sagaGenres, platform: sagaPlatforms })
-  }
 
   return (
     <div className={styles.inlineSagaForm}>
@@ -121,40 +110,14 @@ function CreateSagaInline({ onCreated, onCancel }) {
       <div className={styles.field}>
         <label className={styles.label}>Nombre de la saga <span className={styles.req}>*</span></label>
         <input className={styles.input} type="text" placeholder="Ej: Resident Evil"
-          value={sagaTitle} onChange={e => setSagaTitle(e.target.value)} autoFocus />
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>Desarrolladora</label>
-        <input className={styles.input} type="text" placeholder="Ej: Capcom"
-          value={sagaDev} onChange={e => setSagaDev(e.target.value)} />
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>Plataformas</label>
-        <div className={styles.tagGroup}>
-          {PLATFORMS.map(p => (
-            <button key={p}
-              className={`${styles.tagBtn} ${sagaPlatforms.includes(p) ? styles.tagActive : ''}`}
-              onClick={() => toggleP(p)}>{p}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>Géneros</label>
-        <div className={styles.tagGroup}>
-          {GENRES.map(g => (
-            <button key={g}
-              className={`${styles.tagBtn} ${sagaGenres.includes(g) ? styles.tagActive : ''}`}
-              onClick={() => toggleG(g)}>{g}</button>
-          ))}
-        </div>
+          value={sagaTitle} onChange={e => setSagaTitle(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && sagaTitle.trim() && onCreated({ title: sagaTitle })}
+          autoFocus />
       </div>
 
       <div className={styles.inlineSagaActions}>
         <button className={styles.cancelBtn} onClick={onCancel}>Cancelar</button>
-        <button className={styles.submitBtn} onClick={handleCreate}
+        <button className={styles.submitBtn} onClick={() => onCreated({ title: sagaTitle })}
           disabled={!sagaTitle.trim()}>
           ✓ Crear saga
         </button>
@@ -166,9 +129,10 @@ function CreateSagaInline({ onCreated, onCancel }) {
 // ─── Modal principal ──────────────────────────────────────────────────────────
 function AddGameModal({
   onClose, onAddSingle, onAddToSaga, onAddNewSaga,
-  onUpdateSingle, onUpdateEntry, onUpdateSaga, onAddEmptySaga,
+  onUpdateSingle, onUpdateEntry, onUpdateSaga, onAddEmptySaga, onMoveToSaga, onSuccess,
   existingSagas = [], editMode = false, editData = null, defaultSagaId = null
 }) {
+
   const isEditingSingle = editMode && editData?.type === 'single'
   const isEditingEntry = editMode && editData?.type === 'entry'
   const isEditingSaga = editMode && editData?.type === 'saga'
@@ -176,6 +140,12 @@ function AddGameModal({
   const [step, setStep] = useState(editMode ? 'form' : 'search')
   const [prefilled, setPrefilled] = useState(null)
   const [isSaga, setIsSaga] = useState(!!defaultSagaId)
+
+  const isFromIGDB = isEditingSingle
+    ? !!editData?.game?.igdbId
+    : isEditingEntry
+      ? !!editData?.entry?.igdbId
+      : !!prefilled?.id
 
   // Lista de sagas dinámica — puede crecer si el usuario crea una inline
   const [localSagas, setLocalSagas] = useState(existingSagas)
@@ -187,9 +157,24 @@ function AddGameModal({
   const [title, setTitle] = useState(isEditingSingle ? editData.game.title : isEditingEntry ? editData.entry.title : '')
   const [developer, setDeveloper] = useState(isEditingSingle ? editData.game.developer : isEditingSaga ? editData.saga.developer : '')
   const [year, setYear] = useState(isEditingSingle ? editData.game.year : isEditingEntry ? editData.entry.year : '')
-  const [description, setDescription] = useState(prefilled?.summary || prefilled?.description || '')
-  const [selectedGenres, setSelectedGenres] = useState(isEditingSingle ? editData.game.genre : isEditingSaga ? editData.saga.genre : [])
-  const [selectedPlatforms, setSelectedPlatforms] = useState(isEditingSingle ? editData.game.platform : isEditingSaga ? editData.saga.platform : [])
+  const [description, setDescription] = useState(() => {
+    console.log('editData.game:', editData?.game)
+    return editData?.game?.description ?? editData?.game?.summary ?? ''
+  })
+  const [selectedGenres, setSelectedGenres] = useState(
+    isEditingSingle
+      ? (editData.game.genre ?? editData.game.genres ?? [])
+      : isEditingSaga
+        ? (editData.saga.genre ?? editData.saga.genres ?? [])
+        : []
+  )
+  const [selectedPlatforms, setSelectedPlatforms] = useState(
+    isEditingSingle
+      ? (editData.game.platform ?? editData.game.platforms ?? [])
+      : isEditingSaga
+        ? (editData.saga.platform ?? editData.saga.platforms ?? [])
+        : []
+  )
   const [sagaTitle, setSagaTitle] = useState(isEditingSaga ? editData.saga.title : '')
 
   const fileInputRef = useRef(null)
@@ -233,25 +218,50 @@ function AddGameModal({
   }
 
   // Cuando el usuario crea una saga inline
-  function handleSagaCreated(sagaData) {
-    // Crea la saga vacía y obtiene su id real
-    const newId = sagaData.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now()
-    onAddEmptySaga({ ...sagaData, id: newId })
-
-    // Agrega a la lista local y la selecciona
+  async function handleSagaCreated(sagaData) {
+    setShowCreateSaga(false)
+    const newId = await onAddEmptySaga(sagaData)  // usa el slug real del hook
+    if (!newId) return
     const newSaga = { ...sagaData, id: newId, entries: [] }
     setLocalSagas(prev => [...prev, newSaga])
     setSelectedSagaId(newId)
-    setShowCreateSaga(false)
   }
 
   function handleSubmit() {
     if (isEditingSingle) {
-      onUpdateSingle(editData.game.id, { title, developer, year, genre: selectedGenres, platform: selectedPlatforms, cover: selectedCover })
+      if (editData.game.isSagaEntry && editData.game.sagaId) {
+        onUpdateEntry(editData.game.sagaId, editData.game.id, {
+          title, developer, year,
+          genre: selectedGenres,
+          platform: selectedPlatforms,
+          cover: selectedCover,
+          description,
+          summary: description
+        })
+      } else {
+        onUpdateSingle(editData.game.id, {
+          title, developer, year,
+          genre: selectedGenres,
+          platform: selectedPlatforms,
+          cover: selectedCover,
+          description,
+          summary: description
+        })
+      }
+      onSuccess?.('Información del juego actualizada')
       onClose(); return
     }
     if (isEditingEntry) {
-      onUpdateEntry(editData.sagaId, editData.entry.id, { title, year })
+      onUpdateEntry(editData.sagaId, editData.entry.id, {
+        title,
+        developer,
+        year,
+        genre: selectedGenres,
+        platform: selectedPlatforms,
+        cover: selectedCover,
+        description,
+        summary: description
+      })
       onClose(); return
     }
     if (isEditingSaga) {
@@ -260,7 +270,7 @@ function AddGameModal({
     }
     if (!title || !year) return
     if (!isSaga) {
-      onAddSingle({ title, developer, year, genre: selectedGenres, platform: selectedPlatforms, cover: selectedCover, description, summary: prefilled?.summary || '' })
+      onAddSingle({ title, developer, year, genre: selectedGenres, platform: selectedPlatforms, cover: selectedCover, description, igdbId: prefilled?.id || null, summary: prefilled?.summary || '' })
     } else {
       if (!selectedSagaId) return
       onAddToSaga(selectedSagaId, {
@@ -272,6 +282,7 @@ function AddGameModal({
         genres: selectedGenres,
         platforms: selectedPlatforms,
         rating: prefilled?.rating || null,
+        igdbId: prefilled?.id || null,
       })
     }
     onClose()
@@ -280,7 +291,7 @@ function AddGameModal({
   const modalTitle = isEditingSingle ? 'Editar juego' : isEditingEntry ? 'Editar entrega' : isEditingSaga ? 'Editar saga' : 'Agregar nuevo juego'
   const showCoverSection = !isEditingEntry
   const showDevGenrePlatform = !isEditingEntry && !isSaga
-  const showDevGenreSaga = isEditingSingle || isEditingSaga
+  const showDevGenreSaga = isEditingSingle || isEditingSaga || isSaga
 
   return (
     <div className={styles.backdrop} onClick={onClose}>
@@ -339,8 +350,31 @@ function AddGameModal({
                       </div>
                       <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }}
                         onChange={e => handleFileUpload(e.target.files[0])} />
+
+                      {/* Buscar más carátulas incluso con cover seleccionada */}
+                      <button className={styles.igdbBtn} onClick={searchMoreCovers}
+                        disabled={!title || searchingExtra} style={{ marginTop: '10px' }}>
+                        {searchingExtra ? '⏳ Buscando...' : '🔍 Buscar más carátulas en IGDB'}
+                      </button>
+                      {extraResults.length > 0 && (
+                        <div className={styles.coverGrid}>
+                          {extraResults.map(r => (
+                            <div key={r.id} className={styles.coverOption}
+                              onClick={() => {
+                                const url = r.cover.startsWith('//') ? `https:${r.cover}` : r.cover
+                                setSelectedCover(url)
+                                setExtraResults([])
+                              }}>
+                              <img src={r.cover.startsWith('//') ? `https:${r.cover}` : r.cover}
+                                alt={r.name} className={styles.coverOptionImg} />
+                              <span className={styles.coverOptionName}>{r.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ) : (
+                    // ... bloque sin cover igual que antes
                     <>
                       <div
                         className={`${styles.dropZone} ${dragging ? styles.dropZoneActive : ''}`}
@@ -447,7 +481,7 @@ function AddGameModal({
                 {/* ── FORMULARIO CREAR SAGA INLINE ── */}
                 {!editMode && isSaga && showCreateSaga && (
                   <CreateSagaInline
-                    onCreated={handleSagaCreated}
+                    onCreated={async (sagaData) => await handleSagaCreated(sagaData)}
                     onCancel={() => setShowCreateSaga(false)}
                   />
                 )}
@@ -455,6 +489,22 @@ function AddGameModal({
                 {/* ── CAMPOS DEL JUEGO (solo si no está creando saga) ── */}
                 {!showCreateSaga && (
                   <>
+
+                    {/* Aviso IGDB */}
+                    {isFromIGDB && (
+                      <div style={{
+                        background: 'rgba(124,58,237,0.1)',
+                        border: '1px solid rgba(124,58,237,0.3)',
+                        borderRadius: '8px',
+                        padding: '10px 14px',
+                        fontSize: '13px',
+                        color: '#a78bfa',
+                        marginBottom: '16px'
+                      }}>
+                        🔒 Los datos de este juego vienen de IGDB y no pueden editarse.
+                      </div>
+                    )}
+
                     {isEditingSaga && (
                       <div className={styles.field}>
                         <label className={styles.label}>Nombre de la saga</label>
@@ -468,34 +518,58 @@ function AddGameModal({
                         <label className={styles.label}>
                           {isSaga ? 'Título de la entrega' : 'Nombre del juego'} <span className={styles.req}>*</span>
                         </label>
-                        <input className={styles.input} type="text"
+                        <input
+                          className={styles.input} type="text"
                           placeholder="Ej: The Witcher 3: Wild Hunt"
-                          value={title} onChange={e => setTitle(e.target.value)} />
+                          value={title}
+                          onChange={e => !isFromIGDB && setTitle(e.target.value)}
+                          readOnly={isFromIGDB}
+                          style={{ opacity: isFromIGDB ? 0.6 : 1, cursor: isFromIGDB ? 'not-allowed' : 'text' }}
+                        />
                       </div>
                     )}
 
                     {(showDevGenrePlatform || showDevGenreSaga) && (
                       <div className={styles.field}>
                         <label className={styles.label}>Desarrolladora</label>
-                        <input className={styles.input} type="text" placeholder="Ej: CD Projekt Red"
-                          value={developer} onChange={e => setDeveloper(e.target.value)} />
+                        <input
+                          className={styles.input} type="text"
+                          placeholder="Ej: CD Projekt Red"
+                          value={developer}
+                          onChange={e => !isFromIGDB && setDeveloper(e.target.value)}
+                          readOnly={isFromIGDB}
+                          style={{ opacity: isFromIGDB ? 0.6 : 1, cursor: isFromIGDB ? 'not-allowed' : 'text' }}
+                        />
                       </div>
                     )}
 
                     {!isEditingSaga && (
                       <div className={styles.field}>
                         <label className={styles.label}>Año de lanzamiento <span className={styles.req}>*</span></label>
-                        <input className={styles.input} type="number" placeholder="Ej: 2024"
-                          value={year} onChange={e => setYear(e.target.value)} />
+                        <input
+                          className={styles.input} type="number"
+                          placeholder="Ej: 2024"
+                          value={year}
+                          onChange={e => !isFromIGDB && setYear(e.target.value)}
+                          readOnly={isFromIGDB}
+                          style={{ opacity: isFromIGDB ? 0.6 : 1, cursor: isFromIGDB ? 'not-allowed' : 'text' }}
+                        />
                       </div>
                     )}
 
                     {!isEditingEntry && !isEditingSaga && !isSaga && (
                       <div className={styles.field}>
-                        <label className={styles.label}>Descripción <span className={styles.optional}>opcional</span></label>
-                        <textarea className={styles.textarea} rows={3}
+                        <label className={styles.label}>
+                          Descripción <span className={styles.optional}>opcional</span>
+                        </label>
+                        <textarea
+                          className={styles.textarea} rows={3}
                           placeholder="Breve descripción del juego..."
-                          value={description} onChange={e => setDescription(e.target.value)} />
+                          value={description}
+                          onChange={e => !isFromIGDB && setDescription(e.target.value)}
+                          readOnly={isFromIGDB}
+                          style={{ opacity: isFromIGDB ? 0.6 : 1, cursor: isFromIGDB ? 'not-allowed' : 'text', resize: isFromIGDB ? 'none' : 'vertical' }}
+                        />
                       </div>
                     )}
 
@@ -506,7 +580,10 @@ function AddGameModal({
                           {PLATFORMS.map(p => (
                             <button key={p}
                               className={`${styles.tagBtn} ${selectedPlatforms.includes(p) ? styles.tagActive : ''}`}
-                              onClick={() => togglePlatform(p)}>{p}</button>
+                              onClick={() => !isFromIGDB && togglePlatform(p)}
+                              disabled={isFromIGDB}
+                              style={{ opacity: isFromIGDB ? 0.5 : 1, cursor: isFromIGDB ? 'not-allowed' : 'pointer' }}
+                            >{p}</button>
                           ))}
                         </div>
                       </div>
@@ -519,7 +596,10 @@ function AddGameModal({
                           {GENRES.map(g => (
                             <button key={g}
                               className={`${styles.tagBtn} ${selectedGenres.includes(g) ? styles.tagActive : ''}`}
-                              onClick={() => toggleGenre(g)}>{g}</button>
+                              onClick={() => !isFromIGDB && toggleGenre(g)}
+                              disabled={isFromIGDB}
+                              style={{ opacity: isFromIGDB ? 0.5 : 1, cursor: isFromIGDB ? 'not-allowed' : 'pointer' }}
+                            >{g}</button>
                           ))}
                         </div>
                       </div>
@@ -531,6 +611,29 @@ function AddGameModal({
             </div>
           )}
         </div>
+
+        {isEditingSingle && !editData?.game?.isSagaEntry && (
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px', marginTop: '8px', marginBottom: '16px' }}>
+            <label className={styles.label}>Mover a una saga</label>
+            <div className={styles.sagaSelectRow} style={{ marginTop: '10px' }}>
+              <select
+                className={styles.select}
+                defaultValue=""
+                onChange={async (e) => {
+                  if (!e.target.value) return
+                  await onMoveToSaga?.(editData.game.id, e.target.value)
+                  onSuccess?.('Juego movido a la saga')
+                  onClose()
+                }}
+              >
+                <option value="">— Elige una saga —</option>
+                {existingSagas.map(s => (
+                  <option key={s.id} value={s.id}>{s.title}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
 
         {/* FOOTER */}
         {step === 'form' && !showCreateSaga && (

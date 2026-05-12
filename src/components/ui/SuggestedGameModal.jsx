@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import styles from './SuggestedGameModal.module.css'
-import { Gamepad2, MonitorCheck, Building2, Calendar, CircleDashed, Quote} from 'lucide-react'
+import { Gamepad2, MonitorCheck, Building2, Calendar, CircleDashed, Quote } from 'lucide-react'
 
 const QUOTES = [
   { text: "Un héroe no nace, se forja en la batalla.", author: "Kratos (God of War)" },
@@ -17,25 +17,45 @@ const QUOTES = [
 ]
 
 function Confetti() {
-  const pieces = Array.from({ length: 50 }, (_, i) => i)
   const colors = ['#7c3aed', '#a78bfa', '#f5a623', '#00d4ff', '#ff6b35', '#22c55e', '#ec4899']
+
+  const explosions = [
+    { left: '50%', top: '5%', delay: 0 }, // fija centro arriba
+    ...Array.from({ length: 3 }, (_, i) => ({
+      left: `${10 + Math.random() * 80}%`,
+      top: `${10 + Math.random() * 80}%`,
+      delay: (i + 1) * 0.4,
+    }))
+  ]
+
   return (
     <div className={styles.confettiWrapper}>
-      {pieces.map(i => (
-        <div
-          key={i}
-          className={styles.confettiPiece}
-          style={{
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 1.5}s`,
-            animationDuration: `${1.5 + Math.random() * 1.5}s`,
-            background: colors[i % colors.length],
-            width: Math.random() > 0.5 ? '8px' : '5px',
-            height: Math.random() > 0.5 ? '12px' : '8px',
-            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-          }}
-        />
-      ))}
+      {explosions.map((exp, ei) =>
+        Array.from({ length: 40 }, (_, i) => {
+          const angle = (i / 40) * 360
+          const distance = 120 + Math.random() * 200
+          const x = Math.cos((angle * Math.PI) / 180) * distance
+          const y = Math.sin((angle * Math.PI) / 180) * distance
+          return (
+            <div
+              key={`${ei}-${i}`}
+              className={styles.confettiPiece}
+              style={{
+                '--x': `${x}px`,
+                '--y': `${y}px`,
+                left: exp.left,
+                top: exp.top,
+                animationDelay: `${exp.delay + Math.random() * 0.3}s`,
+                animationDuration: `${1.5 + Math.random() * 1.5}s`,
+                background: colors[(ei * 40 + i) % colors.length],
+                width: Math.random() > 0.5 ? '10px' : '6px',
+                height: Math.random() > 0.5 ? '16px' : '10px',
+                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+              }}
+            />
+          )
+        })
+      )}
     </div>
   )
 }
@@ -91,12 +111,12 @@ function SuggestedGameModal({ game, onConfirm, onDismiss, onClose }) {
               <div className={styles.infoRow}>
                 <span className={styles.infoIcon}><Gamepad2 size={20} /></span>
                 <span className={styles.infoKey}>Género</span>
-                <span className={styles.infoVal}>{game.genre?.join(', ')}</span>
+                <span className={styles.infoVal}>{(game.genres || game.genre)?.join(', ')}</span>
               </div>
               <div className={styles.infoRow}>
                 <span className={styles.infoIcon}><MonitorCheck size={20} /></span>
                 <span className={styles.infoKey}>Plataforma</span>
-                <span className={styles.infoVal}>{game.platform?.join(', ')}</span>
+                <span className={styles.infoVal}>{(game.platforms || game.platform)?.join(', ')}</span>
               </div>
               {game.developer && (
                 <div className={styles.infoRow}>

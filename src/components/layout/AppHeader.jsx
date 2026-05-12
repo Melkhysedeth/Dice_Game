@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { House, LibraryBigIcon, Gamepad2, Trophy, Bell, ChevronDown } from 'lucide-react'
+import { House, LibraryBigIcon, Gamepad2, Trophy, Bell, ChevronDown, User, LogOut } from 'lucide-react'
 import GlobalSearch from './GlobalSearch'
 import styles from './Header.module.css'
 
@@ -33,7 +33,7 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
           <div className={styles.logoText}>
             <span className={styles.logoMy}>My</span>
             <span className={styles.logoGame}> Game_</span>
-            <span className={styles.logoVault} style={{ color: activeColor }}>Vault</span>
+            <span className={styles.logoVault} style={{ color: activeColor }}>Quest</span>
           </div>
         </div>
 
@@ -85,8 +85,10 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
             <span className={styles.onlineDot} />
             {menuOpen && (
               <div className={styles.dropdown}>
-                <button className={styles.dropdownItem}>👤 Perfil</button>
-                <button className={styles.dropdownItem} onClick={onLogout}>🚪 Cerrar sesión</button>
+                <button className={styles.dropdownItem}>
+                  <User size={16} /> Perfil</button>
+                <button className={styles.dropdownItem} onClick={onLogout}>
+                  <LogOut size={16} /> Cerrar sesión</button>
               </div>
             )}
           </div>

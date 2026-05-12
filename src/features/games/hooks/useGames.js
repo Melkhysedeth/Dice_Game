@@ -251,7 +251,9 @@ export function useGames() {
         year: parseInt(gameData.year),
         genre: gameData.genre,
         platform: gameData.platform,
-        cover: gameData.cover !== undefined ? gameData.cover : g.cover
+        cover: gameData.cover !== undefined ? gameData.cover : g.cover,
+        description: gameData.description ?? g.description,
+        summary: gameData.summary ?? g.summary
       }
     }))
   }
@@ -263,7 +265,17 @@ export function useGames() {
         ...saga,
         entries: saga.entries.map(entry => {
           if (entry.id !== entryId) return entry
-          return { ...entry, title: entryData.title, year: parseInt(entryData.year) }
+          return {
+            ...entry,
+            title: entryData.title,
+            year: parseInt(entryData.year),
+            developer: entryData.developer ?? entry.developer,
+            genre: entryData.genre ?? entry.genre,
+            platform: entryData.platform ?? entry.platform,
+            cover: entryData.cover !== undefined ? entryData.cover : entry.cover,
+            description: entryData.description ?? entry.description,
+            summary: entryData.summary ?? entry.summary
+          }
         })
       }
     }))

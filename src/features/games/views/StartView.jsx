@@ -19,8 +19,10 @@ const STATS = [
 ];
 const AVATARS = [1, 2, 3, 4];
 
-export default function StartView({ onLogin }) {
+export default function StartView({ onLoginWithEmail, onLoginWithOAuth, onRegisterWithEmail }) {
     const [showLogin, setShowLogin] = useState(false)
+    const [authError, setAuthError] = useState(null)
+
     return (
         <div className={styles.page}>
             {/* NAVBAR */}
@@ -110,8 +112,12 @@ export default function StartView({ onLogin }) {
             </section>
             {showLogin && (
                 <LoginModal
-                    onClose={() => setShowLogin(false)}
-                    onLogin={() => { setShowLogin(false); onLogin() }}
+                    onClose={() => { setShowLogin(false); setAuthError(null) }}
+                    onLoginWithEmail={onLoginWithEmail}
+                    onLoginWithOAuth={onLoginWithOAuth}
+                    onRegisterWithEmail={onRegisterWithEmail}  // ← nueva
+                    error={authError}
+                    onError={setAuthError}
                 />
             )}
         </div>

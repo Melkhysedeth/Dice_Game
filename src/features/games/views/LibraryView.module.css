@@ -1,12 +1,12 @@
 /* ── ROOT ── */
 .root {
+  position: relative;  /* ← añadir esto */
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: var(--sidebar-width, 64px) 1fr;
   min-height: 100vh;
   padding-top: 64px;
-  padding-left: 0;
   max-width: 100%;
-  margin: 0 auto;
+  transition: grid-template-columns 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── MAIN ── */
@@ -37,7 +37,7 @@
 
 .pageTitle {
   font-family: var(--font-display);
-  font-size: 36px;
+  font-size: 45px;
   color: var(--accent);
   margin: 0;
   line-height: 1;
@@ -45,7 +45,7 @@
 
 .pageSubtitle {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-dim);
   margin: 4px 0 0;
 }
@@ -67,7 +67,11 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
-.filterBtn:hover { border-color: var(--accent); color: var(--accent); }
+
+.filterBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
 .sortBtn {
   background: var(--surface-2);
@@ -102,7 +106,7 @@
 }
 
 .viewBtnActive {
-  background: rgba(0,212,255,0.1);
+  background: rgba(0, 212, 255, 0.1);
   color: var(--accent);
 }
 
@@ -135,7 +139,7 @@
 }
 
 .genreTabActive {
-  background: rgba(0,212,255,0.1);
+  background: rgba(0, 212, 255, 0.1);
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -167,8 +171,8 @@
 .statsBannerIcon {
   width: 52px;
   height: 52px;
-  background: rgba(0,212,255,0.1);
-  border: 1px solid rgba(0,212,255,0.2);
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -207,7 +211,7 @@
   flex: 1;
   background: var(--surface-2);
   padding: 8px var(--space-md);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgb(255,255,255,0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgb(255, 255, 255, 0.05);
 }
 
 .statsBannerGenreTop {
@@ -258,10 +262,13 @@
 .card {
   cursor: pointer;
   transition: transform var(--transition-normal);
-  position: relative;                        /* ← agregar */
+  position: relative;
+  /* ← agregar */
 }
 
-.card:hover { transform: translateY(-4px); }
+.card:hover {
+  transform: translateY(-4px);
+}
 
 .cardCover {
   position: relative;
@@ -281,11 +288,13 @@
 
 .cardSaga {
   box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.6),
-              0 0 20px rgba(168, 85, 247, 0.25);
-              border-radius: var(--radius-card);
+    0 0 20px rgba(168, 85, 247, 0.25);
+  border-radius: var(--radius-card);
 }
 
-.card:hover { transform: translateY(-4px); }
+.card:hover {
+  transform: translateY(-4px);
+}
 
 /* Gradiente más oscuro y más alto */
 .cardCover {
@@ -300,20 +309,18 @@
 
 .card:hover .cardCover {
   border-color: var(--accent);
-  box-shadow: 0 8px 32px rgba(0,212,255,0.15);
+  box-shadow: 0 8px 32px rgba(0, 212, 255, 0.15);
 }
 
 .cardCover::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.85) 25%,
-    rgba(0, 0, 0, 0.3) 50%,
-    transparent 70%
-  );
+  background: linear-gradient(to top,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0.85) 25%,
+      rgba(0, 0, 0, 0.3) 50%,
+      transparent 70%);
   pointer-events: none;
   z-index: 1;
 }
@@ -326,7 +333,9 @@
   transition: transform var(--transition-normal);
 }
 
-.card:hover .cardImg { transform: scale(1.04); }
+.card:hover .cardImg {
+  transform: scale(1.04);
+}
 
 
 .cardPlaceholder {
@@ -340,13 +349,15 @@
   opacity: 0.3;
 }
 
-.cardOverlay { display: none; }
+.cardOverlay {
+  display: none;
+}
 
 .cardMenu {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(7,10,15,0.7);
+  background: rgba(7, 10, 15, 0.7);
   border: 1px solid var(--border);
   color: var(--text);
   width: 28px;
@@ -362,7 +373,9 @@
   z-index: 3;
 }
 
-.card:hover .cardMenu { opacity: 1; }
+.card:hover .cardMenu {
+  opacity: 1;
+}
 
 .cardInfo {
   position: absolute;
@@ -388,7 +401,7 @@
   -webkit-box-orient: vertical;
   letter-spacing: 0.5px;
   line-height: 1.3;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
 }
 
 .cardBottom {
@@ -403,7 +416,7 @@
   gap: 5px;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.5px;
 }
 
@@ -418,15 +431,19 @@
 .cardHeart {
   background: none;
   border: none;
-  color: rgba(255,255,255,0.6);
-  font-size: 20px;             /* más grande */
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+  /* más grande */
   cursor: pointer;
   padding: 2px 4px;
   transition: color var(--transition-fast);
   line-height: 1;
   flex-shrink: 0;
 }
-.cardHeart:hover { color: #ef4444; }
+
+.cardHeart:hover {
+  color: #ef4444;
+}
 
 /* EMPTY */
 .empty {
@@ -439,13 +456,17 @@
   font-family: var(--font-body);
   font-size: 14px;
 }
-.empty span { font-size: 48px; opacity: 0.3; }
+
+.empty span {
+  font-size: 48px;
+  opacity: 0.3;
+}
 
 /* MODAL */
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(7,10,15,0.88);
+  background: rgba(7, 10, 15, 0.88);
   backdrop-filter: blur(8px);
   z-index: 200;
   display: flex;
@@ -460,12 +481,19 @@
   max-width: 480px;
   border-radius: var(--radius-card);
   overflow: hidden;
-  animation: slideUp 0.3s cubic-bezier(0.2,0,0,1);
+  animation: slideUp 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modalHeader {
@@ -504,7 +532,11 @@
   transition: all var(--transition-fast);
   flex-shrink: 0;
 }
-.modalClose:hover { border-color: var(--accent); color: var(--accent); }
+
+.modalClose:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
 .modalGenres {
   display: flex;
@@ -519,7 +551,7 @@
   font-weight: 700;
   letter-spacing: 1px;
   padding: 3px 8px;
-  background: rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border);
   color: var(--text-dim);
   text-transform: uppercase;
@@ -547,7 +579,10 @@
   border-radius: var(--radius-sm);
   transition: opacity var(--transition-fast);
 }
-.modalPlay:hover { opacity: 0.9; }
+
+.modalPlay:hover {
+  opacity: 0.9;
+}
 
 .modalEdit {
   flex: 1;
@@ -564,7 +599,11 @@
   border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
 }
-.modalEdit:hover { border-color: var(--accent); color: var(--accent); }
+
+.modalEdit:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
 .modalDelete {
   flex: 1;
@@ -581,7 +620,11 @@
   border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
 }
-.modalDelete:hover { border-color: #ef4444; color: #ef4444; }
+
+.modalDelete:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
 
 .fab {
   position: fixed;
@@ -665,7 +708,7 @@
 
 .genreDropdownCount {
   margin-left: 4px;
-  background: rgba(0,212,255,0.1);
+  background: rgba(0, 212, 255, 0.1);
   color: var(--accent);
   font-family: var(--font-mono);
   font-size: 10px;
@@ -700,8 +743,15 @@
 }
 
 @keyframes dropDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .genreDropdownItem {
@@ -721,12 +771,12 @@
 }
 
 .genreDropdownItem:hover {
-  background: rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-bright);
 }
 
 .genreDropdownItemActive {
-  background: rgba(0,212,255,0.08) !important;
+  background: rgba(0, 212, 255, 0.08) !important;
   color: var(--accent) !important;
 }
 
@@ -781,6 +831,7 @@
   min-width: 180px;
   overflow: hidden;
 }
+
 .cardMenuDropdown button {
   background: none;
   border: none;
@@ -792,7 +843,10 @@
   cursor: pointer;
   width: 100%;
 }
-.cardMenuDropdown button:hover { background: var(--surface-2); }
+
+.cardMenuDropdown button:hover {
+  background: var(--surface-2);
+}
 
 .sagaBadge {
   font-family: var(--font-mono);

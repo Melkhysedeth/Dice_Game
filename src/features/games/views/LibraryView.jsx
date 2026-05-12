@@ -6,6 +6,7 @@ import styles from './LibraryView.module.css'
 import GameView from './GameView'
 import SagaView from './SagaView'
 import AppSidebar from '../../../components/layout/AppSidebar'
+import { useSidebar } from '../../../context/SidebarContext'
 import { LibraryBigIcon } from 'lucide-react'
 
 function LibraryView({
@@ -30,6 +31,13 @@ function LibraryView({
       onPendingSagaConsumed()
     }
   }, [pendingSaga])
+
+  const { sidebarMode } = useSidebar()
+
+  useEffect(() => {
+    const width = sidebarMode === 'expanded' ? '300px' : '64px'
+    document.documentElement.style.setProperty('--sidebar-width', width)
+  }, [sidebarMode])
 
   // Recopilar todos los géneros únicos
   const allGenres = useMemo(() => {
@@ -113,10 +121,11 @@ function LibraryView({
 
   // Si hay una saga seleccionada, mostrar SagaView
   if (selectedSaga) {
+    const currentSaga = sagas.find(s => s.id === selectedSaga.id) ?? selectedSaga
     return (
       <SagaView
-        saga={selectedSaga}
-        allSagas={sagas}          // ← agregar esta línea
+        saga={currentSaga}
+        allSagas={sagas}
         onBack={() => setSelectedSaga(null)}
         onStartPlaying={onStartPlaying}
         onAddEntry={(sagaId, entryData) => onAddToSaga(sagaId, entryData)}
@@ -125,11 +134,10 @@ function LibraryView({
         onEditSaga={onEditSaga}
         onDeleteSaga={(sagaId) => { onDeleteSaga(sagaId); setSelectedSaga(null) }}
         onUpdateEntryCover={onUpdateEntryCover}
-        onRandomGame={onRandomGame}   // ← agregar esta línea
+        onRandomGame={onRandomGame}
       />
     )
   }
-
   function SagaCover({ saga }) {
     const covers = saga.entries
       .map(e => e.cover ? (e.cover.startsWith('//') ? `https:${e.cover}` : e.cover) : null)
@@ -209,22 +217,25 @@ function LibraryView({
   }
 
   if (selectedGame) {
-  return (
-    <GameView
-      game={selectedGame}
-      mode={selectedGame.status === 'completed' ? 'hall_of_fame'
-            : selectedGame.status === 'in_progress' ? 'in_progress'
+    return (
+      <GameView
+        game={selectedGame.data ?? selectedGame}
+        mode={selectedGame.status === 'completed' ? 'hall_of_fame'
+          : selectedGame.status === 'in_progress' ? 'in_progress'
             : 'library'}
-      onBack={() => setSelectedGame(null)}
-      onAction={(action) => {
-        if (action === 'start') {
-          onStartPlaying(selectedGame)
-          setSelectedGame(null)
-        }
-      }}
-    />
-  )
-}
+        onClose={() => setSelectedGame(null)}
+        onBack={() => setSelectedGame(null)}
+        onEdit={(game) => { onEdit(game); setSelectedGame(null) }}
+        onDelete={(game) => { onDelete(game); setSelectedGame(null) }}
+        onAction={(action) => {
+          if (action === 'start') {
+            onStartPlaying(selectedGame.data ?? selectedGame)
+            setSelectedGame(null)
+          }
+        }}
+      />
+    )
+  }
 
   return (
 
@@ -435,34 +446,6 @@ function LibraryView({
         </button>
 
       </main >
-
-      {/* MODAL DETALLE */}
-      {selectedGame && (
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 100,
-          background: 'var(--bg)', overflow: 'auto'
-        }}>
-          <GameView
-            game={selectedGame.data}
-            mode="library"
-            onBack={() => setSelectedGame(null)}
-            onAction={(action) => {
-              if (action === 'start') {
-                onStartPlaying(selectedGame.data)
-                setSelectedGame(null)
-              }
-              if (action === 'delete') {
-                onDelete(selectedGame.data)
-                setSelectedGame(null)
-              }
-              if (action === 'edit') {
-                onEdit(selectedGame.data)
-                setSelectedGame(null)
-              }
-            }}
-          />
-        </div>
-      )}
 
     </div >
   )
