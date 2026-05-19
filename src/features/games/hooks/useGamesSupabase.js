@@ -27,6 +27,9 @@ function rowToSingle(game, entry) {
     summary: game.description,
     igdbId: game.igdb_id || null,
     status: entry.status,
+    tags: game.tags?.length ? game.tags : (game.genres || []),
+    gameModes: game.game_modes || [],
+    _createdAt: entry.created_at || null,
     sessions: (entry.play_sessions || []).map(s => ({
       startDate: s.start_date,
       endDate: s.end_date,
@@ -49,16 +52,28 @@ function rowToSagaEntry(game, entry, saga) {
 // ─── HOOK ─────────────────────────────────────────────────────────────────────
 
 export function useGamesSupabase() {
-  const [singles, setSingles] = useState([])
-  const [sagas, setSagas] = useState([])
-  const [suggestedGame, setSuggestedGame] = useState(null)
-  const [loadingData, setLoadingData] = useState(true)
-  const [currentUser, setCurrentUser] = useState(null)
+  const [singles, setSingles] = useState(() => {
+    const cached = localStorage.getItem('gamevault_singles')
+    return cached ? JSON.parse(cached) : []
+  })
+  const [sagas, setSagas] = useState(() => {
+    const cached = localStorage.getItem('gamevault_sagas')
+    return cached ? JSON.parse(cached) : []
+  })
 
+  const [suggestedGame, setSuggestedGame] = useState(null)
+
+  const [loadingData, setLoadingData] = useState(() => {
+    const cached = localStorage.getItem('gamevault_singles')
+    return !cached  // false si hay caché, true si no hay
+  })
+
+  const [currentUser, setCurrentUser] = useState(null)
 
   // ── Carga inicial desde Supabase ───────────────────────────────────────────
   const fetchAll = useCallback(async () => {
-    setLoadingData(true)
+    const cached = localStorage.getItem('gamevault_singles')
+    if (!cached) setLoadingData(true)  // solo muestra loading si no hay caché
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setLoadingData(false); return }
@@ -67,21 +82,20 @@ export function useGamesSupabase() {
     const { data: entries, error } = await supabase
       .from('library_entries')
       .select(`
-    id, status, game_id, saga_id,
-    games (
-      id, slug, title, developer, release_year,
-      cover_url, description, genres, platforms,
-      igdb_id
-    ),
-    sagas ( id, slug, title, cover_url ),
-    play_sessions ( id, start_date, end_date, is_first_time )
-  `)
+        id, status, game_id, saga_id, created_at,
+        games (
+            id, slug, title, developer, release_year,
+            cover_url, description, genres, platforms,
+            igdb_id, tags, game_modes
+        ),
+        sagas ( id, slug, title, cover_url ),
+        play_sessions ( id, start_date, end_date, is_first_time )`)
       .eq('user_id', user.id)
 
     // Fetch todas las sagas (incluyendo las vacías)
     const { data: allSagas } = await supabase
       .from('sagas')
-      .select('id, slug, title, cover_url, user_id')
+      .select('id, slug, title, cover_url, user_id, created_at')
       .eq('user_id', user.id)
     if (error) {
       console.error('Error cargando datos:', error.message)
@@ -102,7 +116,8 @@ export function useGamesSupabase() {
         genre: [],
         platform: [],
         cover: normalizeUrl(saga.cover_url),
-        entries: []
+        entries: [],
+        _createdAt: saga.created_at || null,
       }
     })
 
@@ -123,6 +138,8 @@ export function useGamesSupabase() {
 
     setSingles(singlesResult)
     setSagas(Object.values(sagasMap))
+    localStorage.setItem('gamevault_singles', JSON.stringify(singlesResult))  // 👈
+    localStorage.setItem('gamevault_sagas', JSON.stringify(Object.values(sagasMap)))  // 👈
     setLoadingData(false)
   }, [])
 
@@ -130,10 +147,17 @@ export function useGamesSupabase() {
     fetchAll()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+      if (event === 'SIGNED_IN') {
+        localStorage.removeItem('gamevault_singles')
+        localStorage.removeItem('gamevault_sagas')
+        fetchAll()
+      }
+      if (event === 'SIGNED_OUT') {
         setSingles([])
         setSagas([])
-        fetchAll()
+        localStorage.removeItem('gamevault_singles')
+        localStorage.removeItem('gamevault_sagas')
+        setLoadingData(false)
       }
     })
 
@@ -249,7 +273,7 @@ export function useGamesSupabase() {
       summary: gameData.summary || gameData.description || null,
       status: 'library', sessions: [], isSagaEntry: false
     }
-    setSingles(prev => [...prev, optimistic])
+    setSingles(prev => [optimistic, ...prev])
 
     // ¿Ya existe el juego en el catálogo global?
     let gameRecord = null
@@ -276,7 +300,8 @@ export function useGamesSupabase() {
           description: gameData.description || gameData.summary || null,
           genres: gameData.genre || [],
           platforms: gameData.platform || [],
-          saga_id: null,
+          tags: gameData.tags || [],
+          game_modes: gameData.gameModes || [],
           igdb_id: gameData.igdbId || null
         })
         .select()
@@ -313,7 +338,18 @@ export function useGamesSupabase() {
       return
     }
 
-    await fetchAll()
+    // Reemplaza el optimistic con los datos reales sin refetch
+    setSingles(prev => prev.map(g =>
+      g.id === slug
+        ? {
+          ...g,
+          id: gameRecord.slug,
+          _uuid: gameRecord.id,
+          _entryUuid: entry.id,
+          cover: gameRecord.cover_url,
+        }
+        : g
+    ))
   }
 
   // ── addEntryToSaga ─────────────────────────────────────────────────────────
@@ -342,7 +378,7 @@ export function useGamesSupabase() {
       sagaTitle: saga.title, sagaId, _sagaUuid: saga._uuid, isSagaEntry: true
     }
     setSagas(prev => prev.map(s =>
-      s.id === sagaId ? { ...s, entries: [...s.entries, optimistic] } : s
+      s.id === sagaId ? { ...s, entries: [optimistic, ...s.entries] } : s
     ))
 
     // ¿Ya existe en el catálogo global?
@@ -370,6 +406,8 @@ export function useGamesSupabase() {
           description: entryData.description || entryData.summary || null,
           genres: entryData.genre || entryData.genres || [],
           platforms: entryData.platform || entryData.platforms || [],
+          tags: entryData.tags || [],
+          game_modes: entryData.gameModes || [],
           igdb_id: entryData.igdbId || null
         })
         .select()
@@ -412,7 +450,16 @@ export function useGamesSupabase() {
       return
     }
 
-    await fetchAll()
+    setSagas(prev => prev.map(s =>
+      s.id !== sagaId ? s : {
+        ...s,
+        entries: s.entries.map(e =>
+          e.id === slug
+            ? { ...e, _uuid: gameRecord.id, _entryUuid: entry.id, cover: gameRecord.cover_url }
+            : e
+        )
+      }
+    ))
   }
 
   // ── addNewSaga ─────────────────────────────────────────────────────────────
@@ -426,7 +473,7 @@ export function useGamesSupabase() {
       genre: [], platform: [],
       cover: null, entries: []
     }
-    setSagas(prev => [...prev, optimistic])
+    setSagas(prev => [optimistic, ...prev])
 
     const { data: saga, error: sagaError } = await supabase
       .from('sagas')
@@ -444,7 +491,9 @@ export function useGamesSupabase() {
       return null
     }
 
-    await fetchAll()
+    setSagas(prev => prev.map(s =>
+      s.id === slug ? { ...s, _uuid: saga.id } : s
+    ))
     return slug
   }
 
@@ -609,6 +658,9 @@ export function useGamesSupabase() {
     setSagas(prev => prev.filter(s => s.id !== sagaId))
 
     if (saga?._uuid) {
+      // Elimina primero todas las library_entries de la saga
+      await supabase.from('library_entries').delete().eq('saga_id', saga._uuid)
+      // Luego elimina la saga
       await supabase.from('sagas').delete().eq('id', saga._uuid)
     }
   }
@@ -629,8 +681,12 @@ export function useGamesSupabase() {
       s.id !== sagaId ? s : { ...s, entries: [...s.entries, movedEntry] }
     ))
 
-    if (game._uuid && saga._uuid) {
-      await supabase.from('games').update({ saga_id: saga._uuid }).eq('id', game._uuid)
+    // ✅ Actualiza library_entries con el _entryUuid del juego
+    if (game._entryUuid && saga._uuid) {
+      await supabase
+        .from('library_entries')
+        .update({ saga_id: saga._uuid })
+        .eq('id', game._entryUuid)
     }
   }
 

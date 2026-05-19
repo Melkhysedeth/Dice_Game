@@ -1,14 +1,37 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import { supabase } from '../../../lib/supabase'
+import { useState, useEffect, useRef } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
-import { ChartColumn, Gamepad2, Trophy, Dices } from 'lucide-react'
+import {
+  ChartColumn, Gamepad2, Trophy, LayoutDashboard, Play, Plus, RefreshCw,
+  Leaf, BookOpen, Crosshair, Skull, Users, Timer, Dices, LibraryBigIcon, Target
+} from 'lucide-react'
+import { getCover } from '../../../utils/gameUtils'
 import InProgressSection from '../components/InProgressSection'
 import LibraryScroll from '../components/LibraryScroll'
 import Footer from '../../../components/layout/Footer'
 import styles from './HomeView.module.css'
+import { useAuthContext } from '../../../context/AuthContext'
 
-function HomeView({
+// 1. El array de imágenes se define FUERA del componente para evitar recrearlo en cada render
+const HERO_IMAGES = [
+  '/src/assets/hero-baner1.png',
+  '/src/assets/hero-baner2.png',
+  '/src/assets/hero-baner3.png',
+  '/src/assets/hero-baner4.png',
+  '/src/assets/hero-baner5.png',
+  '/src/assets/hero-baner6.png',
+];
+
+const MODES = [
+  { Icon: Leaf, label: 'Relajado', sub: 'Para desconectar', color: '#4ade80' },
+  { Icon: BookOpen, label: 'Historia', sub: 'Vive grandes historias', color: '#818cf8' },
+  { Icon: Crosshair, label: 'Acción', sub: 'Pura adrenalina', color: '#fb923c' },
+  { Icon: Skull, label: 'Terror', sub: 'Solo para valientes', color: '#f87171' },
+  { Icon: Users, label: 'Cooperativo', sub: 'Mejor con amigos', color: '#60a5fa' },
+  { Icon: Timer, label: 'Corto', sub: 'Sesiones rápidas', color: '#facc15' },
+];
+
+export function HomeView({
   libraryGames,
   inProgressGames,
   completedGames,
@@ -23,99 +46,206 @@ function HomeView({
   onStartPlaying,
   onRandomGame,
   onNavigateToSaga,
-  currentUser
+  onAddGame,
 }) {
   const navigate = useNavigate()
+  const { userName } = useAuthContext()
+  const heroRef = useRef(null)
 
-  const [profileName, setProfileName] = useState(null)
+  // Estados unificados
+  const [scrollY, setScrollY] = useState(0)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
+  const [pickIndex, setPickIndex] = useState(() =>
+    libraryGames.length > 0 ? Math.floor(Math.random() * libraryGames.length) : 0
+  )
+
+  const pickGame = libraryGames[pickIndex] ?? null
+
+  const handleReroll = () => {
+    if (libraryGames.length <= 1) return
+    let next
+    do { next = Math.floor(Math.random() * libraryGames.length) } while (next === pickIndex)
+    setPickIndex(next)
+  }
+
+  const handlePlayNow = () => {
+    if (!pickGame) return
+    onStartPlaying(pickGame)
+    handleReroll()
+  }
+
+  // Auto-rotación de juegos cada 20 segundos
   useEffect(() => {
-    if (!currentUser?.id) return
-    supabase
-      .from('profiles')
-      .select('full_name, username')
-      .eq('id', currentUser.id)
-      .single()
-      .then(({ data }) => {
-        setProfileName(data?.full_name || data?.username || null)
-      })
-  }, [currentUser?.id])
+    if (libraryGames.length <= 1) return
+    const timer = setInterval(handleReroll, 20000)
+    return () => clearInterval(timer)
+  }, [pickIndex, libraryGames.length])
 
-  const userName = profileName
-  ?? currentUser?.user_metadata?.full_name  // ← lo encuentra aquí
-  ?? currentUser?.email?.split('@')[0]
-  ?? 'Jugador'
+  // Efecto 1: Rotador de imágenes (Cada 5 segundos)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % HERO_IMAGES.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Efecto 2: Captura del Scroll para el Parallax
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Cálculo del offset del parallax
+  const parallaxOffset = scrollY * 0.4
 
   return (
     <>
+      {/* ── HERO FULLSCREEN ── */}
+      <section className={styles.hero} ref={heroRef}>
+
+        {/* Fondo con parallax */}
+        <div className={styles.heroContainer}>
+          <div
+            className={styles.heroBg}
+            style={{
+              transform: `translateY(${parallaxOffset}px)`,
+              backgroundImage: `url(${HERO_IMAGES[currentImageIndex]})`,
+            }}
+          />
+        </div>
+
+        {/* Overlay gradiente */}
+        <div className={styles.heroOverlay} />
+
+        {/* Contenido principal del hero */}
+        <div className={styles.heroInner}>
+
+          {/* COLUMNA IZQUIERDA */}
+          <div className={styles.heroLeft}>
+
+            <div className={styles.heroBadge}>
+              <span className={styles.heroBadgeDot} />
+              TU AVENTURA COMIENZA AQUÍ
+            </div>
+
+            <div className={styles.heroText}>
+              <h1 className={styles.heroLine1}>¿No sabes qué jugar?</h1>
+              <h1 className={styles.heroLine2}>
+                <span className={styles.heroName}>Déjalo al destino</span>
+                {' '}🎲
+              </h1>
+              <p className={styles.heroTagline}>
+                Miles de juegos. Una sola decisión.<br />
+                <span className={styles.heroTaglineSub}>
+                  Tu próxima gran aventura te está esperando.
+                </span>
+              </p>
+            </div>
+
+            {/* CTAs */}
+            <div className={styles.heroCtas}>
+              <button className={styles.ctaPrimary} onClick={onRandomGame}>
+                <Dices size={18} />ELEGIR JUEGO AL AZAR
+              </button>
+              <button className={styles.ctaSecondary} onClick={() => navigate('/biblioteca')}>
+                <LibraryBigIcon size={18} />Explorar biblioteca
+              </button>
+            </div>
+          </div>
+
+          {/* COLUMNA DERECHA — 2 widgets apilados */}
+          <div className={styles.heroRight}>
+
+            {/* WIDGET 1: TU PRÓXIMO PICK */}
+            <div className={styles.pickWidget}>
+              <div className={styles.pickHeader}>
+                <Target size={18} />&nbsp;&nbsp;TU PRÓXIMO PICK </div>
+
+              {pickGame ? (
+                <>
+                  <div className={styles.pickGame}>
+                    <div className={styles.pickCover}>
+                      {getCover(pickGame)
+                        ? <img src={getCover(pickGame)} alt={pickGame.title}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px' }} />
+                        : '🎮'
+                      }
+                    </div>
+                    <div className={styles.pickInfo}>
+                      <span className={styles.pickTitle}>{pickGame.title}</span>
+                      <span className={styles.pickMeta}>
+                        {(inProgressGames[0]?.genre || inProgressGames[0]?.genres || []).join(' · ')}
+                      </span>
+                      <span className={styles.pickTime}>⏱ Pendiente</span>
+                    </div>
+                  </div>
+                  <div className={styles.pickActions}>
+                    <button className={styles.pickPlay} onClick={handlePlayNow}>
+                      <Play size={16} strokeWidth={2} />
+                      <span>&nbsp;&nbsp;JUGAR AHORA</span>
+                    </button>
+                    <button className={styles.pickReroll} onClick={handleReroll}>
+                      <RefreshCw size={16} strokeWidth={2} />
+                      <span>&nbsp;&nbsp;&nbsp;VOLVER A GIRAR</span>
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.pickEmpty}>
+                    <span>Sin juegos en biblioteca.<br />¡Agrega uno!</span>
+                  </div>
+                  <button className={styles.pickPlay} onClick={onAddGame}>
+                    <Plus size={18} strokeWidth={2} /> &nbsp;&nbsp;AGREGA UN JUEGO YA!
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* WIDGET 2: GENERAR AVENTURA */}
+            <div className={styles.generateWidget} onClick={onRandomGame}>
+              <div className={styles.generateBg} />
+              <div className={styles.generateContent}>
+                <span className={styles.generateIcon}>🎲</span>
+                <span className={styles.generateTitle}>GENERAR AVENTURA</span>
+                <span className={styles.generateSub}>Déjalo al destino</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* FILA DE MODOS DE JUEGO */}
+        <div className={styles.modesRow}>
+          <span className={styles.modesLabel}>¿Cómo quieres jugar hoy?</span>
+          <div className={styles.modeChips}>  {/* ← este wrapper es necesario */}
+            {MODES.map(({ Icon, label, sub, color }) => (
+              <button key={label} className={styles.modeChip} onClick={onRandomGame}>
+                <Icon size={28} color={color} strokeWidth={1.75} style={{ flexShrink: 0 }} />
+                <div className={styles.modeTexts}>
+                  <span className={styles.modeLabel}>{label}</span>
+                  <span className={styles.modeSub}>{sub}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Indicador de scroll */}
+        <div className={styles.scrollIndicator}>
+          <span className={styles.scrollLine} />
+        </div>
+      </section>
+
+      {/* ── CONTENIDO DEBAJO DEL HERO ── */}
       <div className={styles.layout}>
         <main className={styles.mainContent}>
 
-          {/* HERO */}
-          <section className={styles.hero}>
-            <div className={styles.heroAccentBar} />
-
-            {/* SOLO el logo + texto aquí */}
-            <div className={styles.heroTop}>
-              <div className={styles.heroContent}>
-                <img src="/src/assets/vault-logo2.png" alt="Game Vault" className={styles.heroVaultImg} />
-                <div className={styles.heroText}>
-                  <p className={styles.heroGreetingLine1}>¡Bienvenido de vuelta,</p>
-                  <p className={styles.heroGreetingLine2}>
-                    <span className={styles.heroNameAccent}>{userName}</span>{' '}
-                    <span className={styles.heroWave}>👋</span>
-                  </p>
-                  <p className={styles.heroTagline}>Organiza, juega y celebra cada aventura.</p>
-                </div>
-              </div>
-            </div>
-
-
-            {/* Botón aleatorio (solo en hero) 
-              <button className={styles.heroRandomBtn} onClick={onRandomGame}>
-                <Dices size={28} className={styles.heroRandomIcon} />
-                <span className={styles.heroRandomText}>
-                  <span className={styles.heroRandomTitle}>ELEGIR UN JUEGO AL AZAR</span>
-                  <span className={styles.heroRandomSub}>Descubre tu próxima aventura</span>
-                </span>
-              </button>*/}
-
-            <div className={styles.kpis}>
-              <div className={`${styles.kpiCard} ${styles.kpiCardCyan}`}>
-                <span className={styles.kpiIcon} style={{ background: 'rgba(0,212,255,0.15)', color: 'var(--accent)' }}>
-                  <ChartColumn size={28} />
-                </span>
-                <div className={styles.kpiInfo}>
-                  <span className={styles.kpiLabel}>Juegos totales</span>
-                  <span className={styles.kpiValue}>{totalGames}</span>
-                  <span className={styles.kpiSub}>en tu vault</span>
-                </div>
-              </div>
-              <div className={`${styles.kpiCard} ${styles.kpiCardGreen}`}>
-                <span className={styles.kpiIcon} style={{ background: 'rgba(34,197,94,0.15)', color: 'var(--accent-2)' }}>
-                  <Gamepad2 size={28} />
-                </span>
-                <div className={styles.kpiInfo}>
-                  <span className={styles.kpiLabel}>Horas jugadas</span>
-                  <span className={styles.kpiValue}>532h</span>
-                  <span className={styles.kpiSub}>de pura diversión</span>
-                </div>
-              </div>
-              <div className={`${styles.kpiCard} ${styles.kpiCardGold}`}>
-                <span className={styles.kpiIcon} style={{ background: 'rgba(251,191,36,0.15)', color: 'var(--state-fame)' }}>
-                  <Trophy size={28} />
-                </span>
-                <div className={styles.kpiInfo}>
-                  <span className={styles.kpiLabel}>Logros obtenidos</span>
-                  <span className={styles.kpiValue}>{completedGames.length}</span>
-                  <span className={styles.kpiSub}>¡Sigue así!</span>
-                </div>
-              </div>
-            </div>
-          </section >
-
           {/* TU PROGRESO */}
-          < section className={styles.section} >
+          <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
                 <span className={styles.sectionAccent} />
@@ -126,10 +256,10 @@ function HomeView({
               </button>
             </div>
             <InProgressSection games={inProgressGames} onComplete={onComplete} />
-          </section >
+          </section>
 
           {/* BIBLIOTECA */}
-          < section className={styles.section} >
+          <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
                 <span className={styles.sectionAccent} style={{ background: 'var(--accent)' }} />
@@ -145,17 +275,17 @@ function HomeView({
               sagas={filteredSagas}
               onStartPlaying={onStartPlaying}
               onRandomGame={onRandomGame}
-              onNavigateToSaga={onNavigateToSaga}
+              onOpenSaga={onNavigateToSaga}
             />
-          </section >
+          </section>
 
-        </main >
+        </main>
 
         {/* SIDEBAR DERECHO */}
-        < aside className={styles.sidebar} >
+        <aside className={styles.sidebar}>
 
           {/* DISTRIBUCIÓN */}
-          < div className={styles.sideCard} >
+          <div className={styles.sideCard}>
             <h3 className={styles.sideCardTitle}>
               <ChartColumn size={16} /> Resumen de tu colección
             </h3>
@@ -176,7 +306,13 @@ function HomeView({
                       ))}
                     </Pie>
                     <Tooltip
-                      contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', fontFamily: 'var(--font-body)', fontSize: '12px' }}
+                      contentStyle={{
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '8px',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '12px'
+                      }}
                       cursor={false}
                     />
                   </PieChart>
@@ -213,10 +349,10 @@ function HomeView({
             <button className={styles.statsLink}>
               <ChartColumn size={14} /> Ver estadísticas completas →
             </button>
-          </div >
+          </div>
 
           {/* RANDOM */}
-          < div className={styles.randomCard} onClick={onRandomGame} >
+          <div className={styles.randomCard} onClick={onRandomGame}>
             <div className={styles.randomBg} />
             <div className={styles.randomOverlay} />
             <div className={styles.randomCardContent}>
@@ -226,10 +362,10 @@ function HomeView({
               </div>
               <span className={styles.diceEmoji}>🎲</span>
             </div>
-          </div >
+          </div>
 
           {/* ACTIVIDAD RECIENTE */}
-          < div className={styles.sideCard} >
+          <div className={styles.sideCard}>
             <h3 className={styles.sideCardTitle}><span>⚡</span> Actividad reciente</h3>
             <div className={styles.activityList}>
               {completedGames.slice(0, 3).map(game => (
@@ -254,10 +390,11 @@ function HomeView({
                 <p className={styles.emptyActivity}>Sin actividad aún.</p>
               )}
             </div>
-          </div >
+          </div>
 
-        </aside >
-      </div >
+        </aside>
+      </div>
+
       <Footer onRandomGame={onRandomGame} />
     </>
   )

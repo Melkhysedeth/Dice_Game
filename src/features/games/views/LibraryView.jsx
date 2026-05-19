@@ -7,14 +7,30 @@ import GameView from './GameView'
 import SagaView from './SagaView'
 import AppSidebar from '../../../components/layout/AppSidebar'
 import { useSidebar } from '../../../context/SidebarContext'
-import { LibraryBigIcon } from 'lucide-react'
+import {
+  LibraryBigIcon, LayoutDashboard, Gamepad2, Sword, BookOpen, Skull,
+  Users, Globe, Leaf, Clock, Zap, Target, Music, Dices
+} from 'lucide-react'
 
 function LibraryView({
-  games, sagas, onStartPlaying, onEdit, onDelete,
-  onEditSaga, onDeleteSaga, onEditEntry, onDeleteEntry,
+  games, sagas, onStartPlaying, onEdit, onDelete, loadingData,
+  onEditSaga, onDeleteSaga, onEditEntry, onDeleteEntry, onAddToSaga,
   onUpdateSagaCover, onUpdateEntryCover, onAddGame, onRandomGame,
   pendingSaga, onPendingSagaConsumed, inProgressCount = 0, completedCount = 0
 }) {
+
+  const genreIcons = {
+    'Aventura': Sword,
+    'FPS': Target,
+    'RPG': Gamepad2,
+    'Terror': Skull,
+    'Cooperativo': Users,
+    'Mundo abierto': Globe,
+    'Relajante': Leaf,
+    'Historia': BookOpen,
+    'Juego corto': Clock,
+  }
+
   const navigate = useNavigate()
   const [activeGenre, setActiveGenre] = useState('Todos')
   const [viewMode, setViewMode] = useState('grid') // grid | list
@@ -53,9 +69,12 @@ function LibraryView({
     games.forEach(g => g.genre?.forEach(genre => {
       counts[genre] = (counts[genre] || 0) + 1
     }))
-    sagas.forEach(s => s.genre?.forEach(genre => {
-      counts[genre] = (counts[genre] || 0) + 1
-    }))
+    sagas.forEach(s => {
+      const entryCount = s.entries?.length ?? 1
+      s.genre?.forEach(genre => {
+        counts[genre] = (counts[genre] || 0) + entryCount  // ← cuenta los juegos dentro
+      })
+    })
     return counts
   }, [games, sagas])
 
@@ -84,19 +103,20 @@ function LibraryView({
       ...filteredGames.map(g => ({ type: 'game', data: g })),
     ]
     return items.sort((a, b) => {
-      const tsA = parseInt(a.data.id.split('-').at(-1)) || 0
-      const tsB = parseInt(b.data.id.split('-').at(-1)) || 0
-      return tsB - tsA  // más reciente primero
+      const tsA = new Date(a.data._createdAt || 0).getTime()
+      const tsB = new Date(b.data._createdAt || 0).getTime()
+      return tsB - tsA
     })
   }, [filteredSagas, filteredGames])
 
   const availableToPlay = filteredGames.length +
     filteredSagas.reduce((acc, s) => acc + s.entries.filter(e => e.status === 'library').length, 0)
-  const totalAll = games.length + sagas.length
+  const totalAll = games.length + sagas.reduce((acc, s) => acc + (s.entries?.length ?? 1), 0)
 
   // Top géneros para las barras
   const topGenres = useMemo(() => {
     return Object.entries(genreStats)
+      .filter(([genre, count]) => count >= 2)  // ← solo géneros con 2+ juegos
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4)
   }, [genreStats])
@@ -244,11 +264,11 @@ function LibraryView({
       {/* ── SIDEBAR IZQUIERDO ── */}
       <AppSidebar
         activeRoute="biblioteca"
-        libraryCount={games.length + sagas.length}
+        libraryCount={games.length + sagas.reduce((acc, s) => acc + (s.entries?.length ?? 1), 0)}
         inProgressCount={inProgressCount}
         completedCount={completedCount}
         onRandomGame={onRandomGame}
-        widget="random"
+        widget={null}
         genreProps={{
           allGenres,
           genreStats,
@@ -261,37 +281,41 @@ function LibraryView({
       {/* ── CONTENIDO PRINCIPAL ── */}
       <main className={styles.main}>
 
-        {/* HEADER DE SECCIÓN */}
+        {/* ── HEADER ── */}
         <div className={styles.pageHeader}>
-          <div className={styles.pageHeaderLeft}>
+          {/* IZQUIERDA: título */}
+          <div className={styles.pageHeaderMeta}>
             <div className={styles.pageIcon}><LibraryBigIcon size={45} /></div>
             <div>
               <h1 className={styles.pageTitle}>Biblioteca</h1>
-              <p className={styles.pageSubtitle}>Juegos pendientes por jugar</p>
+              <p className={styles.pageSubtitle}>Todos tus juegos en un solo lugar</p>
             </div>
           </div>
-          <div className={styles.pageHeaderRight}>
-            <button className={styles.filterBtn}>☰ Filtros</button>
-            <div className={styles.sortBtn}>
-              Ordenar por: A-Z <span>▾</span>
+
+          {/* CENTRO: contador */}
+          <div className={styles.pageHeaderCounter}>
+            <div className={styles.pageHeaderCounterBar} />
+            <div>
+              <p className={styles.pageHeaderCounterTitle}>{availableToPlay} Juegos disponibles para jugar</p>
+              <p className={styles.pageHeaderCounterSub}>Listos para tu próxima aventura</p>
             </div>
+          </div>
+
+          {/* DERECHA: controles */}
+          <div className={styles.pageHeaderControls}>
+            <button className={styles.filterBtn}>☰ Filtros</button>
+            <div className={styles.sortBtn}>Ordenar por: A-Z <span>▾</span></div>
             <div className={styles.viewToggle}>
-              <button
-                className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.viewBtnActive : ''}`}
-                onClick={() => setViewMode('grid')}
-              >⊞</button>
-              <button
-                className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`}
-                onClick={() => setViewMode('list')}
-              >☰</button>
+              <button className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.viewBtnActive : ''}`} onClick={() => setViewMode('grid')}>⊞</button>
+              <button className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`} onClick={() => setViewMode('list')}>☰</button>
             </div>
           </div>
         </div>
 
-        {/* FILTROS TIPO */}
+        {/* FILTROS */}
         <div className={styles.genreTabs}>
           {[
-            { id: 'todos', label: 'Todos', count: filteredGames.length + filteredSagas.length },
+            { id: 'todos', label: 'Todos', count: games.length + sagas.reduce((acc, s) => acc + (s.entries?.length ?? 1), 0) },
             { id: 'sagas', label: 'Sagas', count: sagas.length },
             { id: 'singles', label: 'Juego individual', count: games.length },
           ].map(tab => (
@@ -306,39 +330,45 @@ function LibraryView({
           ))}
         </div>
 
-        {/* STATS BANNER */}
-        <div className={styles.statsBanner}>
-          <div className={styles.statsBannerLeft}>
-            <div className={styles.statsBannerIcon}>▦</div>
-            <div>
-              <p className={styles.statsBannerCount}>
-                {availableToPlay} Juegos disponibles para jugar
-              </p>
-              <p className={styles.statsBannerSub}>Listos para tu próxima aventura</p>
+        {/* ── BANNER ── */}
+        <div className={styles.adventureBanner}>
+          <div className={styles.bannerContent}>
+            <h2 className={styles.bannerTitle}>¿No sabes qué jugar hoy?</h2>
+            <p className={styles.bannerDesc}>Deja que el destino elija tu próxima aventura.</p>
+            <div className={styles.bannerActions}>
+              <button className={styles.generateBtn} onClick={onRandomGame}>
+                <Dices size={18} />GENERAR AVENTURA
+              </button>
+              <button className={styles.howItWorksBtn}>▷ Ver cómo funciona</button>
             </div>
           </div>
-          <div className={styles.statsBannerGenres}>
-            {topGenres.map(([genre, count], i) => (
-              <div key={genre} className={styles.statsBannerGenre}>
-                {/* 1. Nombre del Género */}
-                <span className={styles.statsBannerGenreName}>{genre}</span>
+        </div>
 
-                {/* 2. Cantidad de juegos */}
-                <span className={styles.statsBannerGenreCount}>{count} juegos</span>
-
-                {/* 3. La Barra debajo de todo */}
-                <div className={styles.statsBannerBar}>
-                  <div
-                    className={styles.statsBannerBarFill}
-                    style={{
-                      width: `${totalAll > 0 ? (count / totalAll) * 100 : 0}%`,
-                      background: genreColors[i]
-                    }}
-                  />
+        {/* ── GENRE CARDS — debajo del banner ── */}
+        <div className={styles.genreCards}>
+          {topGenres.map(([genre, count], i) => {
+            const Icon = genreIcons[genre] ?? Gamepad2
+            return (
+              <div key={genre} className={styles.genreCard} style={{ borderLeftColor: genreColors[i] }}>
+                <div className={styles.genreCardIcon} style={{ color: genreColors[i] }}>
+                  <Icon size={28} />
+                </div>
+                <div className={styles.genreCardInfo}>
+                  <span className={styles.genreCardName}>{genre}</span>
+                  <span className={styles.genreCardCount}>{count} juegos</span>
+                  <div className={styles.genreCardBar}>
+                    <div
+                      className={styles.genreCardBarFill}
+                      style={{
+                        width: `${totalAll > 0 ? (count / totalAll) * 100 : 0}%`,
+                        background: genreColors[i]
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
+            )
+          })}
         </div>
 
         {/* GRID DE CARDS */}

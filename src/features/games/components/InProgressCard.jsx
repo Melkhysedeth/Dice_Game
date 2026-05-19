@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import styles from './InProgressCard.module.css'
 import GameView from '../views/GameView'
+import { createPortal } from 'react-dom'
 
 function InProgressCard({ game, onComplete }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -17,7 +18,7 @@ function InProgressCard({ game, onComplete }) {
 
   return (
     <>
-      <div className={styles.card} onClick={() => setIsOpen(true)}>
+      <div className={styles.card} onClick={() => { setIsOpen(true)}}>
 
         {/* CARÁTULA */}
         <div className={styles.cover}>
@@ -56,8 +57,7 @@ function InProgressCard({ game, onComplete }) {
 
       </div>
 
-      {/* MODAL */}
-      {isOpen && (
+      {isOpen && createPortal(
         <GameView
           game={{
             ...game,
@@ -80,7 +80,8 @@ function InProgressCard({ game, onComplete }) {
             if (action === 'complete') { onComplete(game); setIsOpen(false) }
             setIsOpen(false)
           }}
-        />
+        />,
+        document.body
       )}
     </>
   )

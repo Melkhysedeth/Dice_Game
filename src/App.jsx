@@ -1,8 +1,10 @@
-import { useGamesSupabase as useGames } from './features/games/hooks/useGamesSupabase'
+import { useGamesSupabase as useGames, useGamesSupabase } from './features/games/hooks/useGamesSupabase'
 import { useFilters } from './features/filters/hooks/useFilters'
 import { useState, useEffect } from 'react'
 import { useAuth } from './lib/useAuth'
+import { supabase } from './lib/supabase'
 import { Navigate, Routes, Route, useNavigate } from 'react-router-dom'
+import { SidebarProvider } from './context/SidebarContext'
 import StartView from './features/games/views/StartView'
 import AddGameModal from './features/games/components/AddGameModal'
 import AppHeader from './components/layout/AppHeader'
@@ -12,7 +14,9 @@ import HomeView from './features/games/views/HomeView'
 import LibraryView from './features/games/views/LibraryView'
 import InProgressView from './features/games/views/InProgressView'
 import HallOfFameView from './features/games/views/HallOfFameView'
-import { SidebarProvider } from './context/SidebarContext'
+import ResetPasswordModal from './components/ui/ResetPasswordModal'
+import ProfileView from './features/games/views/ProfileView'
+
 
 function App() {
   const {
@@ -22,6 +26,7 @@ function App() {
     sagas,
     suggestedGame,
     singles,
+    loadingData,
     pickRandomGame,
     dismissSuggestion,
     startPlaying,
@@ -40,7 +45,7 @@ function App() {
     updateSagaCover,
     updateEntryCover,
     addEmptySaga
-  } = useGames()
+  } = useGamesSupabase()
 
   const {
     activeFilter,
@@ -90,18 +95,23 @@ function App() {
     { name: 'Salón de la fama', value: completedGames.length || 0, color: 'var(--state-fame)' },
   ]
 
+  const totalLibraryCount = libraryGames.filter(g => !g.isSagaEntry).length +
+    sagas.reduce((acc, s) => acc + (s.entries?.length ?? 1), 0)
+
   return (
     // 👇 SidebarProvider envuelve TODO — así todas las vistas comparten el mismo estado
     <SidebarProvider>
       <div className={styles.appRoot}>
 
-        <AppHeader
-          onLogout={async () => { await logout(); navigate('/start') }}
-          libraryGames={libraryGames}
-          inProgressGames={inProgressGames}
-          completedGames={completedGames}
-          sagas={sagas}
-        />
+        {user && (
+          <AppHeader
+            onLogout={async () => { await logout(); navigate('/start') }}
+            libraryGames={libraryGames}
+            inProgressGames={inProgressGames}
+            completedGames={completedGames}
+            sagas={sagas}
+          />
+        )}
 
         <Routes>
           <Route
@@ -113,8 +123,19 @@ function App() {
                   onLoginWithEmail={loginWithEmail}
                   onLoginWithOAuth={loginWithOAuth}
                   onRegisterWithEmail={registerWithEmail}
+                  onResetPassword={async (email) => {
+                    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                      redirectTo: window.location.origin + '/reset-password'
+                    })
+                    if (error) throw error
+                  }}
                 />
             }
+          />
+
+          <Route
+            path="/reset-password"
+            element={<ResetPasswordModal />}
           />
 
           <Route path="/" element={
@@ -134,6 +155,7 @@ function App() {
                 onStartPlaying={startPlaying}
                 onRandomGame={pickRandomGame}
                 currentUser={user}
+                onAddGame={() => setShowAddGame(true)}
                 onNavigateToSaga={(saga) => {
                   setPendingSaga(saga)
                   navigate('/biblioteca')
@@ -144,6 +166,7 @@ function App() {
 
           <Route path="/biblioteca" element={
             <LibraryView
+              loadingData={loadingData}
               games={libraryGames.filter(g => !g.isSagaEntry)}
               sagas={sagas}
               onStartPlaying={startPlaying}
@@ -171,7 +194,7 @@ function App() {
               games={inProgressGames}
               onComplete={completeGame}
               onRandomGame={pickRandomGame}
-              libraryCount={libraryGames.filter(g => !g.isSagaEntry).length + sagas.length}
+              libraryCount={totalLibraryCount}
               completedCount={completedGames.length}
               onEdit={handleEditSingle}
               onDelete={handleDeleteSingle}
@@ -183,12 +206,22 @@ function App() {
               games={completedGames}
               onReturnToLibrary={returnToLibrary}
               onRandomGame={pickRandomGame}
-              libraryCount={libraryGames.filter(g => !g.isSagaEntry).length + sagas.length}
+              libraryCount={totalLibraryCount}
               inProgressCount={inProgressGames.length}
               onEdit={handleEditSingle}
               onDelete={handleDeleteSingle}
             />
           } />
+
+          <Route path="/perfil" element={
+            user ? <ProfileView
+              onLogout={async () => { await logout(); navigate('/start') }}
+              libraryGames={libraryGames}
+              inProgressGames={inProgressGames}
+              completedGames={completedGames}
+            /> : <Navigate to="/start" replace />
+          } />
+
         </Routes>
 
         <SuggestedGameModal
@@ -207,6 +240,7 @@ function App() {
             existingSagas={sagas}
             onAddEmptySaga={addEmptySaga}
             successMsg={successMsg}
+            onMoveToSaga={moveGameToSaga}
           />
         )}
 

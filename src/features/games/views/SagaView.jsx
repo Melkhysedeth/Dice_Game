@@ -145,7 +145,10 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
   const intervalRef = useRef(null)
   const [showAddEntry, setShowAddEntry] = useState(false)
 
-  const coversPool = saga.entries.map(e => fixCover(e.cover)).filter(Boolean)
+  const coversPool = saga.entries
+    .map(e => fixCover(e.cover))
+    .filter(Boolean)
+    .map(url => url.replace('t_cover_big', 't_screenshot_big'))
 
   useEffect(() => {
     if (coversPool.length <= 1) return

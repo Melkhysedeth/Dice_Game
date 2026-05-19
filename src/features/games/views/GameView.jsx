@@ -84,11 +84,13 @@ function TabResumen({ game }) {
   )
 
   // Etiquetas = géneros + themes
-  const tags = [
-    ...(game.genres || game.genre || []),
-    ...(game.themes || []),
-    ...(game.keywords?.slice(0, 4) || []),
-  ].filter((v, i, a) => a.indexOf(v) === i)
+  const tags = game.tags?.length
+    ? game.tags
+    : [
+      ...(game.genres || game.genre || []),
+      ...(game.themes || []),
+      ...(game.keywords?.slice(0, 4) || []),
+    ].filter((v, i, a) => a.indexOf(v) === i)
 
   return (
     <div className={styles.tabContent}>
@@ -417,7 +419,7 @@ export default function GameView({ game, mode = 'library', onBack, onClose, onAc
         <div className={styles.heroContent}>
           {/* ── Botón volver — posición absoluta para no afectar el layout ── */}
           <button className={styles.backBtn} onClick={onBack ?? onClose}>
-            ← Volver a Biblioteca
+            ← Volver Atras
           </button>
 
           {/* ── Fila principal: cover · meta · acciones ── */}

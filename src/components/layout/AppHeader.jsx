@@ -1,8 +1,9 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { House, LibraryBigIcon, Gamepad2, Trophy, Bell, ChevronDown, User, LogOut } from 'lucide-react'
 import GlobalSearch from './GlobalSearch'
 import styles from './Header.module.css'
+import { useAuthContext } from '../../context/AuthContext'
 
 const NAV_ITEMS = [
   { id: 'inicio', label: 'Inicio', icon: House, path: '/', color: '#f5a623' },
@@ -16,6 +17,24 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const activeColor = NAV_ITEMS.find(i => i.path === location.pathname)?.color ?? 'var(--accent)'
+  const { userName, user } = useAuthContext()
+  const dropdownRef = useRef(null)
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setMenuOpen(false)
+      }
+    }
+    if (menuOpen) document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [menuOpen])
+
+  // Cerrar dropdown al cambiar de ruta
+  useEffect(() => { setMenuOpen(false) }, [location.pathname])
+
+  const initials = (userName || 'GX').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
 
   return (
     <header className={styles.header}>
@@ -23,13 +42,11 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
 
         {/* LOGO */}
         <div className={styles.logoBlock} onClick={() => navigate('/')}>
-          <div className={styles.logoIcon}>
-            <img
-              src="/src/assets/vault-logo2.png"
-              alt="logo"
-              style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '50%' }}
-            />
-          </div>
+          <img
+            src="/src/assets/vault-logo.png"
+            alt="logo"
+            style={{ width: '56px', height: '56px', objectFit: 'contain' }}
+          />
           <div className={styles.logoText}>
             <span className={styles.logoMy}>My</span>
             <span className={styles.logoGame}> Game_</span>
@@ -45,21 +62,19 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
               <button
                 key={item.id}
                 className={`${styles.navItem} ${location.pathname === item.path ? styles.navActive : ''}`}
-                onClick={() => navigate(item.path)}>
+                onClick={() => navigate(item.path)}
+              >
                 <span
                   className={styles.navIcon}
-                  style={{ color: location.pathname === item.path ? item.color : 'inherit' }}>
+                  style={{ color: location.pathname === item.path ? item.color : 'inherit' }}
+                >
                   <Icon size={20} strokeWidth={2} />
                 </span>
                 {item.label}
                 {location.pathname === item.path && (
-                  <span
-                    className={styles.navUnderline}
-                    style={{ backgroundColor: item.color }}
-                  />
+                  <span className={styles.navUnderline} style={{ backgroundColor: item.color }} />
                 )}
               </button>
-
             )
           })}
         </nav>
@@ -78,17 +93,27 @@ function AppHeader({ libraryGames = [], inProgressGames = [], completedGames = [
             <span className={styles.notifDot} />
           </button>
 
-          <div className={styles.profile} onClick={() => setMenuOpen(o => !o)}>
-            <div className={styles.avatar}>GX</div>
-            <span className={styles.profileName}>Melkysedeth</span>
-            <ChevronDown size={14} />
+          {/* PROFILE DROPDOWN */}
+          <div className={styles.profile} ref={dropdownRef} onClick={() => setMenuOpen(o => !o)}>
+            <div className={styles.avatar}>{initials}</div>
+            <span className={styles.profileName}>{userName}</span>
+            <ChevronDown size={14} className={`${styles.chevron} ${menuOpen ? styles.chevronOpen : ''}`} />
             <span className={styles.onlineDot} />
+
             {menuOpen && (
-              <div className={styles.dropdown}>
-                <button className={styles.dropdownItem}>
-                  <User size={16} /> Perfil</button>
-                <button className={styles.dropdownItem} onClick={onLogout}>
-                  <LogOut size={16} /> Cerrar sesión</button>
+              <div className={styles.dropdown} onClick={e => e.stopPropagation()}>
+                <button
+                  className={styles.dropdownItem}
+                  onClick={() => { navigate('/perfil'); setMenuOpen(false) }}
+                >
+                  <User size={16} /> Perfil
+                </button>
+                <button
+                  className={`${styles.dropdownItem} ${styles.dropdownItemLogout}`}
+                  onClick={() => { onLogout(); setMenuOpen(false) }}
+                >
+                  <LogOut size={16} /> Cerrar sesión
+                </button>
               </div>
             )}
           </div>

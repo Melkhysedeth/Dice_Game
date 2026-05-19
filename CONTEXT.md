@@ -167,11 +167,12 @@ src/
 │   │   ├── components/  # GameCard, AddGameModal, LibraryScroll, (pendiente extracción)
 │   │   ├── hooks/       # useGames.js, useGameSupabase.js
 │   │   ├── services/    # gameService.js, igdbService.js
-│   │   └── views/       # GameView, StartView, HomeView, LibraryView, SagaView, InProgressView, HallOfFameView
+│   │   └── views/       # GameView, StartView, HomeView, LibraryView, SagaView, InProgressView, HallOfFameView, ProfileView
+│   ├── sagas/
 │   └── filters/
 │       ├── components/  # FilterBar
 │       └── hooks/       # useFilters.js
-├── context/          # SidebarContext.jsx
+├── context/          # SidebarContext.jsx AuthContext.jsx
 ├── utils/            # gameUtils.js (getCover), migrateToSupabase.js
 ├── data/             # games.json (temporal)
 ├── styles/           # globals.css, tokens.css, App.module.css

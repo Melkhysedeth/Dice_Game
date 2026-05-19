@@ -9,7 +9,7 @@ import { createContext, useContext, useState } from 'react'
 const SidebarContext = createContext(null)
 
 export function SidebarProvider({ children }) {
-  const [sidebarMode, setSidebarMode] = useState('hover') // estado inicial
+  const [sidebarMode, setSidebarMode] = useState('expanded') // estado inicial
 
   return (
     <SidebarContext.Provider value={{ sidebarMode, setSidebarMode }}>

@@ -5,7 +5,7 @@ import styles from './AddGameModal.module.css'
 import { Search } from 'lucide-react'
 
 const GENRES = [
-  'Acción', 'Aventura', 'RPG', 'FPS', 'Soulslike', 'Survival Horror',
+  'Acción', 'Aventura', 'RPG', 'FPS', 'Soulslike', 'Terror',
   'Mundo Abierto', 'Sigilo', 'Plataformas', 'Indie', 'Supervivencia',
   'Multijugador', 'Narrativa', 'Ciencia Ficción', 'Fantasía', 'Bélico',
   'Estrategia', 'Simulador', 'Puzzle', 'Carreras', 'Deportes',
@@ -147,6 +147,19 @@ function AddGameModal({
       ? !!editData?.entry?.igdbId
       : !!prefilled?.id
 
+
+  const [selectedTags, setSelectedTags] = useState(
+    isEditingSingle
+      ? (editData.game.tags ?? editData.game.genres ?? [])
+      : isEditingSaga
+        ? (editData.saga.tags ?? editData.saga.genres ?? [])
+        : []
+  )
+
+  const [selectedGameModes, setSelectedGameModes] = useState(
+    isEditingSingle ? (editData.game.gameModes ?? []) : []
+  )
+
   // Lista de sagas dinámica — puede crecer si el usuario crea una inline
   const [localSagas, setLocalSagas] = useState(existingSagas)
   const [selectedSagaId, setSelectedSagaId] = useState(defaultSagaId || '')
@@ -182,6 +195,10 @@ function AddGameModal({
   const [extraResults, setExtraResults] = useState([])
   const [searchingExtra, setSearchingExtra] = useState(false)
 
+  // Tags disponibles: los que vienen del juego IGDB o el array estático como fallback
+  const availableTags = prefilled?.tags?.length ? prefilled.tags : GENRES
+  const availableGameModes = prefilled?.gameModes ?? []
+
   function handleIGDBSelect(game) {
     const cover = game.cover ? (game.cover.startsWith('//') ? `https:${game.cover}` : game.cover) : null
     setSelectedCover(cover)
@@ -193,6 +210,8 @@ function AddGameModal({
     if (game.platforms?.length) setSelectedPlatforms(game.platforms)
     setPrefilled(game)
     setStep('form')
+    if (game.tags?.length) setSelectedTags(game.tags)
+    if (game.gameModes?.length) setSelectedGameModes(game.gameModes)
   }
 
   function handleFileUpload(file) {
@@ -270,7 +289,17 @@ function AddGameModal({
     }
     if (!title || !year) return
     if (!isSaga) {
-      onAddSingle({ title, developer, year, genre: selectedGenres, platform: selectedPlatforms, cover: selectedCover, description, igdbId: prefilled?.id || null, summary: prefilled?.summary || '' })
+      onAddSingle({
+        title, developer, year,
+        genre: selectedTags,
+        tags: selectedTags,
+        gameModes: selectedGameModes,
+        platform: selectedPlatforms,
+        cover: selectedCover,
+        description,
+        igdbId: prefilled?.id || null,
+        summary: prefilled?.summary || ''
+      })
     } else {
       if (!selectedSagaId) return
       onAddToSaga(selectedSagaId, {
@@ -591,15 +620,42 @@ function AddGameModal({
 
                     {(showDevGenrePlatform || showDevGenreSaga) && (
                       <div className={styles.field}>
-                        <label className={styles.label}>Géneros</label>
+                        <label className={styles.label}>Géneros y temas</label>
+                        {availableTags.length > 0 ? (
+                          <div className={styles.tagGroup}>
+                            {availableTags.map(g => (
+                              <button key={g}
+                                className={`${styles.tagBtn} ${selectedTags.includes(g) ? styles.tagActive : ''}`}
+                                onClick={() => !isFromIGDB && setSelectedTags(prev =>
+                                  prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]
+                                )}
+                                disabled={isFromIGDB}
+                                style={{ opacity: isFromIGDB ? 0.5 : 1, cursor: isFromIGDB ? 'not-allowed' : 'pointer' }}
+                              >{g}</button>
+                            ))}
+                          </div>
+                        ) : (
+                          <p style={{ fontSize: 12, color: 'var(--text-dim)' }}>
+                            Busca el juego en IGDB para cargar géneros automáticamente.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Modos de juego — solo si vienen de IGDB */}
+                    {availableGameModes.length > 0 && (
+                      <div className={styles.field}>
+                        <label className={styles.label}>Modos de juego</label>
                         <div className={styles.tagGroup}>
-                          {GENRES.map(g => (
-                            <button key={g}
-                              className={`${styles.tagBtn} ${selectedGenres.includes(g) ? styles.tagActive : ''}`}
-                              onClick={() => !isFromIGDB && toggleGenre(g)}
+                          {availableGameModes.map(m => (
+                            <button key={m}
+                              className={`${styles.tagBtn} ${selectedGameModes.includes(m) ? styles.tagActive : ''}`}
+                              onClick={() => !isFromIGDB && setSelectedGameModes(prev =>
+                                prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m]
+                              )}
                               disabled={isFromIGDB}
                               style={{ opacity: isFromIGDB ? 0.5 : 1, cursor: isFromIGDB ? 'not-allowed' : 'pointer' }}
-                            >{g}</button>
+                            >{m}</button>
                           ))}
                         </div>
                       </div>

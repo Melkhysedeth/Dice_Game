@@ -1,5 +1,5 @@
 // netlify/functions/igdb.js
-export const handler = async function(event) {
+export const handler = async function (event) {
   const { name } = JSON.parse(event.body)
 
   if (!name) {
@@ -28,19 +28,21 @@ export const handler = async function(event) {
       body: `
         search "${name}";
         fields
-          name,
-          cover.url,
-          first_release_date,
-          involved_companies.company.name,
-          involved_companies.developer,
-          involved_companies.publisher,
-          genres.name,
-          platforms.name,
-          summary,
-          rating,
-          rating_count,
-          screenshots.url;
-        limit 8;
+         name,
+         cover.url,
+         first_release_date,
+         involved_companies.company.name,
+         involved_companies.developer,
+         involved_companies.publisher,
+         genres.name,
+         themes.name,
+         game_modes.name,
+         platforms.name,
+         summary,
+         rating,
+         rating_count,
+         screenshots.url;
+        limit 12;
       `
     })
 
@@ -84,12 +86,41 @@ export const handler = async function(event) {
       'Linux': 'PC',
     }
 
+    // Mapeo temas IGDB → español
+    const themeMap = {
+      'Action': 'Acción',
+      'Fantasy': 'Fantasía',
+      'Science fiction': 'Ciencia Ficción',
+      'Horror': 'Terror',
+      'Thriller': 'Thriller',
+      'Survival': 'Supervivencia',
+      'Historical': 'Histórico',
+      'Stealth': 'Sigilo',
+      'Comedy': 'Comedia',
+      'Open world': 'Mundo Abierto',
+      'Sandbox': 'Sandbox',
+      'Mystery': 'Misterio',
+      'Drama': 'Drama',
+      'Kids': 'Familiar',
+      'Warfare': 'Bélico',
+    }
+
+    // Mapeo modos de juego
+    const gameModeMap = {
+      'Single player': 'Un jugador',
+      'Multiplayer': 'Multijugador',
+      'Co-operative': 'Cooperativo',
+      'Split screen': 'Pantalla dividida',
+      'Massively Multiplayer Online (MMO)': 'MMO',
+      'Battle Royale': 'Battle Royale',
+    }
+
     const results = games
       .filter(g => g.cover)
       .map(g => {
         const devCompany = g.involved_companies?.find(ic => ic.developer)
         const pubCompany = g.involved_companies?.find(ic => ic.publisher)
-        const developer  = devCompany?.company?.name || pubCompany?.company?.name || ''
+        const developer = devCompany?.company?.name || pubCompany?.company?.name || ''
 
         const year = g.first_release_date
           ? new Date(g.first_release_date * 1000).getFullYear()
@@ -111,13 +142,27 @@ export const handler = async function(event) {
 
         const rating = g.rating ? Math.round((g.rating / 100) * 50) / 10 : null
 
+        const themes = (g.themes || [])
+          .map(t => themeMap[t.name] || t.name)
+          .filter((v, i, a) => a.indexOf(v) === i)
+
+        // Unifica géneros + temas en un solo array "tags"
+        const tags = [...new Set([...genres, ...themes])].slice(0, 8)
+
+        const gameModes = (g.game_modes || [])
+          .map(m => gameModeMap[m.name] || m.name)
+          .filter((v, i, a) => a.indexOf(v) === i)
+
         return {
           id: g.id,
           name: g.name,
           cover: g.cover.url.replace('t_thumb', 't_cover_big'),
           developer,
           year,
-          genres,
+          genres,      
+          themes,     
+          tags,      
+          gameModes,
           platforms,
           summary: g.summary || '',
           rating,

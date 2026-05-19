@@ -1,16 +1,16 @@
 import styles from './StartView.module.css';
 import LoginModal from '../../../components/ui/LoginModal';
 import { useState } from 'react'
-import { Library, BarChart3, Trophy, Gamepad2, Cloud } from 'lucide-react';
+import { Library, BarChart3, Users2, Gamepad2, Clock, Star, Dices, Trophy } from 'lucide-react';
 
 const NAV_LINKS = ['Características', 'Cómo funciona', 'Beneficios', 'Precios', 'Blog'];
 const FEATURES = [
-    { icon: <Library size={35} />, title: 'Biblioteca Inteligente', desc: 'Organiza todos tus juegos en un solo lugar. Nunca pierdas el control de tu colección.' },
-    { icon: <BarChart3 size={35} />, title: 'Seguimiento de Progreso', desc: 'Registra tu progreso, tiempo jugado y logros obtenidos en cada aventura.' },
-    { icon: <Trophy size={35} />, title: 'Logros y Estadísticas', desc: 'Desbloquea logros y visualiza tus estadísticas para ver tu evolución como gamer.' },
-    { icon: <Gamepad2 size={35} />, title: 'Sagas y Colecciones', desc: 'Sigue tus sagas favoritas y completa colecciones épicas de juegos.' },
-    { icon: <Cloud size={35} />, title: 'Sincroniza en la Nube', desc: 'Accede a tu biblioteca desde cualquier dispositivo. Tu información siempre contigo.' },
-];
+  { icon: <Dices size={35} />, title: 'Elige al azar', desc: 'Nuestro sistema elige un juego para ti en segundos.' },
+  { icon: <Library size={35} />, title: 'Organiza tu biblioteca', desc: 'Ten todos tus juegos en un solo lugar, siempre ordenados.' },
+  { icon: <BarChart3 size={35} />, title: 'Controla tu progreso', desc: 'Sigue tus partidas, logros y el tiempo que realmente juegas.' },
+  { icon: <Trophy size={35} />, title: 'Desafíos y logros', desc: 'Completa retos y presume tus logros ante la comunidad.' },
+  { icon: <Gamepad2 size={35} />, title: 'Comunidad gamer', desc: 'Comparte, recomienda y descubre con otros jugadores.' },
+]
 const STATS = [
     { val: '10K+', label: 'Gamers unidos' },
     { val: '25K+', label: 'Juegos registrados' },
@@ -19,9 +19,10 @@ const STATS = [
 ];
 const AVATARS = [1, 2, 3, 4];
 
-export default function StartView({ onLoginWithEmail, onLoginWithOAuth, onRegisterWithEmail }) {
+export default function StartView({ onLoginWithEmail, onLoginWithOAuth, onRegisterWithEmail, onResetPassword }) {
     const [showLogin, setShowLogin] = useState(false)
     const [authError, setAuthError] = useState(null)
+    const [initialMode, setInitialMode] = useState('login')
 
     return (
         <div className={styles.page}>
@@ -30,39 +31,44 @@ export default function StartView({ onLoginWithEmail, onLoginWithOAuth, onRegist
                 <div className={styles.logo}>
                     <div className={styles.logoIcon}>
                         <img
-                            src="/src/assets/vault-logo2.png"
+                            src="/src/assets/vault-logo.png"
                             alt="logo"
-                            style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '50%' }}
+                            style={{ width: '56px', height: '56px', objectFit: 'cover' }}
                         />
                     </div>
                     <div className={styles.logoText}>
                         <span className={styles.logoMy}>My</span>
                         <span className={styles.logoGame}> Game_</span>
-                        <span className={styles.logoVault}>Vault</span>
+                        <span className={styles.logoVault}>Quest</span>
                     </div>
                 </div>
                 <ul className={styles.navLinks}>
                     {NAV_LINKS.map(l => <li key={l}><a href="#">{l}</a></li>)}
                 </ul>
                 <div className={styles.navActions}>
-                    <button className={styles.btnGhost} onClick={() => setShowLogin(true)}>Iniciar sesión</button>
-                    <button className={styles.btnPrimary}>Crear cuenta →</button>
+                    <button className={styles.btnGhost} onClick={() => { setShowLogin(true); setInitialMode('login') }}>
+                        Iniciar sesión
+                    </button>
+                    <div className={styles.navActions}>
+                        <button className={styles.btnPrimary} onClick={() => { setShowLogin(true); setInitialMode('register') }}>
+                            Crear cuenta →
+                        </button>
+                    </div>
                 </div>
             </nav>
 
             {/* HERO */}
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
-                    <p className={styles.heroTag}>TU UNIVERSO GAMER, ORGANIZADO</p>
+                    <p className={styles.heroTag}>EL SISTEMA QUE DECIDE QUÉ JUGAR POR TI</p>
                     <h1 className={styles.heroTitle}>
-                        Todos tus juegos.<br />
-                        Todas tus historia.<br />
-                        <span className={styles.accent}>...Tu legado.</span>
+                        Deja que el destino<br />
+                        elija tu proxima.<br />
+                        <span className={styles.accent}>...aventura 🎲</span>
                     </h1>
                     <p className={styles.heroDesc}>
-                        My Game Vault es el lugar donde tus aventuras cobran vida.
-                        Organiza tus juegos, lleva tu progreso y construye tu historia
-                        gamer en un solo lugar.
+                        Organiza tu biblioteca, descubre joyas ocultas y nunca <br/>
+                        más perderás tiempo decidiendo qué jugar.
                     </p>
                     <div className={styles.heroBtns}>
                         <button className={styles.btnPrimary} onClick={() => setShowLogin(true)}>Comienza gratis →</button>
@@ -81,43 +87,64 @@ export default function StartView({ onLoginWithEmail, onLoginWithOAuth, onRegist
                     </div>
                 </div>
                 <div className={styles.heroBanner}>
-                    <img src="/src/assets/Start-baner2.png" alt="App preview" className={styles.bannerImg} />
+                    <img src="/src/assets/Start_Baner.png" alt="App preview" className={styles.bannerImg} />
                 </div>
             </section>
 
-            {/* FEATURES */}
-            <section className={styles.features}>
-                <p className={styles.sectionTag}>TODO LO QUE NECESITAS</p>
-                <h2 className={styles.sectionTitle}>Un hogar para cada juego que amas</h2>
-                <p className={styles.sectionSub}>Diseñado por gamers, para gamers.</p>
-                <div className={styles.featureGrid}>
-                    {FEATURES.map(f => (
-                        <div key={f.title} className={styles.featureCard}>
-                            <span className={styles.featureIcon}>{f.icon}</span>
-                            <h3>{f.title}</h3>
-                            <p>{f.desc}</p>
+            {/* STATS + FEATURES combinados */}
+            <section className={styles.featuresNew}>
+
+                {/* Barra de stats */}
+                <div className={styles.statsBar}>
+                    <div className={styles.statBarItem}>
+                        <Gamepad2 size={25} className={styles.statBarIcon} />
+                        <span className={styles.statBarVal}>15,000+</span>
+                        <span className={styles.statBarLabel}>Juegos agregados</span>
+                    </div>
+                    <div className={styles.statBarItem}>
+                        <Users2 size={25} className={styles.statBarIcon} />
+                        <span className={styles.statBarVal}>10,000+</span>
+                        <span className={styles.statBarLabel}>Gamers activos</span>
+                    </div>
+                    <div className={styles.statBarItem}>
+                        <Clock size={25} className={styles.statBarIcon} />
+                        <span className={styles.statBarVal}>250,000+</span>
+                        <span className={styles.statBarLabel}>Horas de juego registradas</span>
+                    </div>
+                    <div className={styles.statBarItem}>
+                        <Star size={25} color='#fbb740' className={styles.statBarIcon} />
+                        <span className={styles.statBarVal}>4.9/5</span>
+                        <span className={styles.statBarLabel}>Calificación de la comunidad</span>
+                    </div>
+                </div>
+
+                {/* Título */}
+                <h2 className={styles.featuresNewTitle}>
+                    Más que un organizador, tu compañero gamer ✨
+                </h2>
+
+                {/* Cards */}
+                <div className={styles.featureRowNew}>
+                    {FEATURES.map((f, i) => (
+                        <div key={f.title} className={styles.featureCardNew} style={{ '--i': i }}>
+                            <span className={styles.featureIconNew}>{f.icon}</span>
+                            <h3 className={styles.featureCardTitle}>{f.title}</h3>
+                            <p className={styles.featureCardDesc}>{f.desc}</p>
                         </div>
                     ))}
                 </div>
-            </section>
 
-            {/* STATS */}
-            <section className={styles.stats}>
-                {STATS.map(s => (
-                    <div key={s.val} className={styles.statItem}>
-                        <span className={styles.statVal}>{s.val}</span>
-                        <span className={styles.statLabel}>{s.label}</span>
-                    </div>
-                ))}
             </section>
             {showLogin && (
                 <LoginModal
                     onClose={() => { setShowLogin(false); setAuthError(null) }}
                     onLoginWithEmail={onLoginWithEmail}
                     onLoginWithOAuth={onLoginWithOAuth}
-                    onRegisterWithEmail={onRegisterWithEmail}  // ← nueva
+                    onRegisterWithEmail={onRegisterWithEmail}
                     error={authError}
                     onError={setAuthError}
+                    onResetPassword={onResetPassword}
+                    initialMode={initialMode}
                 />
             )}
         </div>

@@ -17,8 +17,11 @@
   padding: 40px 48px;
   width: 100%;
   max-width: 460px;
+  max-height: 90vh;       
+  overflow-y: auto;      
   position: relative;
   box-shadow: 0 0 60px rgba(124,58,237,0.2);
+   padding: 40px 48px 20px;
 }
 
 .close {

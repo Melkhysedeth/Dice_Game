@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import styles from './SuggestedGameModal.module.css'
-import { Gamepad2, MonitorCheck, Building2, Calendar, CircleDashed, Quote } from 'lucide-react'
+import {
+  X, RotateCcw, Play, Heart, XCircle, SlidersHorizontal,
+  MonitorCheck, Building2, Calendar, CircleDashed, Quote, Star,
+  Clock, Gamepad2, Monitor, History
+} from 'lucide-react'
+
 
 const QUOTES = [
   { text: "Un héroe no nace, se forja en la batalla.", author: "Kratos (God of War)" },
@@ -19,49 +24,47 @@ const QUOTES = [
 function Confetti() {
   const colors = ['#7c3aed', '#a78bfa', '#f5a623', '#00d4ff', '#ff6b35', '#22c55e', '#ec4899']
 
-  const explosions = [
-    { left: '50%', top: '5%', delay: 0 }, // fija centro arriba
-    ...Array.from({ length: 3 }, (_, i) => ({
-      left: `${10 + Math.random() * 80}%`,
-      top: `${10 + Math.random() * 80}%`,
-      delay: (i + 1) * 0.4,
-    }))
-  ]
-
   return (
     <div className={styles.confettiWrapper}>
-      {explosions.map((exp, ei) =>
-        Array.from({ length: 40 }, (_, i) => {
-          const angle = (i / 40) * 360
-          const distance = 120 + Math.random() * 200
-          const x = Math.cos((angle * Math.PI) / 180) * distance
-          const y = Math.sin((angle * Math.PI) / 180) * distance
-          return (
-            <div
-              key={`${ei}-${i}`}
-              className={styles.confettiPiece}
-              style={{
-                '--x': `${x}px`,
-                '--y': `${y}px`,
-                left: exp.left,
-                top: exp.top,
-                animationDelay: `${exp.delay + Math.random() * 0.3}s`,
-                animationDuration: `${1.5 + Math.random() * 1.5}s`,
-                background: colors[(ei * 40 + i) % colors.length],
-                width: Math.random() > 0.5 ? '10px' : '6px',
-                height: Math.random() > 0.5 ? '16px' : '10px',
-                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-              }}
-            />
-          )
-        })
-      )}
+      {/* Cohete que sube */}
+      <div className={styles.rocket} />
+
+      {/* Partículas que explotan desde el centro-arriba */}
+      {Array.from({ length: 120 }, (_, i) => {
+        const angle = (i / 60) * 360
+        const distance = 80 + Math.random() * 180
+        const x = Math.cos((angle * Math.PI) / 180) * distance
+        const y = Math.sin((angle * Math.PI) / 180) * distance
+        return (
+          <div
+            key={i}
+            className={styles.confettiPiece}
+            style={{
+              '--x': `${x}px`,
+              '--y': `${y}px`,
+              left: '50%',
+              top: '20%',
+              animationDelay: `0.6s`,
+              animationDuration: `${1.2 + Math.random() * 1}s`,
+              background: colors[i % colors.length],
+              width: '3px',
+              height: `${8 + Math.random() * 8}px`,
+              borderRadius: '2px',
+            }}
+          />
+        )
+      })}
     </div>
   )
 }
 
 function SuggestedGameModal({ game, onConfirm, onDismiss, onClose }) {
   const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)])
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    requestAnimationFrame(() => setMounted(true))
+  }, [])
 
   if (!game) return null
 
@@ -69,44 +72,74 @@ function SuggestedGameModal({ game, onConfirm, onDismiss, onClose }) {
     ? (game.cover.startsWith('//') ? `https:${game.cover}` : game.cover)
     : null
 
+  const genres = (game.genres || (game.genre ? [game.genre] : [])).slice(0, 4)
+  const platform = (game.platforms || (game.platform ? [game.platform] : []))[0] || 'PC'
+  const hoursPlayed = game.hoursPlayed || game.hours_played || '—'
+
   return (
-    <div className={styles.backdrop} onClick={onClose}>
-      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+    <div className={`${styles.backdrop} ${mounted ? styles.backdropVisible : ''}`} onClick={onClose}>
+      <div className={`${styles.modal} ${mounted ? styles.modalVisible : ''}`} onClick={e => e.stopPropagation()}>
 
         <Confetti />
 
-        {/* CLOSE */}
-        <button className={styles.closeBtn} onClick={onClose}>✕</button>
+        <button className={styles.closeBtn} onClick={onClose}>
+          <X size={16} />
+        </button>
 
-        {/* TOP */}
-        <div className={styles.top}>
-          <div className={styles.diceIcon}>🎲</div>
-          <h3 className={styles.topTitle}>¡Tu juego al azar es!</h3>
-          <p className={styles.topSub}>Deja que comience tu próxima aventura</p>
+        {/* HEADER — centrado, fuera del grid */}
+        <div className={styles.modalHeader}>
+          <div className={styles.headerTitle}>
+            El destino ha elegido{' '}
+            <span className={styles.headerTitleAccent}>tu próxima aventura</span>
+          </div>
+          <div className={styles.headerSub}>
+            Cada partida es una nueva historia. ¿Listo para continuar la tuya?
+          </div>
         </div>
 
-        {/* BODY */}
-        <div className={styles.body}>
+        {/* GRID — 2 columnas */}
+        <div className={styles.layout}>
 
-          {/* CARÁTULA */}
-          <div className={styles.coverSide}>
-            <div className={styles.coverGlow} />
-            {cover ? (
-              <img src={cover} alt={game.title} className={styles.coverImg} />
-            ) : (
-              <div className={styles.coverPlaceholder}>🎮</div>
-            )}
+          {/* IZQUIERDA */}
+          <div className={styles.leftCol}>
+            <img src="/src/assets/Dice_Back.png" alt="" className={styles.leftBgImg} />
+            <div className={styles.coverFrame}>
+              {cover
+                ? <img src={cover} alt={game.title} className={styles.coverImg} />
+                : <div className={styles.coverPlaceholder}>🎮</div>
+              }
+            </div>
           </div>
 
-          {/* INFO */}
-          <div className={styles.infoSide}>
-            <h2 className={styles.gameTitle}>
-              {game.sagaTitle
-                ? <>{game.sagaTitle}:<br /><span className={styles.gameTitleAccent}>{game.title}</span></>
-                : <span className={styles.gameTitleAccent}>{game.title}</span>
-              }
-            </h2>
+          {/* DERECHA */}
+          <div className={styles.rightCol}>
 
+            <div className={styles.particles}>
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className={styles.particle} style={{
+                  '--px': `${Math.random() * 100}%`,
+                  '--py': `${Math.random() * 100}%`,
+                  '--pd': `${2 + Math.random() * 4}s`,
+                  '--ps': `${0.3 + Math.random() * 0.7}`,
+                }} />
+              ))}
+            </div>
+
+            <div className={styles.gameRow}>
+              <h2 className={styles.gameTitle}>
+                {game.sagaTitle
+                  ? <>{game.sagaTitle}: <span className={styles.gameTitleMain}>{game.title}</span></>
+                  : game.title
+                }
+              </h2>
+              <button className={styles.favoriteBtn}><Star size={16} /></button>
+            </div>
+
+            <div className={styles.genreChips}>
+              {genres.map(g => <span key={g} className={styles.genreChip}>{g}</span>)}
+            </div>
+
+            {/* INFO GRID */}
             <div className={styles.infoGrid}>
               <div className={styles.infoRow}>
                 <span className={styles.infoIcon}><Gamepad2 size={20} /></span>

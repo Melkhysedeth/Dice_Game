@@ -39,11 +39,12 @@
 
 .pageTitle {
   font-family: var(--font-display);
-  font-size: 45px;
+  font-size: 50px;
   color: var(--state-fame);
   margin: 0;
   line-height: 1;
   text-shadow: 0 0 30px rgba(251,191,36,0.3);
+  font-weight: 400;
 }
 
 .pageSubtitle {

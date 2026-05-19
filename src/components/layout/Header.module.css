@@ -6,7 +6,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 1000;
   height: 64px;
   background: rgba(10, 11, 14, 0.92);
   backdrop-filter: blur(16px);
@@ -29,22 +29,10 @@
 .logoBlock {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 2px;
   flex-shrink: 0;
   cursor: pointer;
-}
-
-.logoIcon {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%, #2a2d35, #0d0f14);
-  border: 2px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 12px rgba(0,212,255,0.15);
-  transition: box-shadow 0.2s;
+  margin-left: -20px;
 }
 
 .logoBlock:hover .logoIcon {

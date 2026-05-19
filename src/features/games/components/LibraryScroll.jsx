@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import GameView from '../views/GameView'
 import styles from './LibraryScroll.module.css'
+import { createPortal } from 'react-dom'
 
 // Rota las carátulas de las entries de una saga
 function SagaCover({ saga, className }) {
@@ -39,7 +40,7 @@ function LibraryScroll({ games, sagas, onStartPlaying, onRandomGame, onOpenSaga 
 
   // Estado del modal / sagaview
   const [selectedGame, setSelectedGame] = useState(null) // juego individual
- 
+
   function scrollRight() { trackRef.current.scrollBy({ left: 340, behavior: 'smooth' }) }
   function scrollLeft() { trackRef.current.scrollBy({ left: -340, behavior: 'smooth' }) }
 
@@ -106,8 +107,8 @@ function LibraryScroll({ games, sagas, onStartPlaying, onRandomGame, onOpenSaga 
       </div>
 
       {/* Modal juego individual */}
-      {selectedGame && (
-        <Gameview
+      {selectedGame && createPortal(
+        <GameView
           game={selectedGame}
           mode="library"
           onClose={() => setSelectedGame(null)}
@@ -117,9 +118,9 @@ function LibraryScroll({ games, sagas, onStartPlaying, onRandomGame, onOpenSaga 
               setSelectedGame(null)
             }
           }}
-        />
+        />,
+        document.body
       )}
-
     </>
   )
 }

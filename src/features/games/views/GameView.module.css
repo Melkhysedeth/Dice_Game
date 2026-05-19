@@ -7,6 +7,14 @@
   min-height: 100%;
   background: var(--bg);
   animation: fadeSlideIn 0.22s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  overflow-y: auto;
+  z-index: 999;
 }
 
 @keyframes fadeSlideIn {
@@ -24,9 +32,11 @@
 /* ─── HERO ──────────────────────────────────────────────────────────────────── */
 .hero {
   position: relative;
-  height: 400px;
+  height: 380px;
   overflow: visible;
   flex-shrink: 0;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .heroBg {
@@ -35,6 +45,7 @@
   background-size: cover;
   background-position: center 25%;
   filter: brightness(0.58) saturate(0.8);
+  top: 0;
 }
 
 .heroGradient {
@@ -68,8 +79,8 @@
 /* ── Botón Volver — absoluto en la esquina superior izquierda ── */
 .backBtn {
   align-self: flex-start;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: #fff;
   font-family: var(--font-body);
   font-size: 13px;
@@ -85,8 +96,9 @@
   margin-top: 0;
   backdrop-filter: blur(8px);
 }
+
 .backBtn:hover {
-  background: rgba(255,255,255,0.22);
+  background: rgba(255, 255, 255, 0.22);
   transform: translateX(-2px);
 }
 
@@ -296,6 +308,7 @@
   min-width: 180px;
   overflow: hidden;
 }
+
 .cardMenuDropdown button {
   background: none;
   border: none;
@@ -307,7 +320,10 @@
   cursor: pointer;
   width: 100%;
 }
-.cardMenuDropdown button:hover { background: var(--surface-2); }
+
+.cardMenuDropdown button:hover {
+  background: var(--surface-2);
+}
 
 .btnSquareFav {
   border-color: rgba(251, 191, 36, 0.4);
