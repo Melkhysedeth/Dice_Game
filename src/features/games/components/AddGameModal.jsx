@@ -1,6 +1,7 @@
 // AddGameModal.jsx — con creación de saga inline
 import { useState, useRef, useEffect } from 'react'
 import { searchGameCovers } from '../services/igdbService'
+import { detectProgressMode } from '../services/hltbService'
 import styles from './AddGameModal.module.css'
 import { Search } from 'lucide-react'
 
@@ -141,6 +142,8 @@ function AddGameModal({
   const [prefilled, setPrefilled] = useState(null)
   const [isSaga, setIsSaga] = useState(!!defaultSagaId)
 
+  const [hltbStatus, setHltbStatus] = useState(null)
+
   const isFromIGDB = isEditingSingle
     ? !!editData?.game?.igdbId
     : isEditingEntry
@@ -171,7 +174,6 @@ function AddGameModal({
   const [developer, setDeveloper] = useState(isEditingSingle ? editData.game.developer : isEditingSaga ? editData.saga.developer : '')
   const [year, setYear] = useState(isEditingSingle ? editData.game.year : isEditingEntry ? editData.entry.year : '')
   const [description, setDescription] = useState(() => {
-    console.log('editData.game:', editData?.game)
     return editData?.game?.description ?? editData?.game?.summary ?? ''
   })
   const [selectedGenres, setSelectedGenres] = useState(
@@ -199,6 +201,8 @@ function AddGameModal({
   const availableTags = prefilled?.tags?.length ? prefilled.tags : GENRES
   const availableGameModes = prefilled?.gameModes ?? []
 
+  const [hltbManual, setHltbManual] = useState({ hltb_main: '', hltb_main_extra: '', hltb_completionist: '' })
+
   function handleIGDBSelect(game) {
     const cover = game.cover ? (game.cover.startsWith('//') ? `https:${game.cover}` : game.cover) : null
     setSelectedCover(cover)
@@ -208,10 +212,17 @@ function AddGameModal({
     setDescription(game.summary || '')
     if (game.genres?.length) setSelectedGenres(game.genres)
     if (game.platforms?.length) setSelectedPlatforms(game.platforms)
-    setPrefilled(game)
-    setStep('form')
     if (game.tags?.length) setSelectedTags(game.tags)
     if (game.gameModes?.length) setSelectedGameModes(game.gameModes)
+
+    const progress_mode = detectProgressMode({
+      genres: game.genres ?? [],
+      game_modes: game.gameModes ?? [],
+    })
+    setPrefilled({ ...game, progress_mode })
+    setStep('form')
+
+    console.log('time_to_beat:', game.time_to_beat)
   }
 
   function handleFileUpload(file) {
@@ -298,7 +309,14 @@ function AddGameModal({
         cover: selectedCover,
         description,
         igdbId: prefilled?.id || null,
-        summary: prefilled?.summary || ''
+        summary: prefilled?.summary || '',
+        screenshots: prefilled?.screenshots || [],
+        // ── NUEVO ──
+        hltb_main: prefilled?.time_to_beat?.hastily ?? (hltbManual.hltb_main ? parseInt(hltbManual.hltb_main) : null),
+        hltb_main_extra: prefilled?.time_to_beat?.normally ?? (hltbManual.hltb_main_extra ? parseInt(hltbManual.hltb_main_extra) : null),
+        hltb_completionist: prefilled?.time_to_beat?.completely ?? (hltbManual.hltb_completionist ? parseInt(hltbManual.hltb_completionist) : null),
+        hltb_source: prefilled?.time_to_beat ? 'igdb' : (hltbManual.hltb_main ? 'manual' : null),
+        progress_mode: prefilled?.progress_mode ?? 'linear',
       })
     } else {
       if (!selectedSagaId) return
@@ -308,10 +326,17 @@ function AddGameModal({
         cover: selectedCover,
         developer,
         summary: prefilled?.summary || '',
+        screenshots: prefilled?.screenshots || [],
         genres: selectedGenres,
         platforms: selectedPlatforms,
         rating: prefilled?.rating || null,
         igdbId: prefilled?.id || null,
+        // ── NUEVO ──
+        hltb_main: prefilled?.time_to_beat?.normally ?? (hltbManual.hltb_main ? parseInt(hltbManual.hltb_main) : null),
+        hltb_main_extra: prefilled?.time_to_beat?.completely ?? (hltbManual.hltb_main_extra ? parseInt(hltbManual.hltb_main_extra) : null),
+        hltb_completionist: prefilled?.time_to_beat?.hastily ?? (hltbManual.hltb_completionist ? parseInt(hltbManual.hltb_completionist) : null),
+        hltb_source: prefilled?.time_to_beat ? 'igdb' : (hltbManual.hltb_main ? 'manual' : null),
+        progress_mode: prefilled?.progress_mode ?? 'linear',
       })
     }
     onClose()
@@ -599,6 +624,75 @@ function AddGameModal({
                           readOnly={isFromIGDB}
                           style={{ opacity: isFromIGDB ? 0.6 : 1, cursor: isFromIGDB ? 'not-allowed' : 'text', resize: isFromIGDB ? 'none' : 'vertical' }}
                         />
+                      </div>
+                    )}
+
+                    {/* ── Duración estimada ── */}
+                    {!isEditingEntry && !isEditingSaga && !isSaga && (
+                      <div className={styles.field}>
+                        <label className={styles.label}>
+                          Duración estimada <span className={styles.optional}>opcional</span>
+                        </label>
+
+                        {/* Si IGDB trajo los datos, mostrar prellenado */}
+                        {prefilled?.time_to_beat ? (
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {[
+                              { label: 'Historia: ', val: prefilled.time_to_beat.hastily, key: 'hltb_main' },
+                              { label: 'Extras: ', val: prefilled.time_to_beat.normally, key: 'hltb_main_extra' },
+                              { label: '100%: ', val: prefilled.time_to_beat.completely, key: 'hltb_completionist' },
+                            ].map(({ label, val, key }) => val ? (
+                              <div key={key} style={{
+                                padding: '6px 12px', borderRadius: '8px',
+                                border: '0.5px solid var(--border)',
+                                background: 'var(--surface)',
+                                fontSize: '12px', color: 'var(--text-dim)'
+                              }}>
+                                {label} <strong style={{ color: 'var(--text)' }}>~{val}h</strong>
+                              </div>
+                            ) : null)}
+                            <div style={{ fontSize: '11px', color: 'var(--text-dim)', alignSelf: 'center' }}>
+                              Datos de IGDB
+                            </div>
+                          </div>
+                        ) : (
+                          /* Si no hay datos, campos manuales */
+                          <div className={styles.hltbPrompt}>
+                            <div className={styles.hltbPromptHeader}>
+                              <span style={{ fontSize: '16px' }}>⏱</span>
+                              <div>
+                                <p className={styles.hltbPromptTitle}>¿Cuánto dura este juego?</p>
+                                <p className={styles.hltbPromptSub}>
+                                  Añadir la duración te ayuda a planificar tu biblioteca.{' '}
+                                  <a href={`https://howlongtobeat.com/?q=${encodeURIComponent(title)}`}
+                                    target="_blank" rel="noreferrer"
+                                    className={styles.hltbPromptLink}>
+                                    Consultar en HowLongToBeat →
+                                  </a>
+                                </p>
+                              </div>
+                            </div>
+                            <div className={styles.hltbPromptFields}>
+                              {[
+                                { label: 'Historia principal (h)', key: 'hltb_main' },
+                                { label: 'Historia + extras (h)', key: 'hltb_main_extra' },
+                                { label: 'Completionista (h)', key: 'hltb_completionist' },
+                              ].map(({ label, key }) => (
+                                <div key={key} style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '11px', color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                                    {label}
+                                  </label>
+                                  <input
+                                    className={styles.input}
+                                    type="number" min="0" placeholder="ej: 50"
+                                    value={hltbManual[key] ?? ''}
+                                    onChange={e => setHltbManual(prev => ({ ...prev, [key]: e.target.value }))}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 

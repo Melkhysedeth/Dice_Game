@@ -20,8 +20,6 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount, 
   const { sidebarMode } = useSidebar()
 
   useEffect(() => {
-    // En hover el sidebar flota, el contenido ocupa desde 64px
-    // En expanded el sidebar empuja, el contenido ocupa desde 300px
     const width = sidebarMode === 'expanded' ? '300px' : '64px'
     document.documentElement.style.setProperty('--sidebar-width', width)
   }, [sidebarMode])
@@ -46,7 +44,7 @@ function HallOfFameView({ games, onReturnToLibrary, onRandomGame, libraryCount, 
         onDelete={(game) => { onDelete(game); setSelectedGame(null) }}
         onAction={(action) => {
           if (action === 'replay') {
-            onReturnToLibrary(selectedGame.id)
+            onReturnToLibrary(selectedGame)
             setSelectedGame(null)
           }
         }}

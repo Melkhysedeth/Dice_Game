@@ -29,7 +29,14 @@ function rowToSingle(game, entry) {
     status: entry.status,
     tags: game.tags?.length ? game.tags : (game.genres || []),
     gameModes: game.game_modes || [],
+    screenshots: game.screenshots || [],
     _createdAt: entry.created_at || null,
+    hltb_main: game.hltb_main ?? null,
+    hltb_main_extra: game.hltb_main_extra ?? null,
+    hltb_completionist: game.hltb_completionist ?? null,
+    hltb_source: game.hltb_source ?? 'manual',
+    progress_mode: game.progress_mode ?? 'linear',
+    hltb_reference: entry.hltb_reference ?? 'main',
     sessions: (entry.play_sessions || []).map(s => ({
       startDate: s.start_date,
       endDate: s.end_date,
@@ -86,7 +93,9 @@ export function useGamesSupabase() {
         games (
             id, slug, title, developer, release_year,
             cover_url, description, genres, platforms,
-            igdb_id, tags, game_modes
+            igdb_id, tags, game_modes,
+            hltb_main, hltb_main_extra, hltb_completionist,
+            hltb_source, progress_mode, screenshots
         ),
         sagas ( id, slug, title, cover_url ),
         play_sessions ( id, start_date, end_date, is_first_time )`)
@@ -264,6 +273,7 @@ export function useGamesSupabase() {
     // Optimistic
     const optimistic = {
       id: slug, _uuid: null, _entryUuid: null,
+       _createdAt: new Date().toISOString(),
       title: gameData.title, developer: gameData.developer,
       year: parseInt(gameData.year),
       genre: gameData.genre || [], genres: gameData.genre || [],
@@ -302,7 +312,14 @@ export function useGamesSupabase() {
           platforms: gameData.platform || [],
           tags: gameData.tags || [],
           game_modes: gameData.gameModes || [],
-          igdb_id: gameData.igdbId || null
+          igdb_id: gameData.igdbId || null,
+          screenshots: gameData.screenshots || [],
+          // ── NUEVO ──
+          hltb_main: gameData.hltb_main ?? null,
+          hltb_main_extra: gameData.hltb_main_extra ?? null,
+          hltb_completionist: gameData.hltb_completionist ?? null,
+          hltb_source: gameData.hltb_source ?? 'manual',
+          progress_mode: gameData.progress_mode ?? 'linear',
         })
         .select()
         .single()
@@ -329,7 +346,13 @@ export function useGamesSupabase() {
 
     const { data: entry, error: entryError } = await supabase
       .from('library_entries')
-      .insert({ user_id: user.id, game_id: gameRecord.id, status: 'library', saga_id: null })
+      .insert({
+        user_id: user.id,
+        game_id: gameRecord.id,
+        status: 'library',
+        saga_id: null,
+        hltb_reference: 'main',
+      })
       .select()
       .single()
 
@@ -346,7 +369,23 @@ export function useGamesSupabase() {
           id: gameRecord.slug,
           _uuid: gameRecord.id,
           _entryUuid: entry.id,
-          cover: gameRecord.cover_url,
+          // ── Todos los campos que vienen de Supabase ──
+          cover: normalizeUrl(gameRecord.cover_url),
+          description: gameRecord.description,
+          summary: gameRecord.description,
+          genre: gameRecord.genres || [],
+          genres: gameRecord.genres || [],
+          platform: gameRecord.platforms || [],
+          platforms: gameRecord.platforms || [],
+          tags: gameRecord.tags || [],
+          gameModes: gameRecord.game_modes || [],
+          screenshots: gameRecord.screenshots || [],
+          igdbId: gameRecord.igdb_id || null,
+          hltb_main: gameRecord.hltb_main ?? null,
+          hltb_main_extra: gameRecord.hltb_main_extra ?? null,
+          hltb_completionist: gameRecord.hltb_completionist ?? null,
+          hltb_source: gameRecord.hltb_source ?? 'manual',
+          progress_mode: gameRecord.progress_mode ?? 'linear',
         }
         : g
     ))
@@ -365,6 +404,7 @@ export function useGamesSupabase() {
     // Optimistic
     const optimistic = {
       id: slug, _uuid: null, _entryUuid: null,
+       _createdAt: new Date().toISOString(),
       title: entryData.title, year: parseInt(entryData.year),
       developer: entryData.developer || saga.developer,
       genre: entryData.genre || entryData.genres || [],
@@ -408,7 +448,13 @@ export function useGamesSupabase() {
           platforms: entryData.platform || entryData.platforms || [],
           tags: entryData.tags || [],
           game_modes: entryData.gameModes || [],
-          igdb_id: entryData.igdbId || null
+          screenshots: entryData.screenshots || [],
+          igdb_id: entryData.igdbId || null,
+          hltb_main: entryData.hltb_main ?? null,
+          hltb_main_extra: entryData.hltb_main_extra ?? null,
+          hltb_completionist: entryData.hltb_completionist ?? null,
+          hltb_source: entryData.hltb_source ?? 'manual',
+          progress_mode: entryData.progress_mode ?? 'linear',
         })
         .select()
         .single()
@@ -439,7 +485,14 @@ export function useGamesSupabase() {
 
     const { data: entry, error: entryError } = await supabase
       .from('library_entries')
-      .insert({ user_id: user.id, game_id: gameRecord.id, status: 'library', saga_id: saga._uuid })
+      .insert({
+        user_id: user.id,
+        game_id: gameRecord.id,
+        status: 'library',
+        saga_id: saga._uuid,
+        // ── NUEVO ──
+        hltb_reference: 'main',
+      })
       .select()
       .single()
 
@@ -455,7 +508,27 @@ export function useGamesSupabase() {
         ...s,
         entries: s.entries.map(e =>
           e.id === slug
-            ? { ...e, _uuid: gameRecord.id, _entryUuid: entry.id, cover: gameRecord.cover_url }
+            ? {
+              ...e,
+              _uuid: gameRecord.id,
+              _entryUuid: entry.id,
+              cover: normalizeUrl(gameRecord.cover_url),
+              description: gameRecord.description,
+              summary: gameRecord.description,
+              genre: gameRecord.genres || [],
+              genres: gameRecord.genres || [],
+              platform: gameRecord.platforms || [],
+              platforms: gameRecord.platforms || [],
+              tags: gameRecord.tags || [],
+              gameModes: gameRecord.game_modes || [],
+              screenshots: gameRecord.screenshots || [],
+              igdbId: gameRecord.igdb_id || null,
+              hltb_main: gameRecord.hltb_main ?? null,
+              hltb_main_extra: gameRecord.hltb_main_extra ?? null,
+              hltb_completionist: gameRecord.hltb_completionist ?? null,
+              hltb_source: gameRecord.hltb_source ?? 'manual',
+              progress_mode: gameRecord.progress_mode ?? 'linear',
+            }
             : e
         )
       }
@@ -469,6 +542,7 @@ export function useGamesSupabase() {
 
     const optimistic = {
       id: slug, _uuid: null,
+      _createdAt: new Date().toISOString(),
       title: sagaData.title, developer: '',
       genre: [], platform: [],
       cover: null, entries: []

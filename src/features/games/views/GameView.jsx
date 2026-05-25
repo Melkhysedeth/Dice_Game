@@ -1,5 +1,6 @@
 // GameView.jsx — vista inline del juego
 import { useState } from 'react'
+import { getIgdbImage } from '../../../utils/gameUtils'
 import { FaPlaystation, FaXbox, FaWindows, FaApple, FaAndroid, FaLinux, FaGamepad } from 'react-icons/fa'
 import {
   Play, RotateCcw, Edit2, Star, MoreHorizontal,
@@ -45,7 +46,7 @@ function PlatIcon({ name }) {
     'PS3': <FaPlaystation />,
     'Xbox': <FaXbox />,
     'PC': <FaWindows />,
-    'Switch': '🕹️',
+    'Switch': <FaGamepad />,
     'iOS': <FaApple />,
     'Android': <FaAndroid />,
     'Linux': <FaLinux />,
@@ -65,6 +66,8 @@ function TabResumen({ game }) {
   // Screenshots reales — solo si el juego tiene el campo screenshots/artworks
   // El usuario los cargará manualmente; por ahora mostramos el bloque vacío si no hay
   const screenshots = game.screenshots || game.artworks || []
+  const [lightbox, setLightbox] = useState(null)
+
 
   // Datos para la tabla de detalles — todos los campos que puede traer IGDB
   const details = [
@@ -76,7 +79,24 @@ function TabResumen({ game }) {
     { key: 'Vista', val: game.playerPerspective || game.player_perspectives?.join(', ') },
     { key: 'Idioma', val: game.language },
     { key: 'Calificación IGDB', val: game.rating ? `${Math.round(game.rating)}/100` : null },
+    // ── NUEVO ──
+    { key: 'Historia principal:', val: game.hltb_main ? `~${game.hltb_main}h` : null },
+    { key: 'Historia + extras:', val: game.hltb_main_extra ? `~${game.hltb_main_extra}h` : null },
+    { key: 'Completionista:', val: game.hltb_completionist ? `~${game.hltb_completionist}h` : null },
   ].filter(d => d.val)
+
+  {
+    !game.hltb_main && !game.hltb_main_extra && !game.hltb_completionist && (
+      <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '10px' }}>
+        ⏱ Sin duración estimada.{' '}
+        <a href={`https://howlongtobeat.com/?q=${encodeURIComponent(game.title)}`}
+          target="_blank" rel="noreferrer"
+          style={{ color: 'var(--accent)' }}>
+          Consúltala en HowLongToBeat →
+        </a>
+      </p>
+    )
+  }
 
   // Plataformas — acepta array de strings o de objetos {name}
   const platforms = (game.platforms || game.platform || []).map(p =>
@@ -116,7 +136,7 @@ function TabResumen({ game }) {
           )}
         </div>
 
-        {/* Galería — solo si hay screenshots reales */}
+        {/* Galería */}
         {screenshots.length > 0 ? (
           <div className={styles.galleryCol}>
             <div className={styles.sectionHeaderRow}>
@@ -127,10 +147,12 @@ function TabResumen({ game }) {
             </div>
             <div className={styles.galleryGrid}>
               {screenshots.slice(0, 3).map((s, i) => {
-                const url = getCoverUrl(typeof s === 'string' ? s : s.url)
+                const raw = typeof s === 'string' ? s : s.url
+                const thumbUrl = getIgdbImage(raw, 't_screenshot_med')
+                const hdUrl = getIgdbImage(raw, 't_1080p')
                 return (
-                  <div key={i} className={styles.galleryThumb}>
-                    <img src={url} alt={`screenshot-${i + 1}`} />
+                  <div key={i} className={styles.galleryThumb} onClick={() => setLightbox(hdUrl)}>
+                    <img src={thumbUrl} alt={`screenshot-${i + 1}`} />
                   </div>
                 )
               })}
@@ -147,7 +169,7 @@ function TabResumen({ game }) {
             </div>
           </div>
         )}
-      </div>
+      </div> {/* ← cierra topRow */}
 
       {/* ── Separador ── */}
       <div className={styles.divider} />
@@ -206,7 +228,15 @@ function TabResumen({ game }) {
             <p className={styles.descEmpty}>—</p>
           )}
         </div>
-      </div>
+      </div> {/* ← cierra bottomRow */}
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div className={styles.lightboxOverlay} onClick={() => setLightbox(null)}>
+          <img src={lightbox} alt="screenshot" className={styles.lightboxImg} />
+        </div>
+      )}
+
     </div>
   )
 }

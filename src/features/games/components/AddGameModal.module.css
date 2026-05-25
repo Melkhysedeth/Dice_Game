@@ -636,11 +636,60 @@
 }
 
 /* Campos */
-.field { display: flex; flex-direction: column; gap: 7px; }
+.field { 
+  display: flex; 
+  flex-direction: 
+  column; gap: 7px; }
+
+.hltbPrompt {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(239,68,68,0.25);
+  background: rgba(239,68,68,0.04);
+}
+
+.hltbPromptHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hltbPromptTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+
+.hltbPromptSub {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.hltbPromptLink {
+  color: #ef4444;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.hltbPromptLink:hover {
+  text-decoration: underline;
+}
+
+.hltbPromptFields {
+  font-size: 14px;
+  display: flex;
+  gap: 8px;
+}
 
 .label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 2px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -648,7 +697,7 @@
 .req { color: #ef4444; }
 .optional {
   color: rgba(255,255,255,0.2);
-  font-size: 9px;
+  font-size: 10px;
   margin-left: 4px;
   text-transform: none;
   letter-spacing: 0;

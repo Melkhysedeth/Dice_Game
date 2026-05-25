@@ -16,6 +16,7 @@ import InProgressView from './features/games/views/InProgressView'
 import HallOfFameView from './features/games/views/HallOfFameView'
 import ResetPasswordModal from './components/ui/ResetPasswordModal'
 import ProfileView from './features/games/views/ProfileView'
+import GameProgressView from './features/games/views/GameProgressView'
 
 
 function App() {
@@ -63,6 +64,7 @@ function App() {
   const { user, loading, loginWithEmail, loginWithOAuth, logout, registerWithEmail } = useAuth()
   const librarySingles = libraryGames.filter(g => !g.isSagaEntry)
   const { filteredSingles, filteredSagas } = filterGames(librarySingles, sagas)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   const totalGames = libraryGames.length + inProgressGames.length + completedGames.length
   const libraryPct = totalGames > 0 ? Math.round((libraryGames.length / totalGames) * 100) : 0
@@ -80,13 +82,25 @@ function App() {
   }
 
   function handleDeleteSingle(game) {
-    if (window.confirm(`¿Eliminar "${game.title}"?`)) deleteSingleGame(game.id)
+    setDeleteConfirm({
+      label: `¿Eliminar "${game.title}"?`,
+      sublabel: 'Esta acción no se puede deshacer.',
+      onConfirm: () => deleteSingleGame(game.id)
+    })
   }
   function handleDeleteEntry(sagaId, entryId) {
-    if (window.confirm('¿Eliminar esta entrega de la saga?')) deleteSagaEntry(sagaId, entryId)
+    setDeleteConfirm({
+      label: '¿Eliminar esta entrega de la saga?',
+      sublabel: 'Esta acción no se puede deshacer.',
+      onConfirm: () => deleteSagaEntry(sagaId, entryId)
+    })
   }
   function handleDeleteSaga(sagaId) {
-    if (window.confirm('¿Eliminar toda la saga y sus entregas?')) deleteSaga(sagaId)
+    setDeleteConfirm({
+      label: '¿Eliminar toda la saga y sus entregas?',
+      sublabel: 'Se eliminarán todos los juegos dentro de la saga. Esta acción no se puede deshacer.',
+      onConfirm: () => deleteSaga(sagaId)
+    })
   }
 
   const donutData = [
@@ -97,6 +111,30 @@ function App() {
 
   const totalLibraryCount = libraryGames.filter(g => !g.isSagaEntry).length +
     sagas.reduce((acc, s) => acc + (s.entries?.length ?? 1), 0)
+
+
+  function handleStartEntry(sagaId, entryId) {
+    const saga = sagas.find(s => s.id === sagaId)
+    const entry = saga?.entries?.find(e => e.id === entryId)
+    if (entry) startPlaying(entry)
+  }
+
+  function handleCompleteEntry(sagaId, entryId) {
+    const saga = sagas.find(s => s.id === sagaId)
+    const entry = saga?.entries?.find(e => e.id === entryId)
+    if (entry) completeGame(entry)
+  }
+
+  function handleReplayEntry(sagaId, entryId) {
+    const saga = sagas.find(s => s.id === sagaId)
+    const entry = saga?.entries?.find(e => e.id === entryId)
+    if (entry) returnToLibrary(entry)
+  }
+  function handleUpdateEntryStatus(sagaId, entryId) {
+    // si tienes un modal de actualizar estado, ábrelo aquí igual que con singles
+    const entry = sagas.find(s => s.id === sagaId)?.entries?.find(e => e.id === entryId)
+    if (entry) handleEditSingle({ ...entry, isSagaEntry: true, sagaId })
+  }
 
   return (
     // 👇 SidebarProvider envuelve TODO — así todas las vistas comparten el mismo estado
@@ -186,6 +224,10 @@ function App() {
               onAddToSaga={addEntryToSaga}
               inProgressCount={inProgressGames.length}
               completedCount={completedGames.length}
+              onCompleteEntry={handleCompleteEntry}
+              onReplayEntry={handleReplayEntry}
+              onUpdateEntryStatus={handleUpdateEntryStatus}
+              onStartPlayingEntry={handleStartEntry}
             />
           } />
 
@@ -220,6 +262,15 @@ function App() {
               inProgressGames={inProgressGames}
               completedGames={completedGames}
             /> : <Navigate to="/start" replace />
+          } />
+
+          <Route path="/en-progreso/:id" element={
+            <GameProgressView
+              games={inProgressGames}
+              onComplete={completeGame}
+              onEdit={handleEditSingle}
+              onDelete={handleDeleteSingle}
+            />
           } />
 
         </Routes>
@@ -263,6 +314,65 @@ function App() {
               setTimeout(() => setSuccessMsg(null), 3000)
             }}
           />
+        )}
+
+        {deleteConfirm && (
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <div style={{
+              background: 'var(--surface)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              borderRadius: '16px',
+              padding: '32px 28px',
+              maxWidth: '420px', width: '90%',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: '50%',
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 22
+              }}>🗑</div>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-bright)', fontWeight: 700 }}>
+                {deleteConfirm.label}
+              </h3>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
+                {deleteConfirm.sublabel}
+              </p>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '8px', width: '100%' }}>
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  style={{
+                    flex: 1, padding: '10px', borderRadius: '8px',
+                    border: '1px solid var(--border)', background: 'transparent',
+                    color: 'var(--text)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer'
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => { deleteConfirm.onConfirm(); setDeleteConfirm(null) }}
+                  style={{
+                    flex: 1, padding: '10px', borderRadius: '8px',
+                    border: '1px solid rgba(239,68,68,0.4)',
+                    background: 'rgba(239,68,68,0.15)',
+                    color: '#ef4444', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.25)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(239,68,68,0.15)'}
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {successMsg && (

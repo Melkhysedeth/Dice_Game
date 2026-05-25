@@ -13,6 +13,9 @@ export const handler = async function (event) {
       { method: 'POST' }
     )
     const { access_token } = await tokenRes.json()
+
+    console.log('Token:', access_token ? 'OK' : 'FALLÓ')
+
     if (!access_token) {
       return { statusCode: 500, body: JSON.stringify({ error: 'No se pudo obtener token' }) }
     }
@@ -46,7 +49,74 @@ export const handler = async function (event) {
       `
     })
 
-    const games = await igdbRes.json()
+    console.log('IGDB status:', igdbRes.status)
+
+    let igdbGames = await igdbRes.json()
+
+    console.log('IGDB response:', JSON.stringify(igdbGames).slice(0, 300))
+    console.log('IGDB length:', igdbGames.length)
+
+    // ── Fallback fuzzy si no hubo resultados ──
+    if (!igdbGames.length || igdbGames.error) {
+      const firstWord = name.trim().split(/\s+/)[0]
+      const fuzzyRes = await fetch('https://api.igdb.com/v4/games', {
+        method: 'POST',
+        headers: {
+          'Client-ID': process.env.TWITCH_CLIENT_ID,
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'text/plain'
+        },
+        body: `
+      search "${firstWord}";
+      fields
+        name,
+        cover.url,
+        first_release_date,
+        involved_companies.company.name,
+        involved_companies.developer,
+        involved_companies.publisher,
+        genres.name,
+        themes.name,
+        game_modes.name,
+        platforms.name,
+        summary,
+        rating,
+        rating_count,
+        screenshots.url;
+      limit 12;
+    `
+      })
+      igdbGames = await fuzzyRes.json()
+    }
+
+    // IDs de los juegos encontrados
+    const gameIds = igdbGames.filter(g => g.cover).map(g => g.id)
+
+    // Segunda llamada para time_to_beat
+    let timeToBeatMap = {}
+    if (gameIds.length > 0) {
+      const ttbRes = await fetch('https://api.igdb.com/v4/game_time_to_beats', {
+        method: 'POST',
+        headers: {
+          'Client-ID': process.env.TWITCH_CLIENT_ID,
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'text/plain'
+        },
+        body: `
+      where game_id = (${gameIds.join(',')});
+      fields game_id, hastily, normally, completely;
+      limit 12;
+    `
+      })
+      const ttbData = await ttbRes.json()
+      ttbData.forEach(t => {
+        timeToBeatMap[t.game_id] = {
+          normally: t.normally ? Math.round(t.normally / 3600) : null,
+          completely: t.completely ? Math.round(t.completely / 3600) : null,
+          hastily: t.hastily ? Math.round(t.hastily / 3600) : null,
+        }
+      })
+    }
 
     // Mapeo géneros IGDB → español
     const genreMap = {
@@ -115,7 +185,7 @@ export const handler = async function (event) {
       'Battle Royale': 'Battle Royale',
     }
 
-    const results = games
+    const results = igdbGames
       .filter(g => g.cover)
       .map(g => {
         const devCompany = g.involved_companies?.find(ic => ic.developer)
@@ -138,7 +208,7 @@ export const handler = async function (event) {
 
         const screenshots = (g.screenshots || [])
           .slice(0, 3)
-          .map(s => 'https:' + s.url.replace('t_thumb', 't_screenshot_big'))
+          .map(s => 'https:' + s.url.replace(/t_[a-z0-9_]+/, 't_thumb'))
 
         const rating = g.rating ? Math.round((g.rating / 100) * 50) / 10 : null
 
@@ -159,17 +229,20 @@ export const handler = async function (event) {
           cover: g.cover.url.replace('t_thumb', 't_cover_big'),
           developer,
           year,
-          genres,      
-          themes,     
-          tags,      
+          genres,
+          themes,
+          tags,
           gameModes,
           platforms,
           summary: g.summary || '',
           rating,
           ratingCount: g.rating_count || 0,
-          screenshots
+          screenshots,
+          time_to_beat: timeToBeatMap[g.id] ?? null,
         }
       })
+
+      .sort((a, b) => (b.year || 0) - (a.year || 0))
 
     return {
       statusCode: 200,

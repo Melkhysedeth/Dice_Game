@@ -136,10 +136,17 @@ function EntryModal({ entry, saga, onClose, onStartPlaying, onEditEntry, onDelet
 }
 
 // ── Componente principal ─────────────────────────────────────────────────────
-function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onEditEntry, onDeleteEntry, onEditSaga, onDeleteSaga, onUpdateEntryCover, onRandomGame }) {
+function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onEditEntry, onDeleteEntry, onEditSaga, onDeleteSaga, onUpdateEntryCover, onRandomGame, onCompleteEntry, onReplayEntry, onUpdateEntryStatus }) {
   const navigate = useNavigate()
   const [selectedEntryId, setSelectedEntryId] = useState(null)
-  const selectedEntry = saga.entries?.find(e => e.id === selectedEntryId) ?? null
+  const rawEntry = saga.entries.find(e => e.id === selectedEntryId)
+  const selectedEntry = rawEntry ? {
+    ...rawEntry,
+    genres: rawEntry.genres || rawEntry.genre || saga.genre || [],
+    platforms: rawEntry.platforms || rawEntry.platform || saga.platform || [],
+    summary: rawEntry.summary || rawEntry.description || '',
+    developer: rawEntry.developer || saga.developer || '',
+  } : null
   const [heroCoverIdx, setHeroCoverIdx] = useState(0)
   const [heroCoverFade, setHeroCoverFade] = useState(true)
   const intervalRef = useRef(null)
@@ -169,6 +176,11 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
   const progress = total > 0 ? Math.round((completed / total) * 100) : 0
   const sortedByYear = [...saga.entries].sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
   const heroCover = coversPool[heroCoverIdx] ?? null
+  // Extraer desarrolladores únicos de los juegos de la saga
+  const developers = [...new Set(sortedByYear.map(e => e.developer).filter(Boolean))].join(', ') || '—'
+
+  // Extraer géneros únicos de los juegos de la saga
+  const genres = [...new Set(sortedByYear.flatMap(e => e.genre ?? []).filter(Boolean))].join(', ') || '—'
 
   return (
     <div className={styles.root}>
@@ -307,13 +319,7 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
                     onStartPlaying={onStartPlaying}
                     onEditEntry={onEditEntry}
                     onDeleteEntry={onDeleteEntry}
-                    onClick={() => setSelectedEntryId(entry.id)({
-                      ...entry,
-                      genres: entry.genres || entry.genre || saga.genre || [],
-                      platforms: entry.platforms || entry.platform || saga.platform || [],
-                      summary: entry.summary || entry.description || '',
-                      developer: entry.developer || saga.developer || '',
-                    })}
+                    onClick={() => setSelectedEntryId(entry.id)}
                   />
                 ))}
               </div>
@@ -342,14 +348,14 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
             <span className={styles.infoIcon}><Building2 size={20} /></span>
             <div className={styles.infoContent}>
               <span className={styles.infoLabel}>Desarrollador</span>
-              <span className={styles.infoVal}>{saga.developer || '—'}</span>
+              <span className={styles.infoVal}>{developers}</span>
             </div>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoIcon}><Sword size={20} /></span>
             <div className={styles.infoContent}>
               <span className={styles.infoLabel}>Género</span>
-              <span className={styles.infoVal}>{saga.genre?.join(', ') || '—'}</span>
+              <span className={styles.infoVal}>{genres}</span>
             </div>
           </div>
           <div className={styles.infoItem}>
@@ -457,6 +463,10 @@ function SagaView({ saga, allSagas = [], onBack, onStartPlaying, onAddEntry, onE
             onDelete={(game) => { onDeleteEntry(saga.id, game.id); setSelectedEntryId(null) }}
             onAction={(action) => {
               if (action === 'start') onStartPlaying(saga.id, selectedEntry.id)
+              if (action === 'continue') onStartPlaying(saga.id, selectedEntry.id)
+              if (action === 'complete') onCompleteEntry?.(saga.id, selectedEntry.id)
+              if (action === 'replay') onReplayEntry?.(saga.id, selectedEntry.id)
+              if (action === 'updateStatus') onUpdateEntryStatus?.(saga.id, selectedEntry.id)
             }}
           />
         </div>

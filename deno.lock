@@ -12,6 +12,7 @@
     "packageJson": {
       "dependencies": [
         "npm:@eslint/js@^9.39.4",
+        "npm:@supabase/supabase-js@^2.105.4",
         "npm:@types/react-dom@^19.2.3",
         "npm:@types/react@^19.2.14",
         "npm:@vitejs/plugin-react@^6.0.1",
@@ -21,6 +22,7 @@
         "npm:globals@^17.5.0",
         "npm:lucide-react@^1.14.0",
         "npm:react-dom@^19.2.5",
+        "npm:react-icons@^5.6.0",
         "npm:react-router-dom@^7.14.2",
         "npm:react@^19.2.5",
         "npm:recharts@^3.8.1",

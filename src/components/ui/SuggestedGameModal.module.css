@@ -20,7 +20,7 @@
 .modal {
   position: relative;
   width: 95%;
-  max-width: 800px;
+  max-width: 900px;
   min-height: 94vh;
   background: var(--bg);
   border: 1px solid rgba(139, 92, 246, 0.35);
@@ -109,7 +109,7 @@
 /* ── LAYOUT PRINCIPAL ── */
 .layout {
   display: grid;
-  grid-template-columns: 420px 1fr;
+  grid-template-columns: 480px 1fr;
   flex: 1;
   overflow: hidden;
   position: relative;

@@ -16,7 +16,8 @@ function LibraryView({
   games, sagas, onStartPlaying, onEdit, onDelete, loadingData,
   onEditSaga, onDeleteSaga, onEditEntry, onDeleteEntry, onAddToSaga,
   onUpdateSagaCover, onUpdateEntryCover, onAddGame, onRandomGame,
-  pendingSaga, onPendingSagaConsumed, inProgressCount = 0, completedCount = 0
+  pendingSaga, onPendingSagaConsumed, inProgressCount = 0, completedCount = 0,
+  onCompleteEntry, onReplayEntry, onUpdateEntryStatus, onStartPlayingEntry
 }) {
 
   const genreIcons = {
@@ -155,6 +156,10 @@ function LibraryView({
         onDeleteSaga={(sagaId) => { onDeleteSaga(sagaId); setSelectedSaga(null) }}
         onUpdateEntryCover={onUpdateEntryCover}
         onRandomGame={onRandomGame}
+        onCompleteEntry={onCompleteEntry}
+        onReplayEntry={onReplayEntry}
+        onUpdateEntryStatus={onUpdateEntryStatus}
+        onStartPlaying={onStartPlayingEntry}
       />
     )
   }
@@ -381,19 +386,20 @@ function LibraryView({
                 <div key={saga.id} className={`${styles.card} ${styles.cardSaga}`} onClick={() => setSelectedSaga(saga)}>
                   <div className={styles.cardCover}>
                     <SagaCover saga={saga} />
-                    <button className={styles.cardMenu} onClick={e => {
-                      e.stopPropagation()
-                      setMenuOpen(menuOpen === saga.id ? null : saga.id)
-                    }}>⋮
-                      {menuOpen === saga.id && (
-                        <div className={styles.cardMenuDropdown} onClick={e => e.stopPropagation()}>
-                          <button onClick={() => { onStartPlaying(saga); setMenuOpen(null) }}>Comenzar a jugar</button>
-                          <button onClick={() => { onEditSaga(saga); setMenuOpen(null) }}>Editar saga</button>
-                          <button onClick={() => { onDeleteSaga(saga.id); setMenuOpen(null) }}>Eliminar saga</button>
-                        </div>
-                      )}
-                    </button>
                   </div>
+                  <button className={styles.cardMenu} onClick={e => {
+                    e.stopPropagation()
+                    setMenuOpen(menuOpen === saga.id ? null : saga.id)
+                  }}>⋮
+                    {menuOpen === saga.id && (
+                      <div className={styles.cardMenuDropdown} onClick={e => e.stopPropagation()}>
+                        <button onClick={() => { onStartPlaying(saga); setMenuOpen(null) }}>Comenzar a jugar</button>
+                        <button onClick={() => { onEditSaga(saga); setMenuOpen(null) }}>Editar saga</button>
+                        <button onClick={() => { onDeleteSaga(saga.id); setMenuOpen(null) }}>Eliminar saga</button>
+                      </div>
+                    )}
+                  </button>
+
                   <div className={styles.cardInfo}>
                     <p className={styles.cardTitle}>
                       {saga.title}
@@ -425,19 +431,19 @@ function LibraryView({
                     ? <img src={getCover(game)} alt={game.title} className={styles.cardImg} />
                     : <div className={styles.cardPlaceholder}><span>🎮</span></div>
                   }
-                  <button className={styles.cardMenu} onClick={e => {
-                    e.stopPropagation()
-                    setMenuOpen(menuOpen === game.id ? null : game.id)
-                  }}>⋮
-                    {menuOpen === game.id && (
-                      <div className={styles.cardMenuDropdown} onClick={e => e.stopPropagation()}>
-                        <button onClick={() => { onStartPlaying(game); setMenuOpen(null) }}>Comenzar a jugar</button>
-                        <button onClick={() => { onEdit(game); setMenuOpen(null) }}>Editar juego</button>
-                        <button onClick={() => { onDelete(game); setMenuOpen(null) }}>Eliminar juego</button>
-                      </div>
-                    )}
-                  </button>
                 </div>
+                <button className={styles.cardMenu} onClick={e => {
+                  e.stopPropagation()
+                  setMenuOpen(menuOpen === game.id ? null : game.id)
+                }}>⋮
+                  {menuOpen === game.id && (
+                    <div className={styles.cardMenuDropdown} onClick={e => e.stopPropagation()}>
+                      <button onClick={() => { onStartPlaying(game); setMenuOpen(null) }}>Comenzar a jugar</button>
+                      <button onClick={() => { onEdit(game); setMenuOpen(null) }}>Editar juego</button>
+                      <button onClick={() => { onDelete(game); setMenuOpen(null) }}>Eliminar juego</button>
+                    </div>
+                  )}
+                </button>
                 <div className={styles.cardInfo}>
                   <p className={styles.cardTitle}>{game.title}</p>
                   <div className={styles.cardBottom}>

@@ -153,7 +153,7 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
                 <div
                   key={game.id}
                   className={styles.gameRow}
-                  onClick={() => setSelectedGame(game)}
+                  onClick={() => navigate(`/en-progreso/${game.id}`)}
                 >
                   {/* CARÁTULA */}
                   <div className={styles.rowCover}>
@@ -207,17 +207,15 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
                     </div>
                     <button
                       className={styles.rowContinueBtn}
-                      onClick={e => {
-                        e.stopPropagation()
-                        setSelectedGame(game)
-                      }}
+                      onClick={e => { e.stopPropagation(); navigate(`/en-progreso/${game.id}`) }}
                     >
                       ▶ Continuar
                     </button>
-                    <button className={styles.rowMenuBtn} onClick={e => {
+                    <div className={styles.rowMenuBtn} onClick={e => {
                       e.stopPropagation()
                       setMenuOpen(menuOpen === game.id ? null : game.id)
-                    }}>⋮
+                    }}>
+                      ⋮
                       {menuOpen === game.id && (
                         <div className={styles.cardMenuDropdown} onClick={e => e.stopPropagation()}>
                           <button onClick={() => { onComplete(game); setMenuOpen(null) }}>Marcar como completado</button>
@@ -225,7 +223,7 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
                           <button onClick={() => { onDelete(game); setMenuOpen(null) }}>Eliminar juego</button>
                         </div>
                       )}
-                    </button>
+                    </div>
                   </div>
 
                 </div>
@@ -269,7 +267,7 @@ function InProgressView({ games, onComplete, onRandomGame, libraryCount = 0, com
                 </PieChart>
               </ResponsiveContainer>
               <div className={styles.donutCenter}>
-                <span className={styles.donutNum}>{totalGames}</span>
+                <span className={styles.donutNum}>{inProgressCount}</span>
                 <span className={styles.donutSub}>Juegos</span>
               </div>
             </div>

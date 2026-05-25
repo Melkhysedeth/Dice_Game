@@ -489,8 +489,9 @@
 .donutWrapper {
   position: relative;
   flex-shrink: 0;
-  width: 160px;
-  height: 160px;
+  width: 180px;
+  height: 180px;
+  margin-bottom: 12px;
 }
 
 .donutCenter {
@@ -522,9 +523,9 @@
 .statsLink {
   background: none;
   border: none;
-  color: var(--accent);
+  color: #f5a623;
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 1px;
   cursor: pointer;
   padding: 4px 0;

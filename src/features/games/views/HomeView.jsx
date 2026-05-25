@@ -291,36 +291,52 @@ export function HomeView({
             </h3>
             <div className={styles.donutRow}>
               <div className={styles.donutWrapper}>
-                <ResponsiveContainer width="100%" height={160}>
-                  <PieChart>
-                    <Pie
-                      data={donutData}
-                      cx="50%" cy="50%"
-                      innerRadius={50} outerRadius={72}
-                      paddingAngle={3}
-                      dataKey="value"
-                      strokeWidth={0}
-                    >
-                      {donutData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        background: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '8px',
-                        fontFamily: 'var(--font-body)',
-                        fontSize: '12px'
-                      }}
-                      cursor={false}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className={styles.donutCenter}>
-                  <span className={styles.donutTotal}>{totalGames}</span>
-                  <span className={styles.donutLabel}>Juegos</span>
-                </div>
+                {(() => {
+                  const size = 180
+                  const cx = size / 2
+                  const cy = size / 2
+                  const rings = [
+                    { radius: 72, stroke: 'var(--accent)', value: libraryPct, thickness: 10 },
+                    { radius: 54, stroke: 'var(--accent-2)', value: progressPct, thickness: 10 },
+                    { radius: 36, stroke: 'var(--state-fame)', value: famePct, thickness: 10 },
+                  ]
+                  return (
+                    <svg width={size} height={size}>
+                      {rings.map((ring, i) => {
+                        const circumference = 2 * Math.PI * ring.radius
+                        const dash = (ring.value / 100) * circumference
+                        return (
+                          <g key={i}>
+                            {/* Track */}
+                            <circle
+                              cx={cx} cy={cy} r={ring.radius}
+                              fill="none"
+                              stroke="rgba(255,255,255,0.06)"
+                              strokeWidth={ring.thickness}
+                            />
+                            {/* Fill */}
+                            <circle
+                              cx={cx} cy={cy} r={ring.radius}
+                              fill="none"
+                              stroke={ring.stroke}
+                              strokeWidth={ring.thickness}
+                              strokeDasharray={`${dash} ${circumference}`}
+                              strokeDashoffset={-(circumference * 0.25)}
+                              strokeLinecap="round"
+                              style={{ transition: 'stroke-dasharray 0.6s ease' }}
+                            />
+                          </g>
+                        )
+                      })}
+                      <text x={cx} y={cy - 6} textAnchor="middle" fill="white" fontSize={22} fontWeight="bold">
+                        {totalGames}
+                      </text>
+                      <text x={cx} y={cy + 12} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize={11}>
+                        JUEGOS
+                      </text>
+                    </svg>
+                  )
+                })()}
               </div>
               <div className={styles.legend}>
                 <div className={styles.legendItem}>

@@ -1,0 +1,53 @@
+.empty { font-size: 12px; color: var(--text-dim); padding: 12px 0; }
+
+.wrap { display: flex; flex-direction: column; gap: 16px; }
+
+.current {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.currentIcon { font-size: 32px; }
+.currentLabel { font-size: 10px; color: var(--text-dim); letter-spacing: 0.06em; }
+.currentName { font-size: 16px; font-weight: 500; }
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 16px;
+  align-items: start;
+}
+
+.lineWrap {
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--surface);
+}
+
+.dist {
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--surface);
+}
+
+.chartTitle { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
+
+.distRow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.distRow:last-child { margin-bottom: 0; }
+.distLabel { font-size: 11px; color: var(--text); min-width: 90px; }
+.distBar { flex: 1; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.distFill { height: 100%; border-radius: 99px; transition: width 0.4s; }
+.distPct { font-size: 11px; color: var(--text-dim); min-width: 30px; text-align: right; }
+
+.tooltip {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--text);
+}
