@@ -273,7 +273,7 @@ export function useGamesSupabase() {
     // Optimistic
     const optimistic = {
       id: slug, _uuid: null, _entryUuid: null,
-       _createdAt: new Date().toISOString(),
+      _createdAt: new Date().toISOString(),
       title: gameData.title, developer: gameData.developer,
       year: parseInt(gameData.year),
       genre: gameData.genre || [], genres: gameData.genre || [],
@@ -291,11 +291,31 @@ export function useGamesSupabase() {
     if (gameData.igdbId) {
       const { data: existing } = await supabase
         .from('games')
-        .select('id, slug')
+        .select('id, slug, title, cover_url, description, genres, platforms, tags, game_modes, igdb_id, screenshots, hltb_main, hltb_main_extra, hltb_completionist, hltb_source, progress_mode')
         .eq('igdb_id', gameData.igdbId)
         .maybeSingle()
 
-      if (existing) gameRecord = existing
+      if (existing) {
+        gameRecord = existing
+
+        if (gameData.hltb_completionist && !existing.hltb_completionist) {
+          await supabase
+            .from('games')
+            .update({
+              hltb_main: gameData.hltb_main,
+              hltb_main_extra: gameData.hltb_main_extra,
+              hltb_completionist: gameData.hltb_completionist,
+            })
+            .eq('id', existing.id)
+
+          gameRecord = {
+            ...existing,
+            hltb_main: gameData.hltb_main,
+            hltb_main_extra: gameData.hltb_main_extra,
+            hltb_completionist: gameData.hltb_completionist
+          }
+        }
+      }
     }
 
     if (!gameRecord) {
@@ -404,7 +424,7 @@ export function useGamesSupabase() {
     // Optimistic
     const optimistic = {
       id: slug, _uuid: null, _entryUuid: null,
-       _createdAt: new Date().toISOString(),
+      _createdAt: new Date().toISOString(),
       title: entryData.title, year: parseInt(entryData.year),
       developer: entryData.developer || saga.developer,
       genre: entryData.genre || entryData.genres || [],
@@ -590,7 +610,11 @@ export function useGamesSupabase() {
         platform: gameData.platform, platforms: gameData.platform,
         cover: gameData.cover !== undefined ? normalizeUrl(gameData.cover) : g.cover,
         description: gameData.description ?? g.description,
-        summary: gameData.summary ?? g.summary
+        summary: gameData.summary ?? g.summary,
+        // ✅ Agregar tiempos al estado local
+        hltb_main: gameData.hltb_main ?? g.hltb_main,
+        hltb_main_extra: gameData.hltb_main_extra ?? g.hltb_main_extra,
+        hltb_completionist: gameData.hltb_completionist ?? g.hltb_completionist,
       }
     ))
 
@@ -605,7 +629,11 @@ export function useGamesSupabase() {
         cover_url: gameData.cover !== undefined ? normalizeUrl(gameData.cover) : undefined,
         description: gameData.description || gameData.summary || null,
         genres: gameData.genre || [],
-        platforms: gameData.platform || []
+        platforms: gameData.platform || [],
+        // ✅ Agregar tiempos al update de Supabase
+        hltb_main: gameData.hltb_main ? parseFloat(gameData.hltb_main) : null,
+        hltb_main_extra: gameData.hltb_main_extra ? parseFloat(gameData.hltb_main_extra) : null,
+        hltb_completionist: gameData.hltb_completionist ? parseFloat(gameData.hltb_completionist) : null,
       })
       .eq('id', game._uuid)
   }

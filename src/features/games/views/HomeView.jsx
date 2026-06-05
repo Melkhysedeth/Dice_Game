@@ -20,6 +20,7 @@ const HERO_IMAGES = [
   '/src/assets/hero-baner4.png',
   '/src/assets/hero-baner5.png',
   '/src/assets/hero-baner6.png',
+  '/src/assets/hero-baner7.png',
 ];
 
 const MODES = [

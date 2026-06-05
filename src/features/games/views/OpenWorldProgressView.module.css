@@ -272,7 +272,7 @@
   margin: 0 8px;
 }
 
-/* Nivel — tarjeta especial dentro del grid */ 
+/* Nivel — tarjeta especial dentro del grid */
 .levelCard {
   background: rgba(245, 158, 11, 0.07);
   border: 1px solid rgba(245, 158, 11, 0.2);
@@ -383,8 +383,9 @@
 /* ── Fila top: actividad + narrativo ── */
 .topRow {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 3fr 2fr;
   gap: 1rem;
+  align-items: start;
 }
 
 /* ════════════════════════════════════════
@@ -394,20 +395,23 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow: visible;
 }
 
 .activityMonths {
   display: flex;
-  gap: 0;
-  padding-left: 28px;
+  gap: 3px;
+  padding-left: 30px;
 }
 
 .activityMonthLabel {
   font-size: 10px;
   color: var(--text-dim);
   letter-spacing: 0.05em;
-  flex: 1;
+  width: 11px;
   text-align: left;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 .activityBody {
@@ -435,7 +439,7 @@
 .activityGrid {
   display: flex;
   gap: 3px;
-  flex: 1;
+  justify-content: space-between;
 }
 
 .activityWeek {
@@ -450,9 +454,17 @@
   border-radius: 2px;
 }
 
+.activityLegend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+  padding-left: 28px;
+}
+
 .intensity0 {
-  background: var(--surface-2, #111820);
-  border: 0.5px solid var(--border);
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .intensity1 {
@@ -480,17 +492,15 @@
   border-color: transparent;
 }
 
-.activityLegend {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: flex-end;
-  padding-left: 28px;
-}
-
 .legendText {
   font-size: 10px;
   color: var(--text-dim);
+}
+
+.intensityHidden {
+  background: transparent;
+  border-color: transparent;
+  pointer-events: none;
 }
 
 /* ════════════════════════════════════════
@@ -586,9 +596,9 @@
 
 /* ── Logros ── */
 .achievementsRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  flex-wrap: wrap;
 }
 
 .achCard {
@@ -773,61 +783,6 @@
 .verTodasBtn:hover {
   border-color: var(--accent);
   color: var(--accent);
-}
-
-/* ════════════════════════════════════════
-   LEGACY BAR (pie de página)
-════════════════════════════════════════ */
-.legacyBar {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: 12px;
-  padding: 16px 20px;
-}
-
-.legacyTitle {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  margin-bottom: 14px;
-}
-
-.legacyStats {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
-.legacyStat {
-  flex: 1;
-  text-align: center;
-}
-
-.legacyVal {
-  font-size: 20px;
-  font-weight: 700;
-  font-family: var(--font-display);
-  color: var(--text-bright);
-  line-height: 1;
-}
-
-.legacyValGold {
-  color: #fbbf24;
-}
-
-.legacyLabel {
-  font-size: 10px;
-  color: var(--text-dim);
-  margin-top: 4px;
-}
-
-.legacyDivider {
-  width: 0.5px;
-  height: 32px;
-  background: var(--border);
-  margin: 0 4px;
 }
 
 /* ════════════════════════════════════════

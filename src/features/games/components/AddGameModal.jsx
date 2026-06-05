@@ -142,6 +142,12 @@ function AddGameModal({
   const [prefilled, setPrefilled] = useState(null)
   const [isSaga, setIsSaga] = useState(!!defaultSagaId)
 
+  const isInfiniteGame =
+    prefilled?.progress_mode === 'competitive' ||
+    prefilled?.progress_mode === 'infinite' ||
+    editData?.game?.progress_mode === 'competitive' ||
+    editData?.game?.progress_mode === 'infinite'
+
   const [hltbStatus, setHltbStatus] = useState(null)
 
   const isFromIGDB = isEditingSingle
@@ -201,9 +207,25 @@ function AddGameModal({
   const availableTags = prefilled?.tags?.length ? prefilled.tags : GENRES
   const availableGameModes = prefilled?.gameModes ?? []
 
-  const [hltbManual, setHltbManual] = useState({ hltb_main: '', hltb_main_extra: '', hltb_completionist: '' })
+  const [hltbManual, setHltbManual] = useState({
+    hltb_main: isEditingSingle ? (editData?.game?.hltb_main ?? '') : '',
+    hltb_main_extra: isEditingSingle ? (editData?.game?.hltb_main_extra ?? '') : '',
+    hltb_completionist: isEditingSingle ? (editData?.game?.hltb_completionist ?? '') : '',
+  })
+
+  useEffect(() => {
+    if (isEditingSingle && editData?.game) {
+      console.log('hltb values:', editData.game.hltb_main, editData.game.hltb_main_extra, editData.game.hltb_completionist)
+      setHltbManual({
+        hltb_main: editData.game.hltb_main ?? '',
+        hltb_main_extra: editData.game.hltb_main_extra ?? '',
+        hltb_completionist: editData.game.hltb_completionist ?? '',
+      })
+    }
+  }, [isEditingSingle, editData])
 
   function handleIGDBSelect(game) {
+    console.log('time_to_beat completo:', JSON.stringify(game.time_to_beat))
     const cover = game.cover ? (game.cover.startsWith('//') ? `https:${game.cover}` : game.cover) : null
     setSelectedCover(cover)
     setTitle(game.name || '')
@@ -275,7 +297,10 @@ function AddGameModal({
           platform: selectedPlatforms,
           cover: selectedCover,
           description,
-          summary: description
+          summary: description,
+          hltb_main: hltbManual.hltb_main ? parseFloat(hltbManual.hltb_main) : editData.game.hltb_main ?? null,
+          hltb_main_extra: hltbManual.hltb_main_extra ? parseFloat(hltbManual.hltb_main_extra) : editData.game.hltb_main_extra ?? null,
+          hltb_completionist: hltbManual.hltb_completionist ? parseFloat(hltbManual.hltb_completionist) : editData.game.hltb_completionist ?? null
         })
       }
       onSuccess?.('Información del juego actualizada')
@@ -628,7 +653,7 @@ function AddGameModal({
                     )}
 
                     {/* ── Duración estimada ── */}
-                    {!isEditingEntry && !isEditingSaga && !isSaga && (
+                    {((!isEditingEntry && !isEditingSaga && !isSaga) || isEditingSingle) && !isInfiniteGame ? (
                       <div className={styles.field}>
                         <label className={styles.label}>
                           Duración estimada <span className={styles.optional}>opcional</span>
@@ -661,7 +686,9 @@ function AddGameModal({
                             <div className={styles.hltbPromptHeader}>
                               <span style={{ fontSize: '16px' }}>⏱</span>
                               <div>
-                                <p className={styles.hltbPromptTitle}>¿Cuánto dura este juego?</p>
+                                <p className={styles.hltbPromptTitle}>
+                                  {isEditingSingle ? 'Editar duración del juego' : '¿Cuánto dura este juego?'}
+                                </p>
                                 <p className={styles.hltbPromptSub}>
                                   Añadir la duración te ayuda a planificar tu biblioteca.{' '}
                                   <a href={`https://howlongtobeat.com/?q=${encodeURIComponent(title)}`}
@@ -694,7 +721,7 @@ function AddGameModal({
                           </div>
                         )}
                       </div>
-                    )}
+                    ) : null}
 
                     {(showDevGenrePlatform || showDevGenreSaga) && (
                       <div className={styles.field}>

@@ -323,12 +323,11 @@ function LibraryView({
             { id: 'todos', label: 'Todos', count: games.length + sagas.reduce((acc, s) => acc + (s.entries?.length ?? 1), 0) },
             { id: 'sagas', label: 'Sagas', count: sagas.length },
             { id: 'singles', label: 'Juego individual', count: games.length },
-          ].map(tab => (
+                ].map(tab => (
             <button
               key={tab.id}
               className={`${styles.genreTab} ${activeType === tab.id ? styles.genreTabActive : ''}`}
-              onClick={() => setActiveType(tab.id)}
-            >
+              onClick={() => setActiveType(tab.id)}>
               {tab.label}
               <span className={styles.genreTabCount}>{tab.count}</span>
             </button>
@@ -478,7 +477,7 @@ function LibraryView({
         {/* FAB FLOTANTE */}
         <button className={styles.fab} onClick={onAddGame}>
           <span className={styles.fabIcon}>+</span>
-          <span className={styles.fabLabel}>Agregar juego</span>
+          <span className={styles.fabLabel}>Agregar Titulo</span>
         </button>
 
       </main >

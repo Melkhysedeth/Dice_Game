@@ -2,15 +2,29 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import styles from './LinearProgressView.module.css'
+import GameView from './GameView'
 import EmotionalProgress, { FEELINGS, FEELING_COLORS } from '../components/EmotionalProgress'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { Tooltip, ResponsiveContainer } from 'recharts'
 import {
-  Sunrise, Compass, Swords, Castle, Moon, Crown,
-  Footprints, Shield, Sword, Flame, Skull, Star, Lock,
-  TrendingUp, Map, Heart, BookOpen, Zap, Trophy,
+  Star, Lock, Skull, TrendingUp, Map, Heart, BookOpen, Zap, Trophy,
   Angry, Users, RefreshCw, Target, Lightbulb,
   Timer, Calendar, ChevronDown
 } from 'lucide-react'
+
+import SunriseIcon from '../../../assets/icons/atardecer.svg?react'
+import CompassIcon from '../../../assets/icons/brujula.svg?react'
+import SwordsIcon from '../../../assets/icons/espadas.svg?react'
+import CastleIcon from '../../../assets/icons/castillo.svg?react'
+import MoonIcon from '../../../assets/icons/luna-llena.svg?react'
+import CrownIcon from '../../../assets/icons/corona.svg?react'
+
+import FootprintsIcon from '../../../assets/icons/zapatos.png'
+import ShieldIcon from '../../../assets/icons/proteger.png'
+import SwordIcon from '../../../assets/icons/casco.png'
+import FlameIcon from '../../../assets/icons/muscle.png'
+import CrownIcon2 from '../../../assets/icons/fenix.png'
+
+const QUICK_HOURS = [1, 2, 3, '4+']
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getCover(game) {
@@ -29,20 +43,20 @@ function getDaysSince(dateStr) {
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 const JOURNEY_STAGES = [
-  { id: 0, icon: Sunrise, name: 'Inicio del viaje', range: '0–10%', min: 0, max: 10 },
-  { id: 1, icon: Compass, name: 'Aventurero', range: '11–30%', min: 11, max: 30 },
-  { id: 2, icon: Swords, name: 'Guerrero', range: '31–50%', min: 31, max: 50 },
-  { id: 3, icon: Castle, name: 'Leyenda', range: '51–70%', min: 51, max: 70 },
-  { id: 4, icon: Moon, name: 'El último umbral', range: '71–90%', min: 71, max: 90 },
-  { id: 5, icon: Crown, name: 'Final épico', range: '91–100%', min: 91, max: 100 },
+  { id: 0, icon: 'sunrise', name: 'Inicio del viaje', range: '0–10%', min: 0, max: 10 },
+  { id: 1, icon: 'compass', name: 'Aventurero', range: '11–30%', min: 11, max: 30 },
+  { id: 2, icon: 'swords', name: 'Guerrero', range: '31–50%', min: 31, max: 50 },
+  { id: 3, icon: 'castle', name: 'Leyenda', range: '51–70%', min: 51, max: 70 },
+  { id: 4, icon: 'moon', name: 'El último umbral', range: '71–90%', min: 71, max: 90 },
+  { id: 5, icon: 'crown', name: 'Final épico', range: '91–100%', min: 91, max: 100 },
 ]
 
 const PROGRESS_ACHIEVEMENTS = [
-  { id: 'PA01', icon: Footprints, name: 'Primeros Pasos', pct: 10, msg: 'Ya no eres un extraño en estas tierras.', xp: 20 },
-  { id: 'PA02', icon: Shield, name: 'Veterano Local', pct: 30, msg: 'Conoces los caminos mejor que los NPC.', xp: 20 },
-  { id: 'PA03', icon: Sword, name: 'Héroe del Reino', pct: 60, msg: 'La gente susurra tu nombre al pasar.', xp: 20 },
-  { id: 'PA04', icon: Flame, name: 'Leyenda Viviente', pct: 90, msg: 'El destino del mundo está en tus manos.', xp: 20 },
-  { id: 'PA05', icon: Crown, name: 'Inmortal', pct: 100, msg: 'Tu historia será contada por generaciones.', xp: 50 },
+  { id: 'PA01', icon: FootprintsIcon, name: 'Primeros Pasos', pct: 10, msg: 'Ya no eres un extraño en estas tierras.', xp: 20 },
+  { id: 'PA02', icon: ShieldIcon, name: 'Veterano Local', pct: 30, msg: 'Conoces los caminos mejor que los NPC.', xp: 20 },
+  { id: 'PA03', icon: SwordIcon, name: 'Héroe del Reino', pct: 60, msg: 'La gente susurra tu nombre al pasar.', xp: 20 },
+  { id: 'PA04', icon: FlameIcon, name: 'Leyenda Viviente', pct: 90, msg: 'El destino del mundo está en tus manos.', xp: 20 },
+  { id: 'PA05', icon: CrownIcon2, name: 'Inmortal', pct: 100, msg: 'Tu historia será contada por generaciones.', xp: 50 },
 ]
 
 const GLOBAL_ACHIEVEMENTS = [
@@ -54,24 +68,34 @@ const GLOBAL_ACHIEVEMENTS = [
 ]
 
 const SESSION_TAGS = [
-  { id: 'boss', icon: Swords, label: 'Jefe derrotado' },
-  { id: 'levelup', icon: TrendingUp, label: 'Subí de nivel' },
-  { id: 'newzone', icon: Map, label: 'Zona nueva' },
-  { id: 'died', icon: Heart, label: 'Morí mucho' },
-  { id: 'plot', icon: BookOpen, label: 'Giro argumental' },
-  { id: 'epic', icon: Zap, label: 'Momento épico' },
-  { id: 'trophy', icon: Trophy, label: 'Logro desbloqueado' },
-  { id: 'frustrat', icon: Angry, label: 'Sesión frustrante' },
-  { id: 'coop', icon: Users, label: 'Jugué en coop' },
-  { id: 'restart', icon: RefreshCw, label: 'Empecé de nuevo' },
-  { id: 'goal', icon: Target, label: 'Objetivo cumplido' },
-  { id: 'discover', icon: Lightbulb, label: 'Descubrí algo' },
-]
+  { id: 'boss', emoji: '⚔️', label: ' Jefe derrotado' },
+  { id: 'levelup', emoji: '⬆️', label: ' Subí de nivel' },
+  { id: 'newzone', emoji: '🗺️', label: ' Zona descubierta' },
+  { id: 'died', emoji: '💔', label: ' Morí mucho' },
+  { id: 'plot', emoji: '📖', label: ' Todo cambió' },
+  { id: 'epic', emoji: '✨', label: ' Momento épico' },
+  { id: 'trophy', emoji: '🏆', label: ' Logro desbloqueado' },
+  { id: 'frustrat', emoji: '🤯', label: ' Sesión frustrante' },
+  { id: 'coop', emoji: '🤝', label: ' Jugué en coop' },
+  { id: 'restart', emoji: '🔁', label: ' Empecé de nuevo' },
+  { id: 'goal', emoji: '🎯', label: ' Objetivo cumplido' },
+  { id: 'discover', emoji: '🔍', label: ' Descubrí algo' },
+  { id: 'cinema', emoji: '📽️', label: ' Cine absoluto' },
+  { id: 'cantStop', emoji: '🚀', label: ' No podía parar' },
+  { id: 'secret', emoji: '♨️', label: ' Encontré un secreto' },
+  { id: 'victory', emoji: '👑', label: ' Victoria importante' },
+];
 
-const STAGE_COLORS = ['#94a3b8', '#64748b', '#22c55e', '#06b6d4', '#7c3aed', '#f59e0b']
+const STAGE_COLORS = ['#e6ba97', '#c97ea3', '#22c55e', '#06b6d4', '#7c3aed', '#f59e0b']
 
-const STAGE_ICONS = [
-]
+const STAGE_ICONS = {
+  sunrise: SunriseIcon,
+  compass: CompassIcon,
+  swords: SwordsIcon,
+  castle: CastleIcon,
+  moon: MoonIcon,
+  crown: CrownIcon,
+}
 
 function stageFromPct(pct) {
   const idx = JOURNEY_STAGES.findIndex(s => pct <= s.max)
@@ -86,26 +110,8 @@ function getAbandonAlert(days) {
   return { level: 'critical', msg: 'Este juego ha sido sellado en el olvido. ¿Lo rescatas?' }
 }
 
-// Tooltip personalizado para el gráfico emocional
-const EmotionalTooltip = ({ active, payload }) => {
-  if (!active || !payload?.length) return null
-  const p = payload[0]?.payload
-  const feeling = FEELINGS.find(f => f.id === p?.feeling)
-  return (
-    <div style={{
-      background: 'rgba(15,12,25,0.97)',
-      border: '1px solid rgba(255,255,255,0.1)',
-      borderRadius: 10, padding: '8px 12px',
-      fontSize: 12, color: '#e8e6f0',
-    }}>
-      <div style={{ color: FEELING_COLORS[p?.feeling] }}>{feeling?.label}</div>
-      <div style={{ color: 'rgba(232,230,240,0.5)', marginTop: 2 }}>{p?.date}</div>
-    </div>
-  )
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
-export default function LinearProgressView({ game, onComplete }) {
+export default function LinearProgressView({ game, onComplete, onEdit, onDelete }) {
   const navigate = useNavigate()
   const currentUserRef = useRef(null)
 
@@ -115,6 +121,8 @@ export default function LinearProgressView({ game, onComplete }) {
   const [saving, setSaving] = useState(false)
   const [savedMsg, setSavedMsg] = useState(null)
   const [hltbRef, setHltbRef] = useState('main')
+
+  const [showGameView, setShowGameView] = useState(false)
 
   const [currentUser, setCurrentUser] = useState(null)
 
@@ -173,6 +181,10 @@ export default function LinearProgressView({ game, onComplete }) {
 
   const [hoverRating, setHoverRating] = useState(null)
 
+  const [touchedFields, setTouchedFields] = useState({
+    story: false, tags: false, feeling: false, rating: false, note: false
+  })
+
   useEffect(() => {
     if (!game?._entryUuid) return
 
@@ -230,40 +242,14 @@ export default function LinearProgressView({ game, onComplete }) {
   const isOvertime = hltbValue && totalHours > hltbValue
   const overtimeHours = isOvertime ? Math.round(totalHours - hltbValue) : 0
 
-  // Datos emocionales para gráficos
-  const FEELINGS_BY_IDX = ['sad', 'stressed', 'bored', 'relaxed', 'excited', 'hooked']
-
-  const emotionalChartData = sessionHistory.map((s, i) => ({
-    date: new Date(s.start_date).toLocaleDateString('es', { day: '2-digit', month: 'short' }),
-    time: new Date(s.start_date).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' }), // ← agrega hora
-    feeling: s.feeling ?? 'bored',
-    feelingIdx: FEELINGS_BY_IDX.indexOf(s.feeling ?? 'bored'),
-    hours: s.duration_hours,
-    index: i, // ← agrega índice único
-  }))
-
-  const feelingCounts = FEELINGS.map(f => ({
-    ...f,
-    color: FEELING_COLORS[f.id],
-    count: sessionHistory.filter(s => s.feeling === f.id).length,
-  })).filter(f => f.count > 0)
-
   const totalSessions = sessionHistory.length || 1
-
-  const feelingPct = feelingCounts.map(f => ({
-    ...f,
-    color: FEELING_COLORS[f.id],
-    pct: Math.round((f.count / totalSessions) * 100),
-  }))
-
   // XP progress dentro del nivel
   const xpInLevel = xpData.total_xp % 500
   const xpPct = Math.round((xpInLevel / 500) * 100)
 
-  function toggleTag(tagId) {
-    setSelectedTags(prev =>
-      prev.includes(tagId) ? prev.filter(t => t !== tagId) : [...prev, tagId]
-    )
+  function toggleTag(id) {
+    setSelectedTags(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
+    setTouchedFields(p => ({ ...p, tags: true }))
   }
 
   function addCustomTag() {
@@ -337,6 +323,7 @@ export default function LinearProgressView({ game, onComplete }) {
         achievement_id: a.id,
         pct_at_unlock: storyPct,
       }))
+      
       const { data: newAch } = await supabase.from('progress_achievements').insert(rows).select()
       if (newAch) {
         setUnlockedAchievements(prev => [...prev, ...newAch])
@@ -355,15 +342,42 @@ export default function LinearProgressView({ game, onComplete }) {
     setHoursToday('')
     setSelectedTags([])
     setCustomTags([])
-    await addXP(10)
+
+    let xpEarned = 10
+    if (touchedFields.story) xpEarned += 10
+    if (touchedFields.tags || allTags.length > 0) xpEarned += 10
+    if (touchedFields.feeling) xpEarned += 10
+    if (touchedFields.rating) xpEarned += 10
+    if (touchedFields.note) xpEarned += 10
+
+    await addXP(xpEarned)
     if (toUnlock.length) {
       for (const a of toUnlock) await addXP(a.xp)
     }
+
+    if (noteText.trim()) {
+      const { data } = await supabase.from('game_notes').insert({
+        library_entry_id: game._entryUuid,
+        user_id: currentUser?.id,
+        content: noteText.trim(),
+      }).select().single()
+      if (data) {
+        setNotes(prev => [data, ...prev])
+        setNoteText('')
+        await checkCronistaAchievement(notes.length + 1)
+      }
+    }
+
     setSaving(false)
     setSavedMsg({ type: 'success', text: `+${hours}h registradas. ¡Sigue adelante, guerrero!` })
     setTimeout(() => setSavedMsg(null), 3000)
+    setCurrentFeeling(null)
+    setStoryPct(0)
+    setUserRating(null)
+    setTouchedFields({ story: false, tags: false, feeling: false, rating: false, note: false })
   }
 
+  // handleSaveNote sin cambios, siempre da +5
   async function handleSaveNote() {
     const content = noteText.trim()
     if (!content) return
@@ -377,7 +391,7 @@ export default function LinearProgressView({ game, onComplete }) {
       const updatedNotes = [data, ...notes]
       setNotes(updatedNotes)
       setNoteText('')
-      await addXP(5)
+      await addXP(5)  // siempre +5
       await checkCronistaAchievement(updatedNotes.length)
     }
     setSavingNote(false)
@@ -436,7 +450,7 @@ export default function LinearProgressView({ game, onComplete }) {
   return (
     <div className={styles.root}>
 
-      {/* ══ TOAST DE LOGROS ══════════════════════════════════════════════════ */}
+      {/* TOAST DE LOGROS */}
       {newlyUnlocked.length > 0 && (
         <div className={styles.achievementToastWrap}>
           {newlyUnlocked.map(a => (
@@ -455,13 +469,13 @@ export default function LinearProgressView({ game, onComplete }) {
       )
       }
 
-      {/* ══ BODY ════════════════════════════════════════════════════════════ */}
+      {/* BODY */}
       <div className={styles.body}>
 
         {/* ── COLUMNA PRINCIPAL ── */}
         <div className={styles.mainCol}>
 
-          {/* ══ HEADER CINEMÁTICO ════════════════════════════════════════════════ */}
+          {/* HEADER CINEMÁTICO */}
           <div className={styles.header}>
             {heroUrl && <div className={styles.heroBg} style={{ backgroundImage: `url(${heroUrl})` }} />}
             <div className={styles.heroOverlay} />
@@ -473,7 +487,7 @@ export default function LinearProgressView({ game, onComplete }) {
 
               <div className={styles.headerMain}>
                 {/* Cover grande izquierda */}
-                <div className={styles.cover}>
+                <div className={styles.cover} onClick={() => setShowGameView(true)} style={{ cursor: 'pointer' }}>
                   {coverUrl
                     ? <img src={coverUrl} alt={game.title} />
                     : <div className={styles.coverEmpty}>🎮</div>}
@@ -497,8 +511,7 @@ export default function LinearProgressView({ game, onComplete }) {
                       <span className={styles.hltbRefLabel}>Referencia activa</span>
                       <button
                         className={styles.hltbDropdownBtn}
-                        onClick={() => setHltbDropdownOpen(o => !o)}
-                      >
+                        onClick={() => setHltbDropdownOpen(o => !o)}>
                         {hltbOptions.find(o => o.value === hltbRef)?.label ?? 'Seleccionar'}
                         <ChevronDown size={12} strokeWidth={2} style={{ marginLeft: 6, transition: 'transform 0.2s', transform: hltbDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                       </button>
@@ -569,7 +582,7 @@ export default function LinearProgressView({ game, onComplete }) {
                     <div className={styles.stageLabel}>ETAPA ACTUAL</div>
                     <div className={styles.stageCurrent}>
                       <span className={styles.stageIcon}>
-                        <CurrentStageIcon size={18} strokeWidth={1.5} />
+                        <CurrentStageIcon size={30} strokeWidth={2} />
                       </span>
                       <div>
                         <div className={styles.stageName}>{JOURNEY_STAGES[currentStage].name}</div>
@@ -659,40 +672,117 @@ export default function LinearProgressView({ game, onComplete }) {
                   return (
                     <div key={stage.id} className={styles.journeyItem}>
                       {i > 0 && (
-                        <div
-                          className={styles.journeyLine}
-                          style={
-                            done || active
-                              ? { background: `linear-gradient(to right, ${STAGE_COLORS[i - 1]}, ${STAGE_COLORS[i]})` }
-                              : { background: 'rgba(255,255,255,0.06)' }
-                          }
-                        />
+                        <div className={styles.journeyLineWrap}>
+                          {/* Rombo izquierdo */}
+                          <div
+                            className={styles.journeyDiamond}
+                            style={{
+                              position: 'absolute', left: -4,
+                              ...(done || active
+                                ? { background: STAGE_COLORS[i - 1], boxShadow: `0 0 6px ${STAGE_COLORS[i - 1]}` }
+                                : { background: 'rgba(255,255,255,0.1)' })
+                            }}
+                          />
+
+                          <div
+                            className={styles.journeyLine}
+                            style={
+                              done || active
+                                ? { background: `linear-gradient(to right, ${STAGE_COLORS[i - 1]}, ${color})` }
+                                : { background: 'rgba(255,255,255,0.06)' }
+                            }
+                          />
+
+                          {/* Rombo centro ← nuevo */}
+                          <div
+                            className={styles.journeyDiamond}
+                            style={{
+                              position: 'absolute', left: '50%', transform: 'translateX(-50%) rotate(45deg)',
+                              ...(done || active
+                                ? { background: `color-mix(in srgb, ${STAGE_COLORS[i - 1]}, ${color})`, boxShadow: `0 0 6px ${color}` }
+                                : { background: 'rgba(255,255,255,0.1)' })
+                            }}
+                          />
+
+                          {/* Rombo derecho */}
+                          <div
+                            className={styles.journeyDiamond}
+                            style={{
+                              position: 'absolute', right: -4,
+                              ...(done || active
+                                ? { background: color, boxShadow: `0 0 6px ${color}` }
+                                : { background: 'rgba(255,255,255,0.1)' })
+                            }}
+                          />
+                        </div>
                       )}
                       <button
-                        className={`${styles.journeyNode} ${active ? styles.journeyActive : ''} ${locked ? styles.journeyLocked : ''}`}
+                        className={`${styles.journeyNode} ${active ? styles.journeyActive : ''} ${done ? styles.journeyDone : ''} ${locked ? styles.journeyLocked : ''}`}
                         style={!locked ? {
-                          background: 'transparent',
-                          border: `2px solid ${color}90`,
-                          color: '#ffffff',
-                          boxShadow: `0 0 10px ${color}60, 0 0 4px ${color}40`,
+                          '--stage-color': color,
+                          border: `2px solid ${color}`,
+                          background: `radial-gradient(circle at 30% 25%, ${color}50 0%, rgba(10,8,25,0.98) 50%, rgba(0,0,0,0.95) 100%)`,
+                          boxShadow: active
+                            ? `4px 6px 16px rgba(0,0,0,0.8),
+                              -2px -2px 8px rgba(255,255,255,0.04),
+                              inset 3px 3px 8px rgba(255,255,255,0.18),
+                              inset -3px -3px 8px rgba(0,0,0,0.8),
+                              inset 0 1px 0 rgba(255,255,255,0.25),
+                              0 0 20px ${color}60`
+                            : `4px 6px 12px rgba(0,0,0,0.7),
+                              -2px -2px 8px rgba(255,255,255,0.04),
+                              inset 3px 3px 8px rgba(255,255,255,0.15),
+                              inset -3px -3px 8px rgba(0,0,0,0.7),
+                              inset 0 1px 0 rgba(255,255,255,0.2),
+                              0 0 10px ${color}40`,
                         } : {
-                          background: 'rgba(255,255,255,0.04)',
+                          background: 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.04) 0%, rgba(10,8,25,0.9) 60%, rgba(0,0,0,0.8) 100%)',
+                          boxShadow: '3px 4px 10px rgba(0,0,0,0.5), inset 1px 1px 4px rgba(255,255,255,0.04), inset -1px -1px 4px rgba(0,0,0,0.4)',
                           border: '2px solid rgba(255,255,255,0.08)',
-                          color: 'rgba(255,255,255,0.2)',
-                          boxShadow: 'none',
                         }}
                         onClick={() => !locked && setStoryPct(stage.min)}
                       >
-                        <stage.icon size={40} strokeWidth={1.7} />
+                        {/* Anillo exterior en activo Y desbloqueados */}
+                        {(active || done) && (
+                          <div className={styles.journeyRingOuter} style={{ borderColor: `${color}60` }} />
+                        )}
+
+                        {(() => {
+                          const IconComponent = STAGE_ICONS[stage.icon]
+                          return (
+                            <IconComponent
+                              width={50}
+                              height={50}
+                              style={{
+                                color: locked ? 'rgba(255,255,255,0.2)' : color,
+                                filter: locked
+                                  ? 'brightness(0.4)'
+                                  : `brightness(1.4) drop-shadow(0 2px 6px ${color}90)`,
+                                flexShrink: 0,
+                              }}
+                            />
+                          )
+                        })()}
+
+                        {/* Badge palomita o candado */}
+                        {done && (
+                          <div className={styles.journeyBadge} style={{ background: color }}>✓</div>
+                        )}
+                        {locked && (
+                          <div className={styles.journeyBadgeLocked}>🔒</div>
+                        )}
                       </button>
-                      <span className={styles.journeyName}>{stage.name}</span>
+
+                      <span className={styles.journeyName} style={!locked ? { color: active ? color : 'rgba(232,230,240,0.9)' } : {}}>
+                        {stage.name}
+                      </span>
                       <span className={styles.journeyRange}>{stage.range}</span>
                     </div>
                   )
                 })}
               </div>
               <div className={styles.journeyNarrative}>
-                💜 Tu aventura crece en las Tierras Intermedias. Cada paso te acerca a la leyenda.
+                🔥 Tu aventura crece en las Tierras Intermedias. Cada paso te acerca a la leyenda.
               </div>
             </div>
 
@@ -702,8 +792,6 @@ export default function LinearProgressView({ game, onComplete }) {
               <div className={styles.achievementsGrid}>
                 {PROGRESS_ACHIEVEMENTS.map((a, i) => {
                   const unlocked = unlockedAchievements.find(u => u.achievement_id === a.id)
-
-                  // Colores por índice — dorado, morado, cian, verde, gris
                   const ACHIEVEMENT_COLORS = ['#64748b', '#22c55e', '#06b6d4', '#7c3aed', '#f59e0b']
                   const color = ACHIEVEMENT_COLORS[i] ?? '#f59e0b'
 
@@ -712,31 +800,83 @@ export default function LinearProgressView({ game, onComplete }) {
                       key={a.id}
                       className={`${styles.achievementCard} ${unlocked ? styles.achievementUnlocked : styles.achievementLocked}`}
                       style={unlocked ? {
-                        background: `linear-gradient(160deg, ${color}22 0%, rgba(10,8,20,0.95) 60%)`,
-                        borderColor: `${color}40`,
-                        '--particle-color': color,   // para el ::before de partículas
-                      } : {}}
+                        background: `linear-gradient(160deg, ${color}28 0%, rgba(10,8,20,0.98) 55%, rgba(0,0,0,0.95) 100%)`,
+                        borderColor: `${color}50`,
+                        '--particle-color': color,
+                        boxShadow: `
+                            0 8px 32px rgba(0,0,0,0.6),
+                            inset 0 1px 0 rgba(255,255,255,0.08),
+                            0 0 24px ${color}20`,
+                      } : {
+                        '--particle-color': 'rgba(255,255,255,0.1)',
+                      }}
                     >
-                      {/* Icono */}
+
+                      {/* ── Icono ── */}
                       <div
                         className={styles.achievementIcon}
                         style={unlocked ? {
-                          background: `radial-gradient(circle, ${color}30 0%, ${color}10 70%)`,
-                          border: `1.5px solid ${color}50`,
-                          color: color,
-                          filter: `drop-shadow(0 0 8px ${color}80)`,
+                          background: `radial-gradient(circle at 30% 25%, ${color}50 0%, rgba(10,8,25,0.98) 50%, rgba(0,0,0,0.95) 100%)`,
+                          border: `1.5px solid ${color}60`,
+                          overflow: 'visible',
+                          boxShadow: `
+                              4px 6px 16px rgba(0,0,0,0.8),
+                              inset 3px 3px 8px rgba(255,255,255,0.18),
+                              inset -3px -3px 8px rgba(0,0,0,0.8),
+                              inset 0 1px 0 rgba(255,255,255,0.25),
+                              0 0 20px ${color}50`,
                         } : {
                           background: 'rgba(255,255,255,0.04)',
                           border: '1.5px solid rgba(255,255,255,0.08)',
-                          color: 'rgba(255,255,255,0.2)',
+                          overflow: 'visible',
+                          boxShadow: `
+                              3px 4px 10px rgba(0,0,0,0.5),
+                              inset 1px 1px 4px rgba(255,255,255,0.04),
+                              inset -1px -1px 4px rgba(0,0,0,0.4)`,
                         }}
                       >
+                        {/* Badge palomita */}
+                        {unlocked && (
+                          <div className={styles.achievementBadge} style={{ background: color }}>✓</div>
+                        )}
+
+                        {/* Lustre 3D */}
+                        {unlocked && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '8%', left: '15%',
+                            width: '55%', height: '35%',
+                            background: 'radial-gradient(ellipse, rgba(255,255,255,0.2) 0%, transparent 70%)',
+                            borderRadius: '50%',
+                            pointerEvents: 'none',
+                            zIndex: 1,
+                          }} />
+                        )}
+
+                        {/* Icono */}
                         {unlocked
-                          ? <a.icon size={30} strokeWidth={1.5} />
-                          : <Lock size={28} strokeWidth={1.5} />
+                          ? <img
+                            src={a.icon}
+                            alt={a.name}
+                            style={{
+                              width: 36,
+                              height: 36,
+                              objectFit: 'contain',
+                              position: 'relative',
+                              zIndex: 2,
+                              filter: `drop-shadow(0 2px 8px ${color})`,
+                            }}
+                          />
+                          : <Lock width={28} height={28} style={{ color: 'rgba(255,255,255,0.25)', position: 'relative', zIndex: 2 }} />
                         }
                       </div>
 
+                      {/* Badge candado */}
+                      {!unlocked && (
+                        <div className={styles.achievementBadgeLocked}>🔒</div>
+                      )}
+
+                      {/* ── Textos ── */}
                       <div className={styles.achievementName}>{a.name}</div>
                       <div className={styles.achievementCondition}>{a.pct}% completado</div>
 
@@ -760,6 +900,7 @@ export default function LinearProgressView({ game, onComplete }) {
                           {new Date(unlocked.unlocked_at).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </div>
                       )}
+
                     </div>
                   )
                 })}
@@ -846,7 +987,10 @@ export default function LinearProgressView({ game, onComplete }) {
                 {sessionHistory.slice().reverse().map((s, i) => (
                   <div key={i} className={styles.sessionRow}>
                     <div className={styles.sessionDate}>
-                      {new Date(s.start_date).toLocaleDateString('es', { day: '2-digit', month: 'short' })}
+                      {(() => {
+                        const [y, m, d] = s.start_date.split('-')
+                        return new Date(+y, +m - 1, +d).toLocaleDateString('es', { day: '2-digit', month: 'short' })
+                      })()}
                     </div>
                     <div className={styles.sessionHours}>⏱ {s.duration_hours}h</div>
                     {s.feeling && (
@@ -872,152 +1016,14 @@ export default function LinearProgressView({ game, onComplete }) {
             </section>
           )}
 
-          {/* 5. Estado emocional en el tiempo — GRÁFICOS */}
-          <section className={styles.section}>
-            <h3 className={styles.sectionTitle}>Tu Estado Emocional en el Tiempo</h3>
-            <div style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: 16,
-              padding: '20px',
-            }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 300px', gap: 20, alignItems: 'center', minWidth: 0, }}>
-
-                {/* Gráfico de línea emocional */}
-                <div>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ height: 200, width: '100%' }}>
-                      {emotionalChartData.length > 1 ? (
-                        <ResponsiveContainer width="100%" height={200}>
-                          <LineChart data={emotionalChartData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
-                            <XAxis
-                              dataKey="index"
-                              tickFormatter={(i) => emotionalChartData[i]?.time ?? ''}
-                              tick={{ fill: 'rgba(232,230,240,0.3)', fontSize: 10 }}
-                              axisLine={false}
-                              tickLine={false}
-                            />
-                            <YAxis
-                              domain={[-0.5, 5.5]}
-                              ticks={[0, 1, 2, 3, 4, 5]}
-                              tick={(props) => {
-                                const { x, y, payload } = props
-                                const feeling = FEELINGS.find(f => f.id === FEELINGS_BY_IDX[payload.value])
-                                return (
-                                  <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={14}>
-                                    {feeling?.label?.split(' ')[0] ?? ''}
-                                  </text>
-                                )
-                              }}
-                              axisLine={false}
-                              tickLine={false}
-                              width={36}
-                            />
-                            <Tooltip content={({ active, payload }) => {
-                              if (!active || !payload?.length) return null
-                              const p = payload[0]?.payload
-                              const feeling = FEELINGS.find(f => f.id === p?.feeling)
-                              return (
-                                <div style={{
-                                  background: 'rgba(15,12,25,0.97)',
-                                  border: '1px solid rgba(255,255,255,0.1)',
-                                  borderRadius: 10, padding: '8px 12px',
-                                  fontSize: 12, color: '#e8e6f0',
-                                }}>
-                                  <div style={{ color: FEELING_COLORS[p?.feeling] }}>{feeling?.label}</div>
-                                  <div style={{ color: 'rgba(232,230,240,0.5)', marginTop: 2 }}>{p?.date} {p?.time}</div>  {/* ← aquí */}
-                                </div>
-                              )
-                            }} />
-                            <defs>
-                              <linearGradient id="emotionLine" x1="0" y1="1" x2="0" y2="0">  {/* ← x1/x2/y1/y2 vertical ahora */}
-                                <stop offset="0%" stopColor="#ef4444" />    {/* rojo — estado bajo */}
-                                <stop offset="50%" stopColor="#f59e0b" />   {/* amarillo — medio */}
-                                <stop offset="100%" stopColor="#22c55e" />  {/* verde — estado alto */}
-                              </linearGradient>
-                            </defs>
-                            <Line
-                              type="monotone"
-                              dataKey="feelingIdx"
-                              stroke="url(#emotionLine)"
-                              strokeWidth={2.5}
-                              dot={(props) => {
-                                const feeling = FEELINGS.find(f => f.id === props.payload?.feeling)  // ← por id, no por índice
-                                return (
-                                  <circle
-                                    key={props.key}
-                                    cx={props.cx}
-                                    cy={props.cy}
-                                    r={5}
-                                    fill={FEELING_COLORS[feeling?.id] ?? '#a78bfa'}  // ← FEELING_COLORS
-                                    stroke="rgba(10,10,15,0.8)"
-                                    strokeWidth={2}
-                                  />
-                                )
-                              }}
-                              activeDot={{ r: 7, fill: '#a78bfa', stroke: 'rgba(167,139,250,0.3)', strokeWidth: 4 }}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(232,230,240,0.3)', fontSize: 13 }}>
-                          Registra más sesiones para ver tu evolución emocional
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Distribución + PieChart */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {/* Donut */}
-                  {feelingCounts.length > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', height: 120 }}>
-                      <PieChart width={150} height={150}>
-                        <Pie
-                          data={feelingCounts}
-                          cx={70}
-                          cy={70}
-                          innerRadius={45}
-                          outerRadius={55}
-                          dataKey="count"
-                          strokeWidth={0}
-                        >
-                          {feelingCounts.map((entry, idx) => (
-                            <Cell key={idx} fill={entry.color} opacity={0.9} />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                      <div style={{
-                        position: 'absolute',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center',
-                        pointerEvents: 'none',
-                      }}>
-                        <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-bright)' }}>{totalSessions}</span>
-                        <span style={{ fontSize: 13, color: 'var(--text-dim)' }}>sesiones</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Barras de distribución */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {feelingPct.map(f => (
-                    <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: f.color, flexShrink: 0 }} />
-                      <span style={{ fontSize: 11, color: 'var(--text-dim)', minWidth: 80 }}>
-                        {f.label.split(' ').slice(1).join(' ')}
-                      </span>
-                      <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
-                        <div style={{ width: `${f.pct}%`, height: '100%', background: f.color, borderRadius: 99, transition: 'width 0.6s ease', opacity: 0.85 }} />
-                      </div>
-                      <span style={{ fontSize: 10, color: 'var(--text-dim)', minWidth: 28, textAlign: 'right' }}>{f.pct}%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          {/* TENDENCIA EMOCIONAL */}
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <span className={styles.panelTitle}>TENDENCIA EMOCIONAL</span>
             </div>
-          </section>
+            <EmotionalProgress sessionHistory={sessionHistory} currentFeeling={currentFeeling} />
+          </div>
+
         </div>
 
         {/* ── SIDEBAR ── */}
@@ -1038,41 +1044,74 @@ export default function LinearProgressView({ game, onComplete }) {
           {/* Registro de sesión */}
           <div className={styles.sideCard}>
             <div className={styles.sidebarHeaderRow}>
-              <h4><span className={styles.sideCardTitle}>NUEVA SESIÓN</span></h4>
+              <h4><span className={styles.sideCardTitle}>REGISTRAR NUEVA SESIÓN</span></h4>
               <button className={styles.sidebarResetBtn} title="Limpiar formulario" onClick={() => {
                 setHoursToday(''); setSelectedTags([]); setCustomTags([]); setCurrentFeeling(null); setNoteText('')
               }}>↺</button>
             </div>
-            <p className={styles.sideCardSub}>¿Cuántas horas jugaste hoy?</p>
+            <p className={styles.sideCardSub}>¿Cuántas horas le dedicaste hoy? ⭐ +10 XP</p>
 
             <div className={styles.hoursInput}>
               <input
                 type="number" min="0" max="24" step="0.5"
-                placeholder="2.5"
+                placeholder="Ejemplo: 2.5"
                 value={hoursToday}
                 onChange={e => setHoursToday(e.target.value)}
                 className={styles.hoursField}
               />
               <span className={styles.hoursUnit}>h</span>
             </div>
+            <div className={styles.quickHours}>
+              {QUICK_HOURS.map(h => (
+                <button
+                  key={h}
+                  className={`${styles.quickHourBtn} ${hoursToday == h ? styles.quickHourActive : ''}`}
+                  onClick={() => {
+                    if (h === '4+') {
+                      setHoursToday(prev => String(parseInt(prev) >= 4 ? parseInt(prev) + 1 : 4));
+                    } else {
+                      setHoursToday(String(h));
+                    }
+                  }}
+                >
+                  {h === '4+' && parseInt(hoursToday) >= 4 ? hoursToday : h}  {/* ← aquí, reemplaza el {h} anterior */}
+                </button>
+              ))}
+            </div>
 
             <div className={styles.storySliderWrap}>
               <div className={styles.storySliderLabel}>
-                <span>Tu viaje</span>
+                <span>Tu propio progreso</span>
                 <span>{storyPct}%</span>
               </div>
               <input
                 type="range" min="0" max="100"
                 value={storyPct}
-                onChange={e => setStoryPct(parseInt(e.target.value))}
+                onChange={e => {
+                  setStoryPct(parseInt(e.target.value))
+                  setTouchedFields(p => ({ ...p, story: true }))
+                }}
                 className={styles.storySlider}
+                style={{ '--val': `${storyPct}%` }}
               />
-              <div className={styles.storySliderHint}>¿Qué % de la historia crees que llevas?</div>
+              <div className={styles.storySliderHint}>
+                {(() => {
+                  const hoursMap = {
+                    main: game.hltb_main,
+                    main_extra: game.hltb_main_extra,
+                    completionist: game.hltb_completionist,
+                  };
+                  const total = hoursMap[hltbRef];
+                  if (!total) return '¿Qué % de la historia crees que llevas?';
+                  return `De las ~${total}h estimadas, ¿cuántas crees que avanzaste en esta sesión?`;
+                })()}
+              </div>
+              <div className={styles.divider} />
             </div>
 
             {/* Tags */}
             <div className={styles.tagsSection}>
-              <div className={styles.tagsSectionLabel}>¿Pasó algo especial?</div>
+              <div className={styles.tagsSectionLabel}>¿Pasó algo especial? ⭐ +10 XP</div>
               <div className={styles.tagsGrid}>
                 {SESSION_TAGS.map(t => (
                   <button
@@ -1080,7 +1119,7 @@ export default function LinearProgressView({ game, onComplete }) {
                     className={`${styles.tagBtn} ${selectedTags.includes(t.id) ? styles.tagBtnActive : ''}`}
                     onClick={() => toggleTag(t.id)}
                   >
-                    <t.icon size={13} strokeWidth={1.5} />
+                    <span>{t.emoji}</span>
                     {t.label}
                   </button>
                 ))}
@@ -1105,34 +1144,47 @@ export default function LinearProgressView({ game, onComplete }) {
                   ))}
                 </div>
               )}
+              <div className={styles.divider} />
             </div>
 
             {/* Feelings */}
             <div className={styles.feelingWrap}>
-              <div className={styles.feelingLabel}>¿Cómo te sientes hoy con este juego?</div>
+              <div className={styles.feelingLabel}>¿Cómo te sientes hoy con este juego? ⭐ +10 XP</div>
               <div className={styles.feelingGrid}>
-                {FEELINGS.map(f => (
-                  <button
-                    key={f.id}
-                    className={`${styles.feelingBtn} ${currentFeeling === f.id ? styles.feelingBtnActive : ''}`}
-                    onClick={() => setCurrentFeeling(f.id)}
-                  >
-                    {f.label}
-                  </button>
-                ))}
+                {FEELINGS.map(f => {
+                  const emoji = [...f.label][0]
+                  const text = f.label.slice(emoji.length).trim()
+                  return (
+                    <button
+                      key={f.id}
+                      className={`${styles.feelingBtn} ${currentFeeling === f.id ? styles.feelingBtnActive : ''}`}
+                      onClick={() => {
+                        setCurrentFeeling(f.id)
+                        setTouchedFields(p => ({ ...p, feeling: true }))
+                      }}
+                    >
+                      <span style={{ fontSize: 24 }}>{emoji}</span>
+                      <span>{text}</span>
+                    </button>
+                  )
+                })}
               </div>
+              <div className={styles.divider} />
             </div>
 
             {/* Calificación */}
             <div className={styles.sideCard}>
               <h4 className={styles.sideCardTitle}>¿CÓMO LO ESTÁS VIVIENDO?</h4>
               <div className={styles.ratingWrap}>
-                <div className={styles.ratingLabel}>Tu calificación</div>
+                <div className={styles.ratingLabel}>Tu calificación ⭐ +10 XP</div>
                 <div className={styles.ratingStars}>
                   {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
                     <button
                       key={n}
-                      onClick={() => setUserRating(n)}
+                      onClick={() => {
+                        setUserRating(r)
+                        setTouchedFields(p => ({ ...p, rating: true }))
+                      }}
                       onMouseEnter={() => setHoverRating(n)}
                       onMouseLeave={() => setHoverRating(null)}
                       className={`${styles.ratingStar} ${(hoverRating ?? userRating) >= n ? styles.ratingStarActive : ''}`}
@@ -1149,6 +1201,22 @@ export default function LinearProgressView({ game, onComplete }) {
               </div>
             </div>
 
+            < div className={styles.divider} />
+
+            {/* Notas rápidas */}
+            <div className={styles.sidePanelLabel}>Notas rápidas <span className={styles.optional}>(opcional) ⭐ +10 XP</span></div>
+            <textarea
+              className={styles.sideNoteInput}
+              placeholder="¿Qué pasó hoy en la arena?"
+              value={noteText}
+              onChange={e => {
+                setNoteText(e.target.value)
+                setTouchedFields(p => ({ ...p, note: true }))
+              }}
+              rows={3}
+            />
+
+
             {savedMsg && (
               <div className={`${styles.savedMsg} ${styles[savedMsg.type]}`}>
                 {savedMsg.text}
@@ -1158,11 +1226,10 @@ export default function LinearProgressView({ game, onComplete }) {
             <button
               className={styles.saveBtn}
               onClick={handleSaveSession}
-              disabled={saving || !hoursToday}
-            >
+              disabled={saving || !hoursToday}>
               {saving ? 'Guardando...' : 'Guardar sesión ↗'}
             </button>
-            <div className={styles.xpHint}>⭐ +10 XP por registrar sesión</div>
+            {/* <div className={styles.xpHint}>⭐ +10 XP por registrar sesión </div> */}
           </div>
 
           {/* Próximo hito */}
@@ -1171,7 +1238,7 @@ export default function LinearProgressView({ game, onComplete }) {
               <h4 className={styles.sideCardTitle}>PRÓXIMO HITO</h4>
               <div className={styles.nextStage}>
                 <span className={styles.nextStageIcon}>
-                  {(() => { const Icon = JOURNEY_STAGES[currentStage + 1].icon; return <Icon size={18} strokeWidth={1.5} /> })()}
+                  {(() => { const Icon = JOURNEY_STAGES[currentStage + 1].icon; return <Icon size={32} strokeWidth={1.5} /> })()}
                 </span>
                 <div>
                   <div className={styles.nextStageName}>{JOURNEY_STAGES[currentStage + 1].name}</div>
@@ -1214,59 +1281,68 @@ export default function LinearProgressView({ game, onComplete }) {
       </div>
 
       {/* Modal abandonar */}
-      {
-        showAbandonModal && (
-          <div className={styles.abandonBackdrop} onClick={() => setShowAbandonModal(false)}>
-            <div className={styles.abandonModal} onClick={e => e.stopPropagation()}>
-              <h3 className={styles.abandonTitle}>¿Abandonas esta aventura?</h3>
-              <p className={styles.abandonSub}>No hay juicio aquí. ¿Qué pasó, guerrero?</p>
-              <div className={styles.abandonReasons}>
-                {[
-                  'Salió otro juego',
-                  'Se puso muy difícil',
-                  'Perdí el guardado',
-                  'No era para mí',
-                  'Por ahora no, pero volveré',
-                ].map(r => (
-                  <button
-                    key={r}
-                    className={`${styles.abandonReasonBtn} ${abandonReason === r ? styles.abandonReasonActive : ''}`}
-                    onClick={() => setAbandonReason(r)}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
-              <div className={styles.abandonActions}>
-                <button className={styles.abandonCancel} onClick={() => setShowAbandonModal(false)}>
-                  Cancelar
-                </button>
+      {showAbandonModal && (
+        <div className={styles.abandonBackdrop} onClick={() => setShowAbandonModal(false)}>
+          <div className={styles.abandonModal} onClick={e => e.stopPropagation()}>
+            <h3 className={styles.abandonTitle}>¿Abandonas esta aventura?</h3>
+            <p className={styles.abandonSub}>No hay juicio aquí. ¿Qué pasó, guerrero?</p>
+            <div className={styles.abandonReasons}>
+              {[
+                'Salió otro juego',
+                'Se puso muy difícil',
+                'Perdí el guardado',
+                'No era para mí',
+                'Por ahora no, pero volveré',
+              ].map(r => (
                 <button
-                  className={styles.abandonConfirm}
-                  disabled={!abandonReason}
-                  onClick={async () => {
-                    if (abandonReason === 'Por ahora no, pero volveré') {
-                      await supabase.from('library_entries')
-                        .update({ status: 'paused', abandon_reason: abandonReason })
-                        .eq('id', game._entryUuid)
-                      navigate('/en-progreso')
-                    } else {
-                      await supabase.from('library_entries')
-                        .update({ status: 'abandoned', abandon_reason: abandonReason })
-                        .eq('id', game._entryUuid)
-                      await addXP(5)
-                      navigate('/en-progreso')
-                    }
-                  }}
-                >
-                  Confirmar
+                  key={r}
+                  className={`${styles.abandonReasonBtn} ${abandonReason === r ? styles.abandonReasonActive : ''}`}
+                  onClick={() => setAbandonReason(r)}>
+                  {r}
                 </button>
-              </div>
+              ))}
+            </div>
+            <div className={styles.abandonActions}>
+              <button className={styles.abandonCancel} onClick={() => setShowAbandonModal(false)}>
+                Cancelar
+              </button>
+              <button
+                className={styles.abandonConfirm}
+                disabled={!abandonReason}
+                onClick={async () => {
+                  if (abandonReason === 'Por ahora no, pero volveré') {
+                    await supabase.from('library_entries')
+                      .update({ status: 'paused', abandon_reason: abandonReason })
+                      .eq('id', game._entryUuid)
+                    navigate('/en-progreso')
+                  } else {
+                    await supabase.from('library_entries')
+                      .update({ status: 'abandoned', abandon_reason: abandonReason })
+                      .eq('id', game._entryUuid)
+                    await addXP(5)
+                    navigate('/en-progreso')
+                  }
+                }}>
+                Confirmar
+              </button>
             </div>
           </div>
-        )
+        </div>
+      )
       }
 
-    </div >
+      {showGameView && (
+        <GameView
+          game={game}
+          mode={game.status === 'completed' ? 'hall_of_fame'
+            : game.status === 'in_progress' ? 'in_progress'
+              : 'library'}
+          onClose={() => setShowGameView(false)}
+          onBack={() => setShowGameView(false)}
+          onEdit={(g) => { onEdit(g); setShowGameView(false) }}
+          onDelete={(g) => { onDelete(g); setShowGameView(false) }}
+          onAction={() => setShowGameView(false)}/>
+      )}
+    </div>
   )
 }

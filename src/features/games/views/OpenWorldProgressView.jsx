@@ -34,24 +34,31 @@ function getCover(game) {
 
 {/* Muro de actividad tipo GitHub Contribution */ }
 function ActivityWall({ sessionHistory }) {
-  const today = new Date()
-  const month = today.getMonth() // 0-11
+  const now = new Date()
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 
-  // Semestre actual
-  const isFirstHalf = month < 6
-  const startMonth = isFirstHalf ? 0 : 6  // Ene o Jul
-  const endMonth = isFirstHalf ? 5 : 11   // Jun o Dic
-  const year = today.getFullYear()
+  const windowStartYear = now.getMonth() < 5 ? now.getFullYear() - 1 : now.getFullYear()
+  const windowStartMonth = (now.getMonth() - 5 + 12) % 12
+  const windowStart = new Date(windowStartYear, windowStartMonth, 1)
 
-  const start = new Date(year, startMonth, 1)
-  const end = new Date(year, endMonth + 1, 0) // último día del mes final
+  const gridStart = new Date(windowStart)
+  const dow = gridStart.getDay()
+  gridStart.setDate(gridStart.getDate() - (dow === 0 ? 6 : dow - 1))
+
+  const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 
   const days = []
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const cursor = new Date(gridStart)
+  while (true) {
+    const y = cursor.getFullYear()
+    const m = cursor.getMonth()
+    const day = cursor.getDate()
+    const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    if (dateStr > todayStr) break
     const session = sessionHistory.find(s => s.start_date === dateStr)
-    const isFuture = d > today
-    days.push({ date: dateStr, hours: session?.duration_hours ?? 0, isFuture })
+    const isOutOfWindow = dateStr < `${windowStartYear}-${String(windowStartMonth + 1).padStart(2, '0')}-01`
+    days.push({ date: dateStr, hours: session?.duration_hours ?? 0, isOutOfWindow })
+    cursor.setDate(cursor.getDate() + 1)
   }
 
   function intensity(h) {
@@ -65,34 +72,43 @@ function ActivityWall({ sessionHistory }) {
   const weeks = []
   for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7))
 
-  const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-  const monthLabels = weeks.map(week => MONTHS[new Date(week[0].date).getMonth()])
-  const shownMonths = monthLabels.map((m, i) => (i === 0 || m !== monthLabels[i - 1] ? m : ''))
+  const shownMonths = weeks.map((week, i) => {
+    const firstReal = week.find(day => !day.isOutOfWindow)
+    if (!firstReal) return ''
+    const [y, mo] = firstReal.date.split('-')
+    const m = MONTHS[+mo - 1]
+    if (i === 0) return m
+    const prevWeekFirstReal = weeks[i - 1].find(day => !day.isOutOfWindow)
+    if (!prevWeekFirstReal) return m
+    const [py, pmo] = prevWeekFirstReal.date.split('-')
+    return +pmo !== +mo || +py !== +y ? m : ''
+  })
 
   return (
     <div className={styles.activityWall}>
-      {/* Etiquetas de mes */}
       <div className={styles.activityMonths}>
         {shownMonths.map((m, i) => (
-          <div key={i} className={styles.activityMonthLabel}>{m.toUpperCase()}</div>
+          <div key={i} className={styles.activityMonthLabel}>
+            {m.toUpperCase()}
+          </div>
         ))}
       </div>
 
-      {/* Filas de días de la semana + grid */}
       <div className={styles.activityBody}>
         <div className={styles.activityDayNames}>
-          {['Lun', '', 'Mié', '', 'Vie'].map((d, i) => (
+          {['Lun', '', 'Mié', '', 'Vie', '', ''].map((d, i) => (
             <div key={i} className={styles.activityDayName}>{d}</div>
           ))}
         </div>
+
         <div className={styles.activityGrid}>
           {weeks.map((week, wi) => (
             <div key={wi} className={styles.activityWeek}>
               {week.map((day, di) => (
                 <div
                   key={di}
-                  className={`${styles.activityDay} ${day.isFuture ? styles.intensityFuture : styles[`intensity${intensity(day.hours)}`]}`}
-                  title={day.isFuture ? '' : `${day.date}${day.hours ? ` — ${day.hours}h` : ''}`}
+                  className={`${styles.activityDay} ${day.isOutOfWindow ? styles.intensityHidden : styles[`intensity${intensity(day.hours)}`]}`}
+                  title={!day.isOutOfWindow ? `${day.date}${day.hours ? ` — ${day.hours}h` : ''}` : ''}
                 />
               ))}
             </div>
@@ -100,7 +116,6 @@ function ActivityWall({ sessionHistory }) {
         </div>
       </div>
 
-      {/* Leyenda */}
       <div className={styles.activityLegend}>
         <span className={styles.legendText}>Menos</span>
         {[0, 1, 2, 3, 4].map(i => (
@@ -159,7 +174,14 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
       .select('start_date, duration_hours, feeling, global_tags, custom_tags')
       .eq('library_entry_id', game._entryUuid)
       .order('start_date', { ascending: false })
-      .then(({ data }) => setSessionHistory(data ?? []))
+      .then(({ data }) => {
+        setSessionHistory(
+          (data ?? []).map(s => ({
+            ...s,
+            start_date: s.start_date?.split('T')[0]
+          }))
+        )
+      })
     supabase.from('game_notes').select('*').eq('library_entry_id', game._entryUuid)
       .order('created_at', { ascending: false })
       .then(({ data }) => setNotes(data ?? []))
@@ -172,9 +194,18 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
   const streak = progress?.current_streak ?? 0
   const lastSession = progress?.last_session_date
   const totalSessions = sessionHistory.length
-  const monthsActive = progress?.created_at
-    ? Math.max(1, Math.floor((new Date() - new Date(progress.created_at)) / (1000 * 60 * 60 * 24 * 30)))
+  const created = progress?.created_at ? new Date(progress.created_at) : null
+  const today = new Date()
+
+  const monthsActive = created
+    ? (today.getFullYear() - created.getFullYear()) * 12 + (today.getMonth() - created.getMonth())
     : 0
+
+  const monthsActiveLabel = !created
+    ? '—'
+    : monthsActive < 1
+      ? `${Math.floor((today - created) / 86400000)} días`
+      : `${monthsActive} mes${monthsActive !== 1 ? 'es' : ''}`
 
   const sessionsThisWeek = sessionHistory.filter(s => {
     const d = new Date(s.start_date)
@@ -217,7 +248,10 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
       if (!ok) return
     }
     setSaving(true)
-    const today = new Date().toISOString().split('T')[0]
+    const now = new Date()
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+
+    console.log('today calculado:', today)
     const newTotal = parseFloat((totalHours + hours).toFixed(2))
     const newStreak = lastSession === today ? streak : streak + 1
 
@@ -230,6 +264,17 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
       feeling: currentFeeling ?? null,
       user_id: currentUserRef.current?.id,
     })
+
+    if (noteText.trim()) {
+      await supabase.from('game_notes').insert({
+        library_entry_id: game._entryUuid,
+        user_id: currentUserRef.current?.id,
+        content: noteText.trim(),
+      })
+      await addXP(5)
+      setNotes(prev => [{ content: noteText.trim(), created_at: new Date().toISOString(), id: crypto.randomUUID() }, ...prev])
+    }
+
     await supabase.from('library_entries').update({
       total_hours: newTotal,
       current_streak: newStreak,
@@ -263,6 +308,7 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
     setHoursToday('')
     setSelectedTags([])
     setCustomTags([])
+    setNoteText('')
     setSaving(false)
     setSavedMsg({ type: 'success', text: `+${hours}h registradas. ¡El mundo te espera!` })
     setTimeout(() => setSavedMsg(null), 3000)
@@ -326,7 +372,7 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
 
                 {/* CENTRO — meta del juego */}
                 <div className={styles.heroMeta}>
-                  <div className={styles.modeBadge}>🏆 {config.badge}</div>
+                  <div className={styles.modeBadge}>{config.badge}</div>
                   <h1 className={styles.heroTitle}>{game.title}</h1>
                   <div className={styles.heroSub}>
                     <span className={styles.heroSubHighlight}>{totalHours}h jugando</span>
@@ -371,23 +417,62 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
                   </div>
 
                   {/* Nivel actual — tarjeta especial */}
-                            <div className={styles.levelCard}>
-                              <div className={styles.levelBadge}>{xpData.level}</div>
-                              <div className={styles.levelInfo}>
-                                <div className={styles.levelXp}>⭐ {xpData.total_xp} XP</div>
-                                <div className={styles.levelXpBar}>
-                                  <div className={styles.levelXpFill} style={{ width: `${xpPct}%` }} />
-                                </div>
-                                <div className={styles.levelXpNext}>{500 - (xpData.total_xp % 500)} XP para nivel {xpData.level + 1}</div>
-                              </div>
-                            </div>
+                  <div className={styles.levelCard}>
+                    <div className={styles.levelBadge}>{xpData.level}</div>
+                    <div className={styles.levelInfo}>
+                      <div className={styles.levelXp}>⭐ {xpData.total_xp} XP</div>
+                      <div className={styles.levelXpBar}>
+                        <div className={styles.levelXpFill} style={{ width: `${xpPct}%` }} />
+                      </div>
+                      <div className={styles.levelXpNext}>{500 - (xpData.total_xp % 500)} XP para nivel {xpData.level + 1}</div>
+                    </div>
+                  </div>
                 </div>
 
               </div>
             </div>
           </div>
 
-          {/* ── Fila top: Actividad + Resumen narrativo ── */}
+          {/* RESUMEN NARRATIVO */}
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <span className={styles.panelTitle}>RESUMEN NARRATIVO</span>
+            </div>
+            <div className={styles.narrativeGrid}>
+              <div className={styles.narrativeCard}>
+                <div className={styles.narrativeIcon}>⚡</div>
+                <div className={styles.narrativeCardLabel}>Actividad viva</div>
+                <div className={styles.narrativeVal}>{sessionsThisWeek} sesiones</div>
+                <div className={styles.narrativeSub}>esta semana</div>
+                <div className={styles.narrativeMicro}>Racha: {streak} día</div>
+              </div>
+              <div className={styles.narrativeCard}>
+                <div className={styles.narrativeIcon}>🌐</div>
+                <div className={styles.narrativeCardLabel}>Mundo activo</div>
+                <div className={styles.narrativeVal}>{monthsActiveLabel}</div>
+                <div className={styles.narrativeSub}>activo</div>
+                <div className={styles.narrativeMicro}>Desde {progress?.created_at ? new Date(progress.created_at).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</div>
+              </div>
+              <div className={styles.narrativeCard}>
+                <div className={`${styles.narrativeIcon} ${styles.narrativeIconFire}`}>🔥</div>
+                <div className={`${styles.narrativeCardLabel} ${styles.narrativeLabelFire}`}>Horas registradas</div>
+                <div className={styles.narrativeVal}>{totalHours}h</div>
+                <div className={styles.narrativeSub}>tiempo total</div>
+                <div className={styles.narrativeMicro}>Prom. {avgHoursPerSession}h / sesión</div>
+              </div>
+              <div className={styles.narrativeCard}>
+                <div className={`${styles.narrativeIcon} ${styles.narrativeIconHeart}`}>❤️</div>
+                <div className={`${styles.narrativeCardLabel} ${styles.narrativeLabelHeart}`}>Estado actual</div>
+                <div className={`${styles.narrativeValLg} ${styles.narrativeValAccent}`}>
+                  {currentFeeling ? FEELINGS.find(f => f.id === currentFeeling)?.label.split(' ').slice(1).join(' ') : 'Sin registrar'}
+                </div>
+                <div className={styles.narrativeMicro}>Última sesión</div>
+                <div className={styles.narrativeMicro}>{lastSessionLabel}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Fila top: Actividad + Logros Competitivos ── */}
           <div className={styles.topRow}>
 
             {/* ACTIVIDAD RECIENTE */}
@@ -398,64 +483,12 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
               <ActivityWall sessionHistory={sessionHistory} />
             </div>
 
-            {/* RESUMEN NARRATIVO */}
-            <div className={styles.panel}>
-              <div className={styles.panelHeader}>
-                <span className={styles.panelTitle}>RESUMEN NARRATIVO</span>
-              </div>
-              <div className={styles.narrativeGrid}>
-                <div className={styles.narrativeCard}>
-                  <div className={styles.narrativeIcon}>⚡</div>
-                  <div className={styles.narrativeCardLabel}>Actividad viva</div>
-                  <div className={styles.narrativeVal}>{sessionsThisWeek} sesiones</div>
-                  <div className={styles.narrativeSub}>esta semana</div>
-                  <div className={styles.narrativeMicro}>Racha: {streak} día</div>
-                </div>
-                <div className={styles.narrativeCard}>
-                  <div className={styles.narrativeIcon}>🌐</div>
-                  <div className={styles.narrativeCardLabel}>Mundo activo</div>
-                  <div className={styles.narrativeVal}>{monthsActive} mes{monthsActive !== 1 ? 'es' : ''}</div>
-                  <div className={styles.narrativeSub}>activo</div>
-                  <div className={styles.narrativeMicro}>Desde {progress?.created_at ? new Date(progress.created_at).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</div>
-                </div>
-                <div className={styles.narrativeCard}>
-                  <div className={`${styles.narrativeIcon} ${styles.narrativeIconFire}`}>🔥</div>
-                  <div className={`${styles.narrativeCardLabel} ${styles.narrativeLabelFire}`}>Horas registradas</div>
-                  <div className={styles.narrativeVal}>{totalHours}h</div>
-                  <div className={styles.narrativeSub}>tiempo total</div>
-                  <div className={styles.narrativeMicro}>Prom. {avgHoursPerSession}h / sesión</div>
-                </div>
-                <div className={styles.narrativeCard}>
-                  <div className={`${styles.narrativeIcon} ${styles.narrativeIconHeart}`}>❤️</div>
-                  <div className={`${styles.narrativeCardLabel} ${styles.narrativeLabelHeart}`}>Estado actual</div>
-                  <div className={`${styles.narrativeValLg} ${styles.narrativeValAccent}`}>
-                    {currentFeeling ? FEELINGS.find(f => f.id === currentFeeling)?.label.split(' ').slice(1).join(' ') : 'Sin registrar'}
-                  </div>
-                  <div className={styles.narrativeMicro}>Última sesión</div>
-                  <div className={styles.narrativeMicro}>{lastSessionLabel}</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* ── Fila media: Tendencia emocional + Logros ── */}
-          <div className={styles.midRow}>
-
-            {/* TENDENCIA EMOCIONAL */}
-            <div className={styles.panel}>
-              <div className={styles.panelHeader}>
-                <span className={styles.panelTitle}>TENDENCIA EMOCIONAL</span>
-              </div>
-              <EmotionalProgress sessionHistory={sessionHistory} currentFeeling={currentFeeling} />
-            </div>
-
             {/* LOGROS */}
-            <div className={styles.panel}>
+            <div className={styles.panel} style={{ display: 'flex', flexDirection: 'column' }}>
               <div className={styles.panelHeader}>
                 <span className={styles.panelTitle}>{config.sectionTitle.toUpperCase()}</span>
               </div>
-              <div className={styles.achievementsRow}>
+              <div className={styles.achievementsRow} style={{ flex: 1 }}>
                 {achievements.map(a => {
                   const unlocked = unlockedAchievements.find(u => u.achievement_id === a.id)
                   return (
@@ -481,6 +514,15 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
 
           </div>
 
+          {/* TENDENCIA EMOCIONAL */}
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <span className={styles.panelTitle}>TENDENCIA EMOCIONAL</span>
+            </div>
+            <EmotionalProgress sessionHistory={sessionHistory} currentFeeling={currentFeeling} />
+          </div>
+
+
           {/* ── HISTORIAL DE SESIONES RECIENTES ── */}
           {sessionHistory.length > 0 && (
             <div className={styles.panel}>
@@ -497,7 +539,10 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
                     <div className={styles.sessionCardOverlay} />
                     <div className={styles.sessionCardInner}>
                       <div className={styles.sessionCardDate}>
-                        🕐 {new Date(s.start_date).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
+                        🕐 {(() => {
+                          const [y, m, d] = s.start_date.split('-')
+                          return new Date(+y, +m - 1, +d).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()
+                        })()}
                       </div>
                       <div className={styles.sessionCardHours}>{s.duration_hours}h</div>
                       {s.feeling && (
@@ -524,44 +569,6 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
               )}
             </div>
           )}
-
-          {/* ── TU LEGADO — barra inferior ── */}
-          <div className={styles.legacyBar}>
-            <div className={styles.legacyTitle}>TU LEGADO SE CONSTRUYE PARTIDA A PARTIDA</div>
-            <div className={styles.legacyStats}>
-              <div className={styles.legacyStat}>
-                <div className={styles.legacyVal}>{totalHours}h</div>
-                <div className={styles.legacyLabel}>Horas totales</div>
-              </div>
-              <div className={styles.legacyDivider} />
-              <div className={styles.legacyStat}>
-                <div className={styles.legacyVal}>{totalSessions}</div>
-                <div className={styles.legacyLabel}>Sesiones</div>
-              </div>
-              <div className={styles.legacyDivider} />
-              <div className={styles.legacyStat}>
-                <div className={styles.legacyVal}>{streak} día</div>
-                <div className={styles.legacyLabel}>Racha actual</div>
-              </div>
-              <div className={styles.legacyDivider} />
-              <div className={styles.legacyStat}>
-                <div className={styles.legacyVal}>{streak} días</div>
-                <div className={styles.legacyLabel}>Mejor racha</div>
-              </div>
-              <div className={styles.legacyDivider} />
-              <div className={styles.legacyStat}>
-                <div className={styles.legacyVal}>{monthsActive} mes{monthsActive !== 1 ? 'es' : ''}</div>
-                <div className={styles.legacyLabel}>Activo</div>
-              </div>
-              <div className={styles.legacyDivider} />
-              <div className={styles.legacyStat}>
-                <div className={`${styles.legacyVal} ${styles.legacyValGold}`}>
-                  ⭐ +{xpThisWeek} XP
-                </div>
-                <div className={styles.legacyLabel}>Esta semana</div>
-              </div>
-            </div>
-          </div>
 
           {/* ── Bitácora ── */}
           <div className={styles.panel}>
@@ -633,7 +640,7 @@ export default function OpenWorldProgressView({ game, onComplete, achievements }
                 onChange={e => setHoursToday(e.target.value)}
                 className={styles.hoursInput}
               />
-              <span className={styles.hoursUnit}>horas</span>
+              <span className={styles.hoursUnit}>h</span>
             </div>
             <div className={styles.quickHours}>
               {QUICK_HOURS.map(h => (

@@ -79,7 +79,6 @@ function TabResumen({ game }) {
     { key: 'Vista', val: game.playerPerspective || game.player_perspectives?.join(', ') },
     { key: 'Idioma', val: game.language },
     { key: 'Calificación IGDB', val: game.rating ? `${Math.round(game.rating)}/100` : null },
-    // ── NUEVO ──
     { key: 'Historia principal:', val: game.hltb_main ? `~${game.hltb_main}h` : null },
     { key: 'Historia + extras:', val: game.hltb_main_extra ? `~${game.hltb_main_extra}h` : null },
     { key: 'Completionista:', val: game.hltb_completionist ? `~${game.hltb_completionist}h` : null },
