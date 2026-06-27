@@ -323,7 +323,7 @@ export default function LinearProgressView({ game, onComplete, onEdit, onDelete 
         achievement_id: a.id,
         pct_at_unlock: storyPct,
       }))
-      
+
       const { data: newAch } = await supabase.from('progress_achievements').insert(rows).select()
       if (newAch) {
         setUnlockedAchievements(prev => [...prev, ...newAch])
@@ -447,6 +447,18 @@ export default function LinearProgressView({ game, onComplete, onEdit, onDelete 
 
   const CurrentStageIcon = JOURNEY_STAGES[currentStage].icon
 
+  const hoursMap = {
+    main: game.hltb_main,
+    main_extra: game.hltb_main_extra,
+    completionist: game.hltb_completionist,
+  }
+  const estimatedHours = hoursMap[hltbRef] ?? 0
+  const totalPlayed = (progress?.total_hours ?? 0) + (parseFloat(hoursToday) || 0)
+
+  const maxStoryPct = estimatedHours > 0
+    ? Math.min(Math.round((totalPlayed / estimatedHours) * 150), 100)
+    : 100
+
   return (
     <div className={styles.root}>
 
@@ -455,8 +467,11 @@ export default function LinearProgressView({ game, onComplete, onEdit, onDelete 
         <div className={styles.achievementToastWrap}>
           {newlyUnlocked.map(a => (
             < div key={a.id} className={styles.achievementToast} >
-              <div className={styles.achievementToastIcon}>
-                <a.icon size={24} strokeWidth={1.5} />
+              <div className={styles.achievementIcon}>
+                {unlocked
+                  ? <img src={a.icon} alt={a.name} style={{ width: 36, height: 36, objectFit: 'contain', filter: `drop-shadow(0 2px 8px ${color})` }} />
+                  : <Lock size={22} strokeWidth={1.5} />
+                }
               </div>
               <div>
                 <div className={styles.achievementToastTitle}>¡Hito desbloqueado! {a.name}</div>
@@ -963,7 +978,10 @@ export default function LinearProgressView({ game, onComplete, onEdit, onDelete 
                       return (
                         <div key={a.id} className={`${styles.achievementCard} ${styles.achievementUnlocked}`}>
                           <div className={styles.achievementIcon}>
-                            {unlocked ? <a.icon size={22} strokeWidth={1.5} /> : <Lock size={22} strokeWidth={1.5} />}
+                            {unlocked
+                              ? <img src={a.icon} alt={a.name} style={{ width: 36, height: 36, objectFit: 'contain', filter: `drop-shadow(0 2px 8px ${color})` }} />
+                              : <Lock size={22} strokeWidth={1.5} />
+                            }
                           </div>
                           <div className={styles.achievementName}>{a.name}</div>
                           <div className={styles.achievementMsg}>{a.msg}</div>
@@ -1074,7 +1092,7 @@ export default function LinearProgressView({ game, onComplete, onEdit, onDelete 
                     }
                   }}
                 >
-                  {h === '4+' && parseInt(hoursToday) >= 4 ? hoursToday : h}  {/* ← aquí, reemplaza el {h} anterior */}
+                  {h === '4+' && parseInt(hoursToday) >= 4 ? `${hoursToday}+` : h}
                 </button>
               ))}
             </div>
@@ -1088,12 +1106,28 @@ export default function LinearProgressView({ game, onComplete, onEdit, onDelete 
                 type="range" min="0" max="100"
                 value={storyPct}
                 onChange={e => {
-                  setStoryPct(parseInt(e.target.value))
+                  const val = parseInt(e.target.value)
+                  if (val > maxStoryPct) {
+                    setStoryPct(maxStoryPct) // la clava en el tope
+                    return
+                  }
+                  setStoryPct(val)
                   setTouchedFields(p => ({ ...p, story: true }))
                 }}
                 className={styles.storySlider}
-                style={{ '--val': `${storyPct}%` }}
+                style={{ '--val': `${storyPct}%`, '--max': `${maxStoryPct}%` }}
               />
+
+              {/* Hint del tope */}
+              {estimatedHours > 0 && (
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>
+                  {estimatedHours > 0 ? (
+                    hoursToday
+                      ? <>Máximo con {totalPlayed.toFixed(1)}h jugadas: <span style={{ color: 'rgba(167,139,250,0.8)' }}>{maxStoryPct}%</span></>
+                      : <span style={{ color: 'rgba(255,100,100,0.7)' }}>Ingresa las horas de esta sesión para mover el progreso</span>
+                  ) : '¿Qué % de la historia crees que llevas?'}
+                </div>
+              )}
               <div className={styles.storySliderHint}>
                 {(() => {
                   const hoursMap = {
@@ -1264,11 +1298,14 @@ export default function LinearProgressView({ game, onComplete, onEdit, onDelete 
                 className={styles.saveBtn}
                 style={{ background: 'linear-gradient(135deg, #d97706, #fbbf24)', color: '#0a0a0f' }}
                 onClick={async () => {
-                  await supabase.from('library_entries')
-                    .update({ status: 'completed', story_pct: 100 })
-                    .eq('id', game._entryUuid)
                   await addXP(50)
-                  onComplete?.(game)
+                  onComplete?.(game, {
+                    user_id: progress.user_id,
+                    playthrough_number: progress.playthrough_number ?? 1,
+                    total_hours: progress.total_hours ?? 0,
+                    story_pct: 100,
+                    user_rating: userRating ?? null,
+                  })
                   navigate('/salon')
                 }}
               >
@@ -1341,7 +1378,7 @@ export default function LinearProgressView({ game, onComplete, onEdit, onDelete 
           onBack={() => setShowGameView(false)}
           onEdit={(g) => { onEdit(g); setShowGameView(false) }}
           onDelete={(g) => { onDelete(g); setShowGameView(false) }}
-          onAction={() => setShowGameView(false)}/>
+          onAction={() => setShowGameView(false)} />
       )}
     </div>
   )

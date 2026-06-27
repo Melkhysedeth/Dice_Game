@@ -221,7 +221,7 @@ export function useGamesSupabase() {
   }
 
   // ── completeGame ───────────────────────────────────────────────────────────
-  async function completeGame(game) {
+  async function completeGame(game, snapshot = {}) {
     const today = new Date().toISOString().split('T')[0]
     const updatedSessions = game.sessions.map((s, i) =>
       i === game.sessions.length - 1 ? { ...s, endDate: today } : s
@@ -230,13 +230,30 @@ export function useGamesSupabase() {
     // Optimistic update
     _updateEntryOptimistic(game, { status: 'completed', sessions: updatedSessions })
 
-    // Supabase
+    // 1. Guardar snapshot en playthrough_history
+    await supabase.from('playthrough_history').insert({
+      library_entry_id: game._entryUuid,
+      user_id: game.user_id ?? snapshot.user_id,
+      game_id: game.id,
+      playthrough_number: snapshot.playthrough_number ?? 1,
+      total_hours: snapshot.total_hours ?? 0,
+      story_pct: snapshot.story_pct ?? 100,
+      user_rating: snapshot.user_rating ?? null,
+      started_at: game.created_at ?? null,
+      completed_at: new Date().toISOString(),
+      status: 'completed',
+    })
+
+    // 2. Marcar como completado
     await supabase
       .from('library_entries')
-      .update({ status: 'completed' })
+      .update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+      })
       .eq('id', game._entryUuid)
 
-    // Cierra la última sesión abierta
+    // 3. Cerrar última sesión abierta
     const { data: sessions } = await supabase
       .from('play_sessions')
       .select('id')

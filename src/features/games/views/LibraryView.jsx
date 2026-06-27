@@ -388,8 +388,7 @@ function LibraryView({
                   </div>
                   <button className={styles.cardMenu} onClick={e => {
                     e.stopPropagation()
-                    setMenuOpen(menuOpen === saga.id ? null : saga.id)
-                  }}>⋮
+                    setMenuOpen(menuOpen === saga.id ? null : saga.id)}}>⋮
                     {menuOpen === saga.id && (
                       <div className={styles.cardMenuDropdown} onClick={e => e.stopPropagation()}>
                         <button onClick={() => { onStartPlaying(saga); setMenuOpen(null) }}>Comenzar a jugar</button>
